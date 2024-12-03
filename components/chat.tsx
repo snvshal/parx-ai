@@ -94,6 +94,7 @@ export function Chat() {
           onChange={(e) => setInput(e.target.value)}
           disabled={isLoading}
           suppressHydrationWarning
+          className="flex-1"
         />
         <Button
           type="submit"
