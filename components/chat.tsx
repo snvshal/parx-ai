@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ChatMessages } from "@/components/chat-message"
+import { ChatMessage } from "@/components/chat-message"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card } from "@/components/ui/card"
 import { SendHorizontal } from "lucide-react"
@@ -73,7 +73,7 @@ export function Chat() {
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message, i) => (
-            <ChatMessages key={i} message={message} />
+            <ChatMessage key={i} message={message} />
           ))}
           {messages.length === 0 && (
             <div className="flex h-full items-center justify-center">
