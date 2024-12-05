@@ -69,7 +69,7 @@ export function Chat() {
   }
 
   return (
-    <Card className="flex h-[400px] w-full flex-col">
+    <Card className="flex h-[calc(100vh-50px)] w-full flex-col">
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message, i) => (
