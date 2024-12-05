@@ -7,7 +7,7 @@ export default function Home() {
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
-      <div className="w-full max-w-4xl mx-auto px-4">
+      <div className="w-full max-w-3xl mx-auto sm:px-4">
         <Chat />
       </div>
     </main>

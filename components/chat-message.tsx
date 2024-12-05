@@ -20,7 +20,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
     <div
       className={cn(
         "flex w-full items-start gap-4 rounded-lg p-4",
-        message.role === "assistant" ? "bg-muted" : "bg-background"
+        message.role === "assistant" ? "bg-background" : "bg-primary-foreground"
       )}
     >
       <div className="rounded-full bg-primary p-2">
@@ -31,27 +31,33 @@ export function ChatMessage({ message }: ChatMessageProps) {
         )}
       </div>
       <div className="w-1 flex-1 space-y-2">
-        <p className="text-sm font-medium">
+        {/* <p className="text-sm font-medium">
           {message.role === "assistant" ? "AI Assistant" : "You"}
-        </p>
-        <div className="prose prose-sm dark:prose-invert max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeHighlight]}
-            components={{
-              pre: ({
-                children,
-                className,
-                ...props
-              }: React.ComponentProps<"pre">) => (
-                <CodeBlock {...props}>{children}</CodeBlock>
-              ),
-              code: InlineCode,
-            }}
-          >
-            {message.content}
-          </ReactMarkdown>
-        </div>
+        </p> */}
+        {message.role === "assistant" ? (
+          <div className="prose prose-sm dark:prose-invert max-w-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+              components={{
+                pre: ({
+                  children,
+                  className,
+                  ...props
+                }: React.ComponentProps<"pre">) => (
+                  <CodeBlock {...props}>{children}</CodeBlock>
+                ),
+                code: InlineCode,
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
+        ) : (
+          <div className="prose prose-sm dark:prose-invert max-w-none">
+            <p>{message.content}</p>
+          </div>
+        )}
       </div>
     </div>
   )
