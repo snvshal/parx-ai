@@ -1,12 +1,25 @@
-import { ThemeProvider } from "@/components/ui/theme-provider"
 import "./globals.css"
+import { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
+import { ThemeProvider } from "@/components/ui/theme-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "AI Chatbot",
   description: "A simple AI chatbot using Next.js and Gemini",
+  icons: [
+    { rel: "apple-touch-icon", url: "/icon-192x192.png" },
+    { rel: "icon", url: "/favicon.ico" },
+  ],
+}
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
