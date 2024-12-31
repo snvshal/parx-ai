@@ -7,19 +7,21 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
+import { TypeAnimation } from "react-type-animation"
 
 interface ChatMessageProps {
   message: {
     role: "assistant" | "user"
     content: string
   }
+  isTyping?: boolean
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, isTyping }: ChatMessageProps) {
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-4 rounded-lg p-4",
+        "flex w-full items-start gap-4 sm:rounded-lg p-4",
         message.role === "assistant" ? "bg-background" : "bg-primary-foreground"
       )}
     >
@@ -31,27 +33,33 @@ export function ChatMessage({ message }: ChatMessageProps) {
         )}
       </div>
       <div className="w-1 flex-1 space-y-2">
-        {/* <p className="text-sm font-medium">
-          {message.role === "assistant" ? "AI Assistant" : "You"}
-        </p> */}
         {message.role === "assistant" ? (
           <div className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeHighlight]}
-              components={{
-                pre: ({
-                  children,
-                  className,
-                  ...props
-                }: React.ComponentProps<"pre">) => (
-                  <CodeBlock {...props}>{children}</CodeBlock>
-                ),
-                code: InlineCode,
-              }}
-            >
-              {message.content}
-            </ReactMarkdown>
+            {isTyping ? (
+              <TypeAnimation
+                sequence={[message.content]}
+                wrapper="div"
+                speed={99}
+                cursor={true}
+              />
+            ) : (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+                components={{
+                  pre: ({
+                    children,
+                    className,
+                    ...props
+                  }: React.ComponentProps<"pre">) => (
+                    <CodeBlock {...props}>{children}</CodeBlock>
+                  ),
+                  code: InlineCode,
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            )}
           </div>
         ) : (
           <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -62,6 +70,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
     </div>
   )
 }
+
+// CodeBlock and InlineCode components remain unchanged
 
 // CodeBlock component for handling `pre` tag content with copy functionality
 function CodeBlock({ children, ...props }: { children: React.ReactNode }) {
