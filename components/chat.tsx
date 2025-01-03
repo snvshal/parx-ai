@@ -16,7 +16,7 @@ export function Chat() {
     useChat()
 
   return (
-    <Card className="flex h-[calc(100vh-50px)] w-full rounded-3xl flex-col max-sm:border-0">
+    <Card className="flex h-[calc(100vh-50px)] max-sm:py-12 w-full rounded-3xl flex-col max-sm:border-0">
       <ScrollArea className="flex-1 p-4 sm:p-8">
         <div className="space-y-4">
           {messages.map((message, i) => (
@@ -41,7 +41,7 @@ export function Chat() {
       </ScrollArea>
       <form
         onSubmit={handleSubmit}
-        className="flex items-center gap-2 border-t p-2 m-4 rounded-full border"
+        className="flex max-sm:absolute max-sm:inset-0 max-sm:top-auto items-center gap-2 border-t p-2 m-4 rounded-full border"
       >
         <Input
           placeholder="Type your message..."
