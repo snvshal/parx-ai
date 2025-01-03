@@ -1,33 +1,26 @@
-import { NextResponse } from "next/server"
+import { streamText } from "ai"
+import { google } from "@ai-sdk/google"
+import { NextRequest, NextResponse } from "next/server"
 
-export async function POST(req: Request) {
+// Allow streaming responses up to 30 seconds
+export const maxDuration = 30
+
+export async function POST(req: NextRequest) {
   try {
-    const { message } = await req.json()
-    const API_KEY = process.env.GEMINI_API_KEY
+    const { messages } = await req.json()
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: message,
-                },
-              ],
-            },
-          ],
-        }),
-      }
-    )
+    if (!messages || !messages.length) {
+      throw new Error("Messages cannot be null, undefined, or an empty array.")
+    }
 
-    const data = await response.json()
-    return NextResponse.json(data)
+    const model = google("gemini-1.5-flash")
+
+    const result = streamText({
+      model,
+      messages,
+    })
+
+    return result.toDataStreamResponse()
   } catch (error) {
     return NextResponse.json(
       { error: "Error processing request" },
