@@ -13,6 +13,17 @@ export async function POST(req: NextRequest) {
       throw new Error("Messages cannot be null, undefined, or an empty array.")
     }
 
+    const lastMessage = messages[messages.length - 1]
+
+    if (
+      lastMessage.role === "user" &&
+      (!lastMessage.content || !lastMessage.content.trim())
+    ) {
+      throw new Error(
+        "The user's last prompt cannot be empty or only whitespace."
+      )
+    }
+
     const model = google("gemini-1.5-flash")
 
     const result = streamText({

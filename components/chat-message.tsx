@@ -13,11 +13,11 @@ export function ChatMessage({ message }: { message: Message }) {
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-4 rounded-lg p-4",
+        "flex w-full items-start gap-4 rounded-2xl p-4",
         message.role === "assistant" ? "bg-background" : "bg-primary-foreground"
       )}
     >
-      <div className="rounded-full bg-primary p-2">
+      <div className="rounded-full bg-gray-400 p-2">
         {message.role === "assistant" ? (
           <Bot className="h-4 w-4 text-primary-foreground" />
         ) : (
