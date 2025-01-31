@@ -36,7 +36,7 @@ export default function Home() {
   // }
 
   return (
-    <main className="flex min-h-screen items-center justify-center sm:p-4">
+    <main className="flex min-h-screen items-center justify-center">
       <div className="absolute top-4 right-4 z-20 flex gap-2 items-center justify-center">
         {/* {deferredPrompt && (
           <Button variant="outline" size="icon" onClick={handleInstall}>
