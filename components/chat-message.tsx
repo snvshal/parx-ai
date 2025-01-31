@@ -13,16 +13,16 @@ import type { Components } from "react-markdown"
 export function ChatMessage({ message }: { message: Message }) {
   const isAssistant = message.role === "assistant"
 
-  // Format time in AM/PM
-  const formatTime = (timestamp?: Date) => {
-    if (!timestamp) return ""
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    })
-  }
+  // // Format time in AM/PM
+  // const formatTime = (timestamp?: Date) => {
+  //   if (!timestamp) return ""
+  //   const date = new Date(timestamp)
+  //   return date.toLocaleTimeString("en-US", {
+  //     hour: "numeric",
+  //     minute: "2-digit",
+  //     hour12: true,
+  //   })
+  // }
 
   return (
     <div
@@ -59,9 +59,9 @@ export function ChatMessage({ message }: { message: Message }) {
           ) : (
             <p className="leading-relaxed">{message.content}</p>
           )}
-          <div className="text-[10px] text-white/50 text-right">
+          {/* <div className="text-[10px] text-white/50 text-right">
             {formatTime(message.createdAt as Date)}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

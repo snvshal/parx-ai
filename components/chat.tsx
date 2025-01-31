@@ -6,9 +6,10 @@ import { ChatMessage } from "@/components/chat-message"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { SendHorizontal } from "lucide-react"
 import { useChat } from "ai/react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { ModeToggle } from "./ui/theme-provider"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export function Chat() {
   const {
@@ -21,20 +22,9 @@ export function Chat() {
   } = useChat()
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const handleResize = () => {
-      // Detect keyboard visibility by checking window height change
-      setIsKeyboardVisible(
-        window.innerHeight < window.outerHeight ||
-          document.activeElement?.tagName === "INPUT"
-      )
-    }
-
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+  const router = useRouter()
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -48,7 +38,7 @@ export function Chat() {
         })
       }
     }
-  }, [messages, isKeyboardVisible])
+  }, [messages])
 
   useEffect(() => {
     setMessages([
@@ -64,15 +54,17 @@ export function Chat() {
 
   return (
     <div
-      className={`
-        flex h-screen w-full max-w-2xl mx-auto flex-col overflow-hidden 
-        ${isKeyboardVisible ? "fixed inset-0" : "relative"}
-      `}
+      ref={containerRef}
+      className="flex h-screen sm:h-[calc(100vh-2rem)] w-full sm:border rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden"
     >
       {/* Chat Header */}
       <div className="border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center justify-center gap-2">
+          <div
+            role="button"
+            onClick={() => router.push("https://x.com/snvshal")}
+            className="flex items-center justify-center gap-2"
+          >
             <Image
               src="https://github.com/snvshal.png"
               alt="VSHAL"
@@ -81,7 +73,7 @@ export function Chat() {
               className="rounded-full"
             />
             <div>
-              <h3 className="font-medium text-sm">VSHAL</h3>
+              <h3 className="font-medium text-sm hover:underline">VSHAL</h3>
               <p className="text-xs text-muted-foreground">
                 {isLoading ? "Typing..." : "Online"}
               </p>
@@ -108,6 +100,7 @@ export function Chat() {
           className="flex items-center gap-2"
         >
           <Input
+            name="message"
             placeholder="Message..."
             value={input}
             onChange={handleInputChange}
