@@ -6,7 +6,7 @@ import { ChatMessage } from "@/components/chat-message"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { SendHorizontal } from "lucide-react"
 import { useChat } from "ai/react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { ModeToggle } from "./ui/theme-provider"
 import Image from "next/image"
 
@@ -21,20 +21,7 @@ export function Chat() {
   } = useChat()
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
-
-  useEffect(() => {
-    const handleResize = () => {
-      // Detect keyboard visibility by checking window height change
-      setIsKeyboardVisible(
-        window.innerHeight < window.outerHeight ||
-          document.activeElement?.tagName === "INPUT"
-      )
-    }
-
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -48,7 +35,7 @@ export function Chat() {
         })
       }
     }
-  }, [messages, isKeyboardVisible])
+  }, [messages])
 
   useEffect(() => {
     setMessages([
@@ -64,10 +51,8 @@ export function Chat() {
 
   return (
     <div
-      className={`
-        flex h-screen w-full max-w-2xl mx-auto flex-col overflow-hidden 
-        ${isKeyboardVisible ? "fixed inset-0" : "relative"}
-      `}
+      ref={containerRef}
+      className="flex h-screen w-full max-w-2xl mx-auto flex-col overflow-hidden"
     >
       {/* Chat Header */}
       <div className="border-b px-4 py-3 flex items-center justify-between">
