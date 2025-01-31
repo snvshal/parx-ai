@@ -43,7 +43,7 @@ export default function Home() {
             <Download className="h-[1.2rem] w-[1.2rem]" />
           </Button>
         )} */}
-        <ModeToggle />
+        {/* <ModeToggle /> */}
       </div>
       <div className="w-full max-w-3xl mx-auto sm:px-4">
         <Chat />

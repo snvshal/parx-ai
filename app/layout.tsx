@@ -1,9 +1,9 @@
 import "./globals.css"
 import { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
+import { Fira_Code } from "next/font/google"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Fira_Code({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "AI Chatbot",
