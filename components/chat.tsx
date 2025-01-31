@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ChatMessage } from "@/components/chat-message"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { SendHorizontal, SmilePlus } from "lucide-react"
+import { SendHorizontal } from "lucide-react"
 import { useChat } from "ai/react"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ModeToggle } from "./ui/theme-provider"
 import Image from "next/image"
 
@@ -21,6 +21,20 @@ export function Chat() {
   } = useChat()
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Detect keyboard visibility by checking window height change
+      setIsKeyboardVisible(
+        window.innerHeight < window.outerHeight ||
+          document.activeElement?.tagName === "INPUT"
+      )
+    }
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -28,16 +42,13 @@ export function Chat() {
         "[data-radix-scroll-area-viewport]"
       )
       if (scrollElement) {
-        const scroll = () => {
-          scrollElement.scrollTo({
-            top: scrollElement.scrollHeight,
-            behavior: "smooth",
-          })
-        }
-        setTimeout(scroll, 100)
+        scrollElement.scrollTo({
+          top: scrollElement.scrollHeight,
+          behavior: "smooth",
+        })
       }
     }
-  }, [messages])
+  }, [messages, isKeyboardVisible])
 
   useEffect(() => {
     setMessages([
@@ -46,26 +57,29 @@ export function Chat() {
         role: "assistant",
         content:
           "Hey there! 😊 I'm VSHAL bot. Feel free to ask me anything! What's on your mind? 💬",
+        createdAt: new Date(),
       },
     ])
-    console.log("Chat component mounted")
   }, [setMessages])
 
   return (
-    <div className="flex h-screen sm:h-[calc(100vh-2rem)] w-full max-w-2xl mx-auto flex-col overflow-hidden rounded-xl sm:border bg-background">
+    <div
+      className={`
+        flex h-screen w-full max-w-2xl mx-auto flex-col overflow-hidden 
+        ${isKeyboardVisible ? "fixed inset-0" : "relative"}
+      `}
+    >
       {/* Chat Header */}
       <div className="border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center justify-center gap-2">
-            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center">
-              <Image
-                src="https://github.com/snvshal.png"
-                alt="VSHAL"
-                height={36}
-                width={36}
-                className="rounded-md"
-              />
-            </div>
+            <Image
+              src="https://github.com/snvshal.png"
+              alt="VSHAL"
+              height={36}
+              width={36}
+              className="rounded-full"
+            />
             <div>
               <h3 className="font-medium text-sm">VSHAL</h3>
               <p className="text-xs text-muted-foreground">
@@ -78,34 +92,21 @@ export function Chat() {
       </div>
 
       {/* Chat Messages */}
-      <ScrollArea className="flex-1 px-2 py-4" ref={scrollAreaRef}>
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-2">
-          {messages.length === 0 ? (
-            <EmptyState />
-          ) : (
-            messages.map((message, i) => (
-              <ChatMessage key={i} message={message} />
-            ))
-          )}
+          {messages.map((message, i) => (
+            <ChatMessage key={i} message={message} />
+          ))}
           {isLoading && <ThinkingAnimation />}
         </div>
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="border-t p-4">
+      <div className="border-t p-4 bg-background">
         <form
           onSubmit={input.trim() ? handleSubmit : (e) => e.preventDefault()}
           className="flex items-center gap-2"
         >
-          {/* <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            className="h-9 w-9 shrink-0 rounded-full"
-          >
-            <SmilePlus className="h-5 w-5 text-muted-foreground" />
-          </Button> */}
-
           <Input
             placeholder="Message..."
             value={input}
@@ -113,7 +114,6 @@ export function Chat() {
             disabled={isLoading}
             className="flex-1 rounded-full border-muted bg-muted/80 px-4"
             autoComplete="off"
-            autoFocus
           />
 
           <Button
@@ -125,18 +125,6 @@ export function Chat() {
             <SendHorizontal className="h-4 w-4" />
           </Button>
         </form>
-      </div>
-    </div>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="flex h-full min-h-[40vh] items-center justify-center">
-      <div className="text-center">
-        <p className="text-sm text-muted-foreground">
-          Send a message to start the conversation
-        </p>
       </div>
     </div>
   )

@@ -13,10 +13,21 @@ import type { Components } from "react-markdown"
 export function ChatMessage({ message }: { message: Message }) {
   const isAssistant = message.role === "assistant"
 
+  // Format time in AM/PM
+  const formatTime = (timestamp?: Date) => {
+    if (!timestamp) return ""
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+  }
+
   return (
     <div
       className={cn(
-        "group flex w-full items-end gap-2 px-4 py-2",
+        "group flex w-full items-end gap-2",
         !isAssistant && "flex-row-reverse"
       )}
     >
@@ -48,6 +59,9 @@ export function ChatMessage({ message }: { message: Message }) {
           ) : (
             <p className="leading-relaxed">{message.content}</p>
           )}
+          <div className="text-[10px] text-white/50 text-right">
+            {formatTime(message.createdAt as Date)}
+          </div>
         </div>
       </div>
     </div>
