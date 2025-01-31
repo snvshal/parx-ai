@@ -22,7 +22,6 @@ export function Chat() {
   } = useChat()
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   const router = useRouter()
 
@@ -53,10 +52,7 @@ export function Chat() {
   }, [setMessages])
 
   return (
-    <div
-      ref={containerRef}
-      className="flex h-screen sm:h-[calc(100vh-2rem)] w-full sm:border rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden"
-    >
+    <div className="flex h-screen sm:h-[calc(100vh-2rem)] w-full sm:border rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden">
       {/* Chat Header */}
       <div className="border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center justify-between w-full">
@@ -85,7 +81,7 @@ export function Chat() {
 
       {/* Chat Messages */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-2">
+        <div className="space-y-4">
           {messages.map((message, i) => (
             <ChatMessage key={i} message={message} />
           ))}
