@@ -1,64 +1,62 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-import { Bot, User, Check, Copy } from "lucide-react"
 import React, { useRef, useState } from "react"
+import { cn } from "@/lib/utils"
+import { Check, Copy } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
 import { Message } from "ai"
+import type { Components } from "react-markdown"
 
 export function ChatMessage({ message }: { message: Message }) {
+  const isAssistant = message.role === "assistant"
+
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-4 rounded-2xl p-4",
-        message.role === "assistant" ? "bg-background" : "bg-primary-foreground"
+        "group flex w-full items-end gap-2 px-4 py-2",
+        !isAssistant && "flex-row-reverse"
       )}
     >
-      <div className="rounded-full bg-gray-400 p-2">
-        {message.role === "assistant" ? (
-          <Bot className="h-4 w-4 text-primary-foreground" />
-        ) : (
-          <User className="h-4 w-4 text-primary-foreground" />
+      <div
+        className={cn(
+          "flex flex-col gap-2 max-w-[80%]",
+          isAssistant && "items-end"
         )}
-      </div>
-      <div className="w-1 flex-1 space-y-2">
-        {message.role === "assistant" ? (
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeHighlight]}
-              components={{
-                pre: ({
-                  children,
-                  className,
-                  ...props
-                }: React.ComponentProps<"pre">) => (
-                  <CodeBlock {...props}>{children}</CodeBlock>
-                ),
-                code: InlineCode,
-              }}
-            >
-              {message.content}
-            </ReactMarkdown>
-          </div>
-        ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            <p>{message.content}</p>
-          </div>
-        )}
+      >
+        <div
+          className={cn(
+            "rounded-2xl px-4 py-2 text-sm",
+            isAssistant ? "bg-accent" : "bg-blue-700 text-white"
+          )}
+        >
+          {isAssistant ? (
+            <div className="prose prose-sm dark:prose-invert max-w-none marker:text-primary-foreground">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+                components={{
+                  pre: CodeBlock as Components["pre"],
+                  code: InlineCode,
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            </div>
+          ) : (
+            <p className="leading-relaxed">{message.content}</p>
+          )}
+        </div>
       </div>
     </div>
   )
 }
 
-// CodeBlock component for handling `pre` tag content with copy functionality
-function CodeBlock({ children, ...props }: { children: React.ReactNode }) {
-  const codeRef = useRef<HTMLElement | null>(null)
+const CodeBlock: Components["pre"] = ({ children, ...props }) => {
+  const codeRef = useRef<HTMLPreElement | null>(null)
   const [copied, setCopied] = useState(false)
-
   const codeElement = React.Children.toArray(children)[0] as React.ReactElement
   const language =
     codeElement.props.node?.properties?.className?.[1]?.replace(
@@ -76,45 +74,48 @@ function CodeBlock({ children, ...props }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="relative group w-full max-w-full overflow-hidden rounded-lg border border-gray-700">
-      <div className="w-full flex justify-between items-center bg-background/20 h-10 relative">
-        <div className="px-2 text-xs text-muted-foreground">{language}</div>
-        <button onClick={handleCopy} className="absolute right-2 top-2 p-1">
+    <div className="relative my-2 w-full max-w-full overflow-hidden rounded-lg bg-black/90">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
+        <span className="text-xs font-medium text-white/70">{language}</span>
+        <button
+          onClick={handleCopy}
+          className="ml-auto flex h-6 w-6 items-center justify-center rounded-md hover:bg-white/10"
+        >
           {copied ? (
-            <Check className="h-4 w-4 text-green-500" />
+            <Check className="h-3 w-3 text-green-500" />
           ) : (
-            <Copy className="h-4 w-4 text-muted-foreground" />
+            <Copy className="h-3 w-3 text-white/70" />
           )}
         </button>
       </div>
-      <pre
-        className="w-full overflow-x-auto bg-black text-white m-0"
-        {...props}
-      >
-        <code ref={codeRef} className="text-sm">
-          {codeElement.props.children}
-        </code>
-      </pre>
+      <div className="overflow-x-auto max-w-full">
+        <pre
+          ref={codeRef}
+          className="overflow-x-auto m-0 p-4 text-sm text-white/90 whitespace-pre-wrap break-words"
+          {...props}
+        >
+          <code className="block max-w-full overflow-x-auto">
+            {codeElement.props.children}
+          </code>
+        </pre>
+      </div>
     </div>
   )
 }
 
-// InlineCode component for inline `code` styling
 function InlineCode({
-  inline,
   className,
+  children,
   ...props
-}: {
-  inline?: boolean
-  className?: string
-} & React.HTMLAttributes<HTMLElement>) {
+}: React.HTMLAttributes<HTMLElement>) {
   return (
-    <code
-      className={cn(
-        "bg-muted px-1 py-0.5 rounded text-sm",
-        !inline && "inline-block"
-      )}
+    <span
+      className={cn("rounded bg-foreground/10 px-1 py-0.5 text-sm", className)}
       {...props}
-    />
+    >
+      {children}
+    </span>
   )
 }
+
+export default ChatMessage
