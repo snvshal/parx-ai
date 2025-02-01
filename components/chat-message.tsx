@@ -58,7 +58,12 @@ export function ChatMessage({ message }: { message: Message }) {
           ) : (
             <p className="leading-relaxed">{message.content}</p>
           )}
-          <div className="text-[10px] text-foreground/50 text-right">
+          <div
+            className={cn(
+              "text-[10px] text-right",
+              isAssistant ? "text-foreground/50" : "text-white/50"
+            )}
+          >
             {formatTime(message.createdAt as Date)}
           </div>
         </div>

@@ -54,7 +54,7 @@ export function Chat() {
   return (
     <div className="flex h-screen sm:h-[calc(100vh-2rem)] w-full sm:border rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden">
       {/* Chat Header */}
-      <div className="border-b px-4 py-3 flex items-center justify-between">
+      <div className="border-b px-4 py-3 flex items-center justify-between max-sm:fixed top-0 w-full z-10">
         <div className="flex items-center justify-between w-full">
           <div
             role="button"
@@ -82,7 +82,7 @@ export function Chat() {
       {/* Chat Messages */}
       <ScrollArea
         ref={scrollAreaRef}
-        className="flex-1 px-4 overflow-y-auto max-sm:mb-[68px]"
+        className="flex-1 px-4 overflow-y-auto max-sm:mt-[60px] max-sm:mb-[68px]"
       >
         <div>
           {messages.map((message, i) => (
@@ -93,7 +93,7 @@ export function Chat() {
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="border-t p-4 bg-background max-sm:fixed bottom-0 w-full">
+      <div className="border-t p-4 bg-background max-sm:fixed bottom-0 w-full z-10">
         <form
           onSubmit={input.trim() ? handleSubmit : (e) => e.preventDefault()}
           className="flex items-center gap-2"
