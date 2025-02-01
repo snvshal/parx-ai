@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider"
 const fira = Fira_Code({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.METADATA_BASE_URL!),
   title: "AI Chatbot",
   description: "A simple AI chatbot using Next.js and Gemini",
   icons: [
@@ -16,6 +17,13 @@ export const metadata: Metadata = {
     title: "AI Chatbot",
     description: "A simple AI chatbot using Next.js and Gemini",
     images: [{ url: "/icons/icon-192x192.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Chatbot",
+    description: "A simple AI chatbot using Next.js and Gemini",
+    images: ["/icons/icon-192x192.png"],
+    creator: "@snvshal",
   },
 }
 
