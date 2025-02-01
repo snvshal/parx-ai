@@ -12,6 +12,11 @@ export const metadata: Metadata = {
     { rel: "apple-touch-icon", url: "/icons/icon-192x192.png" },
     { rel: "icon", url: "/icons/icon-192x192.png" },
   ],
+  openGraph: {
+    title: "AI Chatbot",
+    description: "A simple AI chatbot using Next.js and Gemini",
+    images: [{ url: "/icons/icon-192x192.png" }],
+  },
 }
 
 export const viewport: Viewport = {
