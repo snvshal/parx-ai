@@ -80,8 +80,11 @@ export function Chat() {
       </div>
 
       {/* Chat Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-4">
+      <ScrollArea
+        ref={scrollAreaRef}
+        className="flex-1 px-4 overflow-y-auto max-sm:mb-[68px]"
+      >
+        <div>
           {messages.map((message, i) => (
             <ChatMessage key={i} message={message} />
           ))}
@@ -90,7 +93,7 @@ export function Chat() {
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="border-t p-4 bg-background">
+      <div className="border-t p-4 bg-background max-sm:fixed bottom-0 w-full">
         <form
           onSubmit={input.trim() ? handleSubmit : (e) => e.preventDefault()}
           className="flex items-center gap-2"
@@ -121,8 +124,8 @@ export function Chat() {
 
 function ThinkingAnimation() {
   return (
-    <div className="flex items-center gap-2 px-4 py-2">
-      <div className="flex gap-1">
+    <div className="flex items-end gap-2 my-4">
+      <div className="flex gap-1 bg-accent rounded-2xl p-4">
         {[0, 1, 2].map((i) => (
           <span
             key={i}

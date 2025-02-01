@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
-import { Message } from "ai"
+import type { Message } from "ai"
 import type { Components } from "react-markdown"
 
 export function ChatMessage({ message }: { message: Message }) {
@@ -26,7 +26,7 @@ export function ChatMessage({ message }: { message: Message }) {
   return (
     <div
       className={cn(
-        "group flex w-full items-end gap-2",
+        "group flex w-full items-end gap-2 my-4",
         !isAssistant && "flex-row-reverse"
       )}
     >
@@ -58,7 +58,7 @@ export function ChatMessage({ message }: { message: Message }) {
           ) : (
             <p className="leading-relaxed">{message.content}</p>
           )}
-          <div className="text-[10px] text-white/50 text-right">
+          <div className="text-[10px] text-foreground/50 text-right">
             {formatTime(message.createdAt as Date)}
           </div>
         </div>
