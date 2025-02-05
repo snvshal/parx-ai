@@ -26,41 +26,50 @@ export function ChatMessage({ message }: { message: Message }) {
   return (
     <div
       className={cn(
-        "group flex w-full items-end gap-2 my-4",
+        "group flex w-full items-start gap-2 my-4",
         !isAssistant && "flex-row-reverse"
       )}
     >
       <div
         className={cn(
-          "flex flex-col gap-2 max-w-[80%]",
+          "flex flex-col gap-2 max-w-[80%] min-w-0",
           isAssistant && "items-end"
         )}
       >
         <div
           className={cn(
-            "rounded-2xl px-4 py-2 text-sm",
-            isAssistant ? "bg-accent" : "bg-blue-700 text-white"
+            "rounded-2xl px-4 py-2 text-sm break-words w-full",
+            isAssistant ? "bg-accent" : "bg-blue-800 text-white"
           )}
         >
           {isAssistant ? (
-            <div className="prose prose-sm dark:prose-invert max-w-none marker:text-primary-foreground">
+            <div className="prose prose-sm dark:prose-invert w-full overflow-hidden break-words">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
                 components={{
                   pre: CodeBlock as Components["pre"],
                   code: InlineCode,
+                  p: ({ children }) => (
+                    <p className="whitespace-pre-wrap break-words overflow-hidden">
+                      {children}
+                    </p>
+                  ),
                 }}
               >
                 {message.content}
               </ReactMarkdown>
             </div>
           ) : (
-            <p className="leading-relaxed">{message.content}</p>
+            <div className="prose prose-sm dark:prose-invert w-full">
+              <p className="leading-relaxed whitespace-pre-wrap break-words overflow-hidden">
+                {message.content}
+              </p>
+            </div>
           )}
           <div
             className={cn(
-              "text-[10px] text-right",
+              "text-[10px] text-right mt-1",
               isAssistant ? "text-foreground/50" : "text-white/50"
             )}
           >
@@ -92,7 +101,7 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
   }
 
   return (
-    <div className="relative my-2 w-full max-w-full overflow-hidden rounded-lg bg-black/90">
+    <div className="relative my-2 w-full overflow-hidden rounded-lg bg-black/90">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
         <span className="text-xs font-medium text-white/70">{language}</span>
         <button
@@ -106,13 +115,13 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
           )}
         </button>
       </div>
-      <div className="overflow-x-auto max-w-full">
+      <div className="overflow-x-auto">
         <pre
           ref={codeRef}
-          className="overflow-x-auto m-0 p-4 text-sm text-white/90 whitespace-pre-wrap break-words"
+          className="m-0 p-4 text-sm text-white/90 whitespace-pre-wrap break-words"
           {...props}
         >
-          <code className="block max-w-full overflow-x-auto">
+          <code className="block break-words">
             {codeElement.props.children}
           </code>
         </pre>
@@ -128,7 +137,10 @@ function InlineCode({
 }: React.HTMLAttributes<HTMLElement>) {
   return (
     <span
-      className={cn("rounded bg-foreground/10 px-1 py-0.5 text-sm", className)}
+      className={cn(
+        "rounded bg-foreground/10 px-1 py-0.5 text-sm break-all",
+        className
+      )}
       {...props}
     >
       {children}
