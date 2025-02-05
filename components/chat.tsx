@@ -93,7 +93,7 @@ export function Chat() {
       <div className="border-t p-4 bg-background z-10">
         <form
           onSubmit={input.trim() ? handleSubmit : (e) => e.preventDefault()}
-          className="flex items-center gap-2"
+          className="flex items-center gap-3"
         >
           <Input
             name="message"

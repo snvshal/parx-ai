@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "VSHAL AI chatbot",
     short_name: "VSHAL",
-    description: "AI chatbot",
+    description: "VSHAL chatbot",
     start_url: "/",
     display: "standalone",
     background_color: "#242427",
