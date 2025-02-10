@@ -63,10 +63,15 @@ export async function POST(req: NextRequest) {
 
     const general = `Avoiding long answers like writing code snippets and long paragraphs instead most of time you can simply diny and ask for general talk to people, try to keep your answers short and to the point, and avoid using technical jargon or complex explanations. Instead, focus on providing clear and simple responses that are easy to understand.`
 
+    const images = `Images:
+                  - My avatar: https://github.com/snvshal.png
+                  
+                  Always provide images as images like some caption like text then this "![alt text](image_url)", dont show them as links
+                  `
     // Add the system instruction as the first message in the array
     const systemInstruction = {
       role: "system",
-      content: `${info} ${style} ${twitter} ${github} ${general}`,
+      content: `${info} ${style} ${twitter} ${github} ${general} ${images}`,
     }
 
     const messagesWithSystemInstruction = [systemInstruction, ...messages]
