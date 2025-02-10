@@ -50,10 +50,20 @@ export function ChatMessage({ message }: { message: Message }) {
                 components={{
                   pre: CodeBlock as Components["pre"],
                   code: InlineCode,
-                  p: ({ children }) => (
-                    <p className="whitespace-pre-wrap break-words overflow-hidden">
+                  img: ({ node, ...props }) => (
+                    <img
+                      {...props}
+                      className="max-w-full h-auto rounded-lg m-0"
+                    />
+                  ),
+                  a: ({ children, target = "_blank", ...props }) => (
+                    <a
+                      target={target}
+                      className="whitespace-pre-wrap break-words overflow-hidden"
+                      {...props}
+                    >
                       {children}
-                    </p>
+                    </a>
                   ),
                 }}
               >
@@ -61,7 +71,7 @@ export function ChatMessage({ message }: { message: Message }) {
               </ReactMarkdown>
             </div>
           ) : (
-            <div className="prose prose-sm dark:prose-invert w-full">
+            <div className="w-full">
               <p className="leading-relaxed whitespace-pre-wrap break-words overflow-hidden">
                 {message.content}
               </p>
