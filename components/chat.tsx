@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ChatMessage } from "@/components/chat-message"
+import { MemoChatMessage } from "@/components/chat-message"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   BotIcon,
@@ -15,7 +15,7 @@ import {
   Share2Icon,
   SparklesIcon,
 } from "lucide-react"
-import { useChat } from "ai/react"
+import { useChat } from "@ai-sdk/react"
 import { useEffect, useRef, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TUser } from "@/schemas/user.schema"
@@ -31,8 +31,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession } from "next-auth/react"
+import { useParams } from "next/navigation"
 
 export function Chat({ user }: { user: TUser }) {
+  const params = useParams()
+
   const [error, setError] = useState(false)
 
   const {
@@ -40,7 +43,7 @@ export function Chat({ user }: { user: TUser }) {
     input,
     handleInputChange,
     handleSubmit,
-    isLoading,
+    status,
     setMessages,
   } = useChat({
     onError: () => setError(true),
@@ -55,7 +58,7 @@ export function Chat({ user }: { user: TUser }) {
       { preventDefault: () => {} },
       {
         body: {
-          username: user.username,
+          username: params.username,
         },
       }
     )
@@ -111,7 +114,7 @@ export function Chat({ user }: { user: TUser }) {
                 {user.name}
               </Link>
               <p className="text-xs text-muted-foreground">
-                {isLoading ? "Typing..." : "Online"}
+                {status === "submitted" ? "Typing..." : "Online"}
               </p>
             </div>
           </div>
@@ -123,9 +126,9 @@ export function Chat({ user }: { user: TUser }) {
       <ScrollArea ref={scrollAreaRef} className="flex-1 px-4 overflow-y-auto">
         <div>
           {messages.map((message, i) => (
-            <ChatMessage key={i} message={message} />
+            <MemoChatMessage key={i} message={message} />
           ))}
-          {isLoading && <ThinkingAnimation />}
+          {status === "submitted" && <ThinkingAnimation />}
           {error && (
             <AlertMessage
               message="Something went wrong. Please try again."
@@ -146,7 +149,7 @@ export function Chat({ user }: { user: TUser }) {
             placeholder="Message..."
             value={input}
             onChange={handleInputChange}
-            disabled={isLoading}
+            disabled={!(status === "ready")}
             className="flex-1 rounded-full border-muted bg-muted/80 px-4"
             autoComplete="off"
           />
@@ -154,7 +157,7 @@ export function Chat({ user }: { user: TUser }) {
           <Button
             type="submit"
             size="icon"
-            disabled={isLoading || !input.trim()}
+            disabled={!(status === "ready") || !input.trim()}
             className="rounded-full"
           >
             <SendHorizontalIcon className="h-4 w-4" />
