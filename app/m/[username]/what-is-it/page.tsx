@@ -16,7 +16,7 @@ export default async function ChatbotInfoPage({
         <Card>
           <CardContent className="p-4 space-y-4">
             <p>
-              This chatbot is customized based on @{username}'s defined
+              This chatbot is customized based on @{username}&#39;s defined
               instructions. Its responses are influenced by system prompts and
               preferences set by @{username}.
             </p>
@@ -26,7 +26,7 @@ export default async function ChatbotInfoPage({
                 Custom instructions set by @{username} define response behavior.
               </li>
               <li>
-                The chatbot's tone, knowledge, and preferences are adjusted
+                The chatbot&#39;s tone, knowledge, and preferences are adjusted
                 based on these instructions.
               </li>
               <li>

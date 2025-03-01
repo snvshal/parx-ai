@@ -10,7 +10,7 @@ export function HowToUse() {
 
       <h2 className="text-lg font-semibold mb-2">Adding Instructions</h2>
       <p className="mb-4">
-        To personalize your chatbot's responses, go to <b>Settings</b> →{" "}
+        To personalize your chatbot&#39;s responses, go to <b>Settings</b> →{" "}
         <b>Instructions</b>. Here, you can view all your existing instructions
         and add new ones.
       </p>
@@ -19,9 +19,11 @@ export function HowToUse() {
       <p className="mb-2">Each instruction has two parts:</p>
       <ul className="list-disc pl-6 mb-4 space-y-1">
         <li>
-          <b>Type:</b> This defines what kind of information you're adding. For
-          example, <i>"My general information"</i>, <i>"My favorite movies"</i>,{" "}
-          <i>"What is my profession?"</i>, or <i>"My New Year experience"</i>.
+          <b>Type:</b> This defines what kind of information you&#39;re adding.
+          For example, <i>&#34;My general information&#34;</i>,{" "}
+          <i>&#34;My favorite movies&#34;</i>,{" "}
+          <i>&#34;What is my profession&#34;</i>, or{" "}
+          <i>&#34;My New Year experience&#34;</i>.
         </li>
         <li>
           <b>Content:</b> This is where you write details related to the type.
@@ -30,12 +32,12 @@ export function HowToUse() {
       </ul>
       <p className="mb-4">
         <b>Note:</b> Avoid adding any <b>sensitive</b> or <b>inappropriate</b>{" "}
-        content. Share only what you're comfortable with.
+        content. Share only what you&#39;re comfortable with.
       </p>
 
       <h2 className="text-lg font-semibold mb-2">Setting Your First Message</h2>
       <p className="mb-4">
-        You can customize your chatbot's first message by going to{" "}
+        You can customize your chatbot&#39;s first message by going to{" "}
         <b>Settings</b> → <b>Profile</b> and editing the <b>First Message</b>{" "}
         field. This message is what others see when they start a chat with your
         AI. Keep it <b>clear and respectful</b> to set the right tone.
