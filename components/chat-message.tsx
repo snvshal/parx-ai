@@ -1,16 +1,20 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { memo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import { CheckIcon, CopyIcon } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
-import type { Message } from "ai"
+import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
 
-export function ChatMessage({ message }: { message: Message }) {
+export const MemoChatMessage = memo(function ChatMessage({
+  message,
+}: {
+  message: UIMessage
+}) {
   const isAssistant = message.role === "assistant"
 
   const formatTime = (timestamp?: Date) => {
@@ -63,7 +67,7 @@ export function ChatMessage({ message }: { message: Message }) {
                   a: ({ children, target = "_blank", ...props }) => (
                     <a
                       target={target}
-                      className="whitespace-pre-wrap break-words overflow-hidden"
+                      className="whitespace-pre-wrap break-words overflow-hidden text-sm no-underline hover:underline text-blue-500"
                       {...props}
                     >
                       {children}
@@ -94,7 +98,7 @@ export function ChatMessage({ message }: { message: Message }) {
       </div>
     </div>
   )
-}
+})
 
 const CodeBlock: Components["pre"] = ({ children, ...props }) => {
   const codeRef = useRef<HTMLPreElement | null>(null)
@@ -160,5 +164,3 @@ function InlineCode({
     </span>
   )
 }
-
-export default ChatMessage

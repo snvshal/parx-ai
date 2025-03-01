@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
 
   // Route types
   const authRoutes = ["/sign-in"]
-  const publicRoutes = ["/m/:username*", "/about*"]
+  const publicRoutes = ["/m/:username*", "/about*", "/api/chat"]
 
   if (pathname === "/") {
     return NextResponse.redirect(
