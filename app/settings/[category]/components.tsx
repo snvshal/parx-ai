@@ -173,8 +173,6 @@ export const InstructionSettings = ({ user }: { user: TUser }) => {
     }
   }
 
-  console.log(error)
-
   return (
     <HeaderComponent
       page="Instructions"
