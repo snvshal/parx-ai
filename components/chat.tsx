@@ -4,14 +4,37 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ChatMessage } from "@/components/chat-message"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { SendHorizontal } from "lucide-react"
+import {
+  BotIcon,
+  CircleHelpIcon,
+  EllipsisVerticalIcon,
+  // FlagIcon,
+  // InfoIcon,
+  SendHorizontalIcon,
+  SettingsIcon,
+  Share2Icon,
+  SparklesIcon,
+} from "lucide-react"
 import { useChat } from "ai/react"
-import { useEffect, useRef } from "react"
-import { ModeToggle } from "./ui/theme-provider"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { TUser } from "@/schemas/user.schema"
+import Link from "next/link"
+import { AlertMessage } from "@/app/settings/components"
 
-export function Chat() {
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useSession } from "next-auth/react"
+
+export function Chat({ user }: { user: TUser }) {
+  const [error, setError] = useState(false)
+
   const {
     messages,
     input,
@@ -19,11 +42,26 @@ export function Chat() {
     handleSubmit,
     isLoading,
     setMessages,
-  } = useChat()
+  } = useChat({
+    onError: () => setError(true),
+  })
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    setError(false)
+
+    handleSubmit(
+      { preventDefault: () => {} },
+      {
+        body: {
+          username: user.username,
+        },
+      }
+    )
+  }
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
-
-  const router = useRouter()
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -45,37 +83,39 @@ export function Chat() {
         id: "initial",
         role: "assistant",
         content:
-          "Hey there! 😊 I'm VSHAL bot. Feel free to ask me anything! What's on your mind? 💬",
+          user.firstMessage ||
+          `Hey there! 😊 I'm ${user.name} bot. Feel free to ask me anything! What's on your mind? 💬`,
         createdAt: new Date(),
       },
     ])
-  }, [setMessages])
+  }, [setMessages, user.firstMessage, user.name])
 
   return (
-    <div className="flex h-screen sm:h-[calc(100vh-2rem)] w-full sm:border rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden">
+    <div className="flex h-screen sm:h-[calc(100vh-2rem)] w-full sm:border sm:rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden">
       {/* Chat Header */}
       <div className="border-b px-4 py-3 flex items-center justify-between z-10">
         <div className="flex items-center justify-between w-full">
-          <div
-            role="button"
-            onClick={() => router.push("https://x.com/snvshal")}
-            className="flex items-center justify-center gap-2"
-          >
-            <Image
-              src="https://github.com/snvshal.png"
-              alt="VSHAL"
-              height={36}
-              width={36}
-              className="rounded-full"
-            />
+          <div className="flex items-center justify-center gap-2">
+            <Avatar className="w-9 h-9">
+              <AvatarImage src={user?.avatar} alt={user.name || "Avatar"} />
+              <AvatarFallback>
+                <BotIcon className="h-4 w-4" aria-hidden={true} />
+              </AvatarFallback>
+            </Avatar>
             <div>
-              <h3 className="font-medium text-sm hover:underline">VSHAL</h3>
+              <Link
+                target={user.socialLink ? "_blank" : "_self"}
+                href={user.socialLink || `/m/${user.username}`}
+                className="font-medium text-sm hover:underline"
+              >
+                {user.name}
+              </Link>
               <p className="text-xs text-muted-foreground">
                 {isLoading ? "Typing..." : "Online"}
               </p>
             </div>
           </div>
-          <ModeToggle />
+          <ChatDropdownMenu name={user.name} username={user.username} />
         </div>
       </div>
 
@@ -86,13 +126,19 @@ export function Chat() {
             <ChatMessage key={i} message={message} />
           ))}
           {isLoading && <ThinkingAnimation />}
+          {error && (
+            <AlertMessage
+              message="Something went wrong. Please try again."
+              className="mb-4"
+            />
+          )}
         </div>
       </ScrollArea>
 
       {/* Input Area */}
       <div className="border-t p-4 bg-background z-10">
         <form
-          onSubmit={input.trim() ? handleSubmit : (e) => e.preventDefault()}
+          onSubmit={input.trim() ? onSubmit : (e) => e.preventDefault()}
           className="flex items-center gap-3"
         >
           <Input
@@ -109,9 +155,9 @@ export function Chat() {
             type="submit"
             size="icon"
             disabled={isLoading || !input.trim()}
-            className="h-9 w-9 shrink-0 rounded-full bg-primary"
+            className="rounded-full"
           >
-            <SendHorizontal className="h-4 w-4" />
+            <SendHorizontalIcon className="h-4 w-4" />
           </Button>
         </form>
       </div>
@@ -132,6 +178,84 @@ function ThinkingAnimation() {
         ))}
       </div>
     </div>
+  )
+}
+
+function ChatDropdownMenu({
+  name,
+  username,
+}: {
+  name: string
+  username: string
+}) {
+  const { status } = useSession()
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Check this out!",
+          url: window.location.href,
+          text: "Some description here",
+        })
+      } else {
+        // Fallback for browsers that don't support Web Share
+        await navigator.clipboard.writeText(window.location.href)
+        alert("Link copied to clipboard!")
+      }
+    } catch (error) {
+      console.error("Error sharing:", error)
+      // Fallback to clipboard if share fails
+      await navigator.clipboard.writeText(window.location.href)
+      alert("Link copied to clipboard!")
+    }
+  }
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="rounded-full">
+          <EllipsisVerticalIcon
+            className="h-5 w-5 text-foreground/80"
+            aria-hidden={true}
+          />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>{name} AI</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <Link href={`/m/${username}/what-is-it`}>
+          <DropdownMenuItem className="cursor-pointer">
+            <CircleHelpIcon className="h-4 w-4 mr-2" aria-hidden={true} />
+            <span>What is it?</span>
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/settings">
+          {status === "authenticated" ? (
+            <DropdownMenuItem className="cursor-pointer">
+              <SettingsIcon className="h-4 w-4 mr-2" aria-hidden={true} />
+              <span>Settings</span>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem className="cursor-pointer">
+              <SparklesIcon className="h-4 w-4 mr-2" aria-hidden={true} />
+              <span>Make My AI</span>
+            </DropdownMenuItem>
+          )}
+        </Link>
+        <DropdownMenuItem
+          role="button"
+          onClick={handleShare}
+          className="cursor-pointer"
+        >
+          <Share2Icon className="h-4 w-4 mr-2" aria-hidden={true} />
+          <span>Share</span>
+        </DropdownMenuItem>
+        {/* <DropdownMenuItem>
+          <FlagIcon className="h-4 w-4 mr-2" aria-hidden={true} />
+          <span>Report</span>
+        </DropdownMenuItem> */}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
