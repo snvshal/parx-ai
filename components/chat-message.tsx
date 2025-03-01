@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Check, Copy } from "lucide-react"
+import { CheckIcon, CopyIcon } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
@@ -39,9 +39,12 @@ export function ChatMessage({ message }: { message: Message }) {
         <div
           className={cn(
             "rounded-2xl px-4 py-2 text-sm break-words w-full",
-            isAssistant ? "bg-accent" : "bg-blue-800 text-white"
+            isAssistant
+              ? "bg-accent"
+              : "dark:bg-blue-800 bg-blue-700 text-white"
           )}
         >
+          {/* eslint-disable @next/next/no-img-element */}
           {isAssistant ? (
             <div className="prose prose-sm dark:prose-invert w-full overflow-hidden break-words">
               <ReactMarkdown
@@ -53,7 +56,8 @@ export function ChatMessage({ message }: { message: Message }) {
                   img: ({ node, ...props }) => (
                     <img
                       {...props}
-                      className="max-w-full h-auto rounded-lg m-0"
+                      alt="image"
+                      className="max-w-full h-auto max-h-80 rounded-lg my-2"
                     />
                   ),
                   a: ({ children, target = "_blank", ...props }) => (
@@ -65,6 +69,7 @@ export function ChatMessage({ message }: { message: Message }) {
                       {children}
                     </a>
                   ),
+                  ol: ({ children }) => <ol className="ml-3">{children}</ol>,
                 }}
               >
                 {message.content}
@@ -119,9 +124,9 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
           className="ml-auto flex h-6 w-6 items-center justify-center rounded-md hover:bg-white/10"
         >
           {copied ? (
-            <Check className="h-3 w-3 text-green-500" />
+            <CheckIcon className="h-3 w-3 text-green-500" />
           ) : (
-            <Copy className="h-3 w-3 text-white/70" />
+            <CopyIcon className="h-3 w-3 text-white/70" />
           )}
         </button>
       </div>
@@ -131,9 +136,7 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
           className="m-0 p-4 text-sm text-white/90 whitespace-pre-wrap break-words"
           {...props}
         >
-          <code className="block break-words">
-            {codeElement.props.children}
-          </code>
+          <code className="block">{codeElement.props.children}</code>
         </pre>
       </div>
     </div>

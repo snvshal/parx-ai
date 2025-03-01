@@ -2,6 +2,9 @@ import "./globals.css"
 import { Metadata, Viewport } from "next"
 import { Fira_Code } from "next/font/google"
 import { ThemeProvider } from "@/components/ui/theme-provider"
+import { getServerSession, Session } from "next-auth"
+import SessionProviderComponent from "@/components/session-provider"
+import { Toaster } from "@/components/ui/toaster"
 
 const fira = Fira_Code({ subsets: ["latin"] })
 
@@ -35,15 +38,27 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session: Session | null = await getServerSession()
+
   return (
     <html lang="en">
       <body className={fira.className}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <SessionProviderComponent session={session}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </SessionProviderComponent>
       </body>
     </html>
   )
