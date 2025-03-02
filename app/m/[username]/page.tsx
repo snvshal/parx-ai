@@ -15,7 +15,7 @@ export default async function Username({
   if (!user) notFound()
 
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <main className="flex min-h-[100dvh] items-center justify-center">
       <div className="w-full max-w-3xl mx-auto sm:px-4">
         <Chat user={JSON.parse(JSON.stringify(user))} />
       </div>

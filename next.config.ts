@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "asset.cloudinary.com",
+        hostname: "res.cloudinary.com",
       },
     ],
   },

@@ -1,7 +1,13 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
-import { TrashIcon, PencilIcon, TriangleAlertIcon, XIcon } from "lucide-react"
+import {
+  TrashIcon,
+  PencilIcon,
+  TriangleAlertIcon,
+  XIcon,
+  PlusIcon,
+} from "lucide-react"
 import {
   addInstruction,
   updateInstruction,
@@ -41,6 +47,7 @@ import {
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { cn } from "@/lib/utils"
 
 const instructionFormSchema = instructionSchema.pick({
   type: true,
@@ -184,6 +191,12 @@ export const InstructionSettings = ({ user }: { user: TUser }) => {
             setError(null)
           }}
         >
+          <PlusIcon
+            className={cn(
+              "w-4 h-4 transition-transform",
+              addNewInstruction ? "rotate-45" : "rotate-0"
+            )}
+          />
           {addNewInstruction ? "Cancel" : "Add New"}
         </Button>
       }
@@ -492,7 +505,7 @@ export const ProfileSettings = ({
   }
 
   return (
-    <HeaderComponent page="Profile Settings">
+    <HeaderComponent page="Profile">
       <div className="space-y-8">
         {message && (
           <AlertMessage
