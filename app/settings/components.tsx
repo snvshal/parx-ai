@@ -45,7 +45,7 @@ import { signOut } from "next-auth/react"
 import { TUser } from "@/schemas/user.schema"
 
 export type ActionItemsProps = {
-  role: "button" | "url" | "text"
+  role: "button" | "link" | "text"
   Icon: LucideIcon
   url?: string
   name: string | JSX.Element
@@ -58,6 +58,7 @@ export type DialogProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   action: () => void
   trigger: JSX.Element
+  hidden?: boolean
   actionName: string
   title: string
   description: string
@@ -68,23 +69,28 @@ export type ThemeDialogProps = Pick<DialogProps, "open" | "setOpen">
 export function SettingsComponent({ user }: { user: TUser }) {
   const { theme } = useTheme()
 
-  const [open, setOpen] = useState(false)
   const [openTheme, setOpenTheme] = useState(false)
+  const [openSignOut, setOpenSignOut] = useState(false)
 
   const settingsItems: ActionItemsProps[] = [
     {
       role: "text",
       Icon: MailIcon,
-      name: user.email || "Email",
+      name: (
+        <div className="flex items-start justify-center flex-col">
+          <span className="leading-4">Email</span>
+          <span className="text-sm text-muted-foreground">{user.email}</span>
+        </div>
+      ),
     },
     {
-      role: "url",
+      role: "link",
       Icon: UserIcon,
       url: "/settings/profile",
       name: "Profile",
     },
     {
-      role: "url",
+      role: "link",
       Icon: BookAIcon,
       url: "/settings/instructions",
       name: "Instructions",
@@ -98,10 +104,11 @@ export function SettingsComponent({ user }: { user: TUser }) {
           : theme === "dark"
           ? MoonIcon
           : SunIcon,
-      name: <ThemeDialog open={openTheme} setOpen={setOpenTheme} />,
+      name: `Theme (${theme})`,
+      action: () => setOpenTheme(true),
     },
     {
-      role: "url",
+      role: "link",
       Icon: InfoIcon,
       url: "/about",
       name: "About",
@@ -109,18 +116,9 @@ export function SettingsComponent({ user }: { user: TUser }) {
     {
       role: "button",
       Icon: LogOutIcon,
-      name: (
-        <AlertDialogComponent
-          open={open}
-          setOpen={setOpen}
-          action={signOut}
-          trigger={<span className="w-full">Sign Out</span>}
-          actionName="Sign Out"
-          title="Confirm Sign Out"
-          description={`Are you sure you want to sign out? You will need to log in again to access your account.`}
-        />
-      ),
+      name: "Sign Out",
       className: "text-red-500 hover:bg-red-500/10",
+      action: () => setOpenSignOut(true),
     },
   ]
 
@@ -145,6 +143,17 @@ export function SettingsComponent({ user }: { user: TUser }) {
         </div>
         <ActionItems items={settingsItems} />
       </div>
+      <ThemeDialog open={openTheme} setOpen={setOpenTheme} />
+      <AlertDialogComponent
+        open={openSignOut}
+        setOpen={setOpenSignOut}
+        action={signOut}
+        trigger={<span>Sign Out</span>}
+        hidden={true}
+        actionName="Sign Out"
+        title="Confirm Sign Out"
+        description={`Are you sure you want to sign out? You will need to log in again to access your account.`}
+      />
     </HeaderComponent>
   )
 }
@@ -154,6 +163,7 @@ export function AlertDialogComponent({
   setOpen,
   action,
   trigger,
+  hidden = false,
   actionName,
   title,
   description,
@@ -164,7 +174,9 @@ export function AlertDialogComponent({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+      <AlertDialogTrigger asChild className={cn(hidden && "hidden")}>
+        {trigger}
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -191,7 +203,7 @@ export function ThemeDialog({ open, setOpen }: ThemeDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <span className="w-full">Theme ({theme})</span>
+        <span></span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -261,29 +273,43 @@ export function ActionItems({ items }: { items: ActionItemsProps[] }) {
     <div className="space-y-2">
       {items.map((item, index) => {
         const { role, Icon, url, name, action, className } = item
+
+        const baseClasses = cn(
+          "flex items-center justify-start gap-4 h-10 w-full px-4 rounded-md",
+          role !== "text" && "cursor-pointer hover:bg-accent",
+          className
+        )
+
+        if (role === "link" && url) {
+          return (
+            <Link key={index} href={url} className={baseClasses}>
+              <div className="w-6 flex items-center justify-center">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div className="flex-1 flex justify-start">{name}</div>
+            </Link>
+          )
+        }
+
         return (
           <div
             key={index}
-            role={action ? "button" : undefined}
+            role={role === "button" ? "button" : undefined}
+            tabIndex={role === "button" ? 0 : undefined}
+            onKeyDown={(e) => {
+              if (role === "button" && (e.key === "Enter" || e.key === " ")) {
+                action?.()
+              }
+            }}
             onClick={action}
-            className={cn(
-              "flex items-center justify-start gap-4 h-10 w-full px-4 rounded-md",
-              role === "text" || "cursor-pointer hover:bg-accent",
-              className
-            )}
+            className={baseClasses}
           >
             <div className="w-6 flex items-center justify-center">
               <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
-            {role === "url" && url ? (
-              <Link href={url} className="w-full">
-                {name}
-              </Link>
-            ) : typeof name === "string" ? (
-              <span>{name}</span>
-            ) : (
-              <>{name}</>
-            )}
+            <div className="flex-1 flex justify-start">
+              {typeof name === "string" ? <span>{name}</span> : name}
+            </div>
           </div>
         )
       })}
