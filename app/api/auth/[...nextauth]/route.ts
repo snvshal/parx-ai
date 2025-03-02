@@ -2,7 +2,8 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { User } from "@/models/user.model"
 import connectToDatabase from "@/lib/db"
-import { TUser, userSchema } from "@/schemas/user.schema"
+import { TInstruction, TUser, userSchema } from "@/schemas/user.schema"
+import { Types } from "mongoose"
 
 const handler = NextAuth({
   providers: [
@@ -19,14 +20,22 @@ const handler = NextAuth({
         // Generate username from email
         const username = user.email?.split("@")[0].toLowerCase()
 
+        const instruction: TInstruction = {
+          _id: new Types.ObjectId(),
+          type: "About me",
+          content: `My name is ${user.name}. I'm here to chat and share my thoughts. I enjoy talking about different topics, and you can ask me anything about me!`,
+          images: [],
+          links: [],
+        }
+
         const userData = {
           email: user.email,
           name: user.name?.slice(0, 20),
           username: username,
           avatar: user.image,
           socialLink: "",
-          firstMessage: `Hello! 😊 I'm ${user.name}'s bot, here to assist you. Feel free to ask me anything. What's on your mind? 💬`,
-          instructions: [],
+          firstMessage: `Hi! I'm ${user.name}. Happy to chat about my hobbies, experiences, or anything fun that comes up! 😊`,
+          instructions: [instruction] as TInstruction[],
         }
 
         const validatedData = userSchema.parse(userData)

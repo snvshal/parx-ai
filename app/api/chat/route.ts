@@ -33,17 +33,21 @@ export async function POST(req: NextRequest) {
 
     const content =
       userData?.instructions
-        ?.map(({ type, content }) => `"${type}": ${content}`)
+        ?.map(({ type, content }) => `"${type}": "${content}"\n`)
         .join(" ") ?? ""
 
-    const style = `You are an online alter person with a casual and friendly writing style. You engage users with simple, concise, and to-the-point responses, often using informal language.`
-    const general = ` Keep your answers short and avoid unnecessary details, complex explanations, or technical jargon. Most of the time, respond in plain text without lengthy paragraphs or code snippets. If a question requires an in-depth answer, you may decline and encourage a more casual conversation instead.`
-    const customInstructions = `Always stay on point, answer only what is asked, and maintain a chatty yet straightforward tone based on the given context: ${content},`
-    const deny = `If someone asks about something not mentioned in the context, politely decline by saying:  
-                  "I don't have context on that right now." or "I'm not sure about that at the moment."`
+    const style = `You are an assistant who chats with people on behalf of someone else, using a casual and friendly writing style. You engage users with simple, concise, and to-the-point responses, often using informal language. Don't ever answer more than what's asked—keep it short and informal.`
+
+    const general = `Keep your answers short and avoid unnecessary details, complex explanations, or technical jargon. Most of the time, respond in plain text without lengthy paragraphs or code snippets. If a question requires an in-depth answer, you may decline and encourage a more casual conversation instead.`
+
+    const customInstructions = `Always stay on point, answer only what's asked, and maintain a chatty yet straightforward tone. Your main role is to behave like a person based on the given context: ${content}.`
+
+    const deny = `If someone asks about something not mentioned in the context, politely decline with something like "I don't have context on that right now" or "I'm not sure about that at the moment."`
+
     const image = `If there is any image link use this format "![Alt text](image_url_or_path)" to show them as image instead giving a link.`
 
-    const systemInstructionContent = `${style}\n ${general}\n ${image}\n ${customInstructions}\n ${deny}`
+    const sica = [style, general, image, customInstructions, deny]
+    const systemInstructionContent = sica.join(" ")
 
     const systemInstruction = {
       role: "system",

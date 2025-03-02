@@ -94,7 +94,7 @@ export function Chat({ user }: { user: TUser }) {
   }, [setMessages, user.firstMessage, user.name])
 
   return (
-    <div className="flex h-screen sm:h-[calc(100vh-2rem)] w-full sm:border sm:rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden">
+    <div className="flex h-[100dvh] sm:h-[calc(100dvh-2rem)] w-full sm:border sm:rounded-3xl sm:my-4 max-w-2xl mx-auto flex-col overflow-hidden">
       {/* Chat Header */}
       <div className="border-b px-4 py-3 flex items-center justify-between z-10">
         <div className="flex items-center justify-between w-full">
@@ -195,24 +195,26 @@ function ChatDropdownMenu({
 
   const handleShare = async () => {
     try {
+      const shareData = {
+        title: "Check this out!",
+        text: "Meet my AI! It can chat on my behalf and respond just like me:\n",
+        url: window.location.href,
+      }
+
       if (navigator.share) {
-        await navigator.share({
-          title: "Check this out!",
-          url: window.location.href,
-          text: "Some description here",
-        })
+        await navigator.share(shareData)
       } else {
-        // Fallback for browsers that don't support Web Share
-        await navigator.clipboard.writeText(window.location.href)
-        alert("Link copied to clipboard!")
+        throw new Error("Web Share not supported")
       }
     } catch (error) {
-      console.error("Error sharing:", error)
-      // Fallback to clipboard if share fails
-      await navigator.clipboard.writeText(window.location.href)
-      alert("Link copied to clipboard!")
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("User canceled sharing")
+      } else {
+        console.error("Error sharing:", error)
+      }
     }
   }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -227,19 +229,19 @@ function ChatDropdownMenu({
         <DropdownMenuLabel>{name} AI</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <Link href={`/m/${username}/what-is-it`}>
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem className="cursor-pointer h-9">
             <CircleHelpIcon className="h-4 w-4 mr-2" aria-hidden={true} />
             <span>What is it?</span>
           </DropdownMenuItem>
         </Link>
         <Link href="/settings">
           {status === "authenticated" ? (
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer h-9">
               <SettingsIcon className="h-4 w-4 mr-2" aria-hidden={true} />
               <span>Settings</span>
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer h-9">
               <SparklesIcon className="h-4 w-4 mr-2" aria-hidden={true} />
               <span>Make My AI</span>
             </DropdownMenuItem>
@@ -248,7 +250,7 @@ function ChatDropdownMenu({
         <DropdownMenuItem
           role="button"
           onClick={handleShare}
-          className="cursor-pointer"
+          className="cursor-pointer h-9"
         >
           <Share2Icon className="h-4 w-4 mr-2" aria-hidden={true} />
           <span>Share</span>

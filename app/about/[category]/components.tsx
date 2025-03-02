@@ -20,10 +20,24 @@ export function HowToUse() {
       <ul className="list-disc pl-6 mb-4 space-y-1">
         <li>
           <b>Type:</b> This defines what kind of information you&#39;re adding.
-          For example, <i>&#34;My general information&#34;</i>,{" "}
-          <i>&#34;My favorite movies&#34;</i>,{" "}
-          <i>&#34;What is my profession&#34;</i>, or{" "}
-          <i>&#34;My New Year experience&#34;</i>.
+          For example:
+          <ul className="list-disc pl-6 mt-1 space-y-1">
+            <li>
+              <i>&#34;How I introduce myself&#34;</i>
+            </li>
+            <li>
+              <i>&#34;What I like to talk about&#34;</i>
+            </li>
+            <li>
+              <i>&#34;My interests and hobbies&#34;</i>
+            </li>
+            <li>
+              <i>&#34;A little about my background&#34;</i>
+            </li>
+            <li>
+              <i>&#34;How I usually respond&#34;</i>
+            </li>
+          </ul>
         </li>
         <li>
           <b>Content:</b> This is where you write details related to the type.

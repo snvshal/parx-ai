@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useEffect, useRef, useTransition } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { LucideIcon } from "lucide-react"
+import { LucideIcon, SparklesIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -127,6 +127,7 @@ export function SettingsComponent({ user }: { user: TUser }) {
       page="Settings"
       actionItem={
         <Button variant="outline">
+          <SparklesIcon className="h-4 w-4" aria-hidden={true} />
           <Link href={`/m/${user.username}`}>My AI</Link>
         </Button>
       }
