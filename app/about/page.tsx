@@ -12,25 +12,25 @@ import {
 export default function AboutPage() {
   const aboutItems: ActionItemsProps[] = [
     {
-      role: "url",
+      role: "link",
       Icon: CircleHelpIcon,
       url: "/about/how-to-use",
       name: "How to Use?",
     },
     {
-      role: "url",
+      role: "link",
       Icon: BookOpenTextIcon,
       url: "/about/information",
       name: "Information",
     },
     {
-      role: "url",
+      role: "link",
       Icon: FileTextIcon,
       url: "/about/terms-of-use",
       name: "Terms of Use",
     },
     {
-      role: "url",
+      role: "link",
       Icon: ShieldCheckIcon,
       url: "/about/privacy-policy",
       name: "Privacy Policy",

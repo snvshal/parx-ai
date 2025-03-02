@@ -638,7 +638,7 @@ export function WarningComponent() {
   if (!isVisible) return null
 
   return (
-    <Alert variant="warning" className="relative group">
+    <Alert variant="warning" className="relative group mb-4">
       <AlertTitle className="flex items-center gap-2 mb-2">
         <TriangleAlertIcon className="h-5 w-5" aria-hidden={true} />
         <span>Warning</span>
@@ -664,7 +664,7 @@ export function WarningComponent() {
       </AlertDescription>
       <button
         onClick={handleClose}
-        className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-2 right-2 p-1 opacity-50 group-hover:opacity-100 transition-opacity"
         aria-label="Dismiss warning"
       >
         <XIcon className="h-4 w-4" aria-hidden={true} />
