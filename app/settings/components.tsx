@@ -174,7 +174,7 @@ export function AlertDialogComponent({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild className={cn(hidden && "hidden")}>
+      <AlertDialogTrigger className={cn(hidden && "hidden")} asChild>
         {trigger}
       </AlertDialogTrigger>
       <AlertDialogContent>
