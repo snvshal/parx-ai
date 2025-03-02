@@ -41,8 +41,9 @@ export async function POST(req: NextRequest) {
     const customInstructions = `Always stay on point, answer only what is asked, and maintain a chatty yet straightforward tone based on the given context: ${content},`
     const deny = `If someone asks about something not mentioned in the context, politely decline by saying:  
                   "I don't have context on that right now." or "I'm not sure about that at the moment."`
+    const image = `If there is any image link use this format "![Alt text](image_url_or_path)" to show them as image instead giving a link.`
 
-    const systemInstructionContent = `${style} ${general} ${customInstructions} ${deny}`
+    const systemInstructionContent = `${style}\n ${general}\n ${image}\n ${customInstructions}\n ${deny}`
 
     const systemInstruction = {
       role: "system",
