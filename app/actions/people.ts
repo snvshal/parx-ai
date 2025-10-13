@@ -3,7 +3,6 @@
 import connectToDatabase from "@/lib/db"
 import { User } from "@/models/user.model"
 import { TUser } from "@/schemas/user.schema"
-import { getServerSession } from "next-auth"
 
 export const getPeople = async (): Promise<{
   success: boolean
@@ -22,7 +21,7 @@ export const getPeople = async (): Promise<{
       },
     )
 
-    return { success: true, data: users }
+    return { success: true, data: JSON.parse(JSON.stringify(users)) }
   } catch (error) {
     console.error("Error fetching users:", error)
     return { success: false, data: [] }
