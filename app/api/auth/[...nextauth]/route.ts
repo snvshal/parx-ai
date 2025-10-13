@@ -2,8 +2,7 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { User } from "@/models/user.model"
 import connectToDatabase from "@/lib/db"
-import { TInstruction, TUser, userSchema } from "@/schemas/user.schema"
-import { Types } from "mongoose"
+import { TUser, TUserWithoutDoc, UserSchema } from "@/schemas/user.schema"
 
 const handler = NextAuth({
   providers: [
@@ -17,33 +16,24 @@ const handler = NextAuth({
       try {
         await connectToDatabase()
 
-        // Generate username from email
-        const username = user.email?.split("@")[0].toLowerCase()
-
-        const instruction: TInstruction = {
-          _id: new Types.ObjectId(),
-          type: "About me",
-          content: `My name is ${user.name}. I'm here to chat and share my thoughts. I enjoy talking about different topics, and you can ask me anything about me!`,
-          images: [],
-          links: [],
-        }
-
-        const userData = {
-          email: user.email,
-          name: user.name?.slice(0, 20),
-          username: username,
-          avatar: user.image,
-          socialLink: "",
-          firstMessage: `Hi! I'm ${user.name}. Happy to chat about my hobbies, experiences, or anything fun that comes up! 😊`,
-          instructions: [instruction] as TInstruction[],
-        }
-
-        const validatedData = userSchema.parse(userData)
-
         const existingUser: TUser | null = await User.findOne({
           email: user.email,
         })
         if (!existingUser) {
+          const username = user.email?.split("@")[0].toLowerCase()
+
+          const userData: TUserWithoutDoc = {
+            email: user.email!,
+            name: user.name?.slice(0, 20)!,
+            username: username!,
+            avatar: user.image!,
+            socialLink: "",
+            firstMessage: `Hi! I'm ${user.name}. Happy to chat about my hobbies, experiences, or anything fun that comes up! 😊`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+
+          const validatedData = UserSchema.parse(userData)
           await User.create(validatedData)
         }
 
@@ -65,7 +55,6 @@ const handler = NextAuth({
           if (dbUser) {
             session.user.id = dbUser._id?.toString() || ""
             session.user.username = dbUser.username
-            session.user.instructions = dbUser.instructions
           }
         } catch (error) {
           console.error("Error in session callback:", error)

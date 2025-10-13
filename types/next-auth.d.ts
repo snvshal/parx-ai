@@ -6,7 +6,6 @@ declare module "next-auth" {
     user: {
       id: string
       username: string
-      instructions: TInstruction[]
     } & DefaultSession["user"]
   }
 }

@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/ui/theme-provider"
 import { getServerSession, Session } from "next-auth"
 import SessionProviderComponent from "@/components/session-provider"
 import { Toaster } from "@/components/ui/toaster"
+import NotificationSetup from "@/components/notification-setup"
+import { UserProvider } from "@/hooks/use-user"
 
 const fira = Fira_Code({ subsets: ["latin"] })
 
@@ -55,7 +57,10 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <UserProvider>
+              {children}
+              <NotificationSetup />
+            </UserProvider>
             <Toaster />
           </ThemeProvider>
         </SessionProviderComponent>

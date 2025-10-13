@@ -1,25 +1,5 @@
-import { model, models, Schema } from "mongoose"
-import { TInstruction, TUser } from "@/schemas/user.schema"
-
-const instructionSchema = new Schema<TInstruction>(
-  {
-    type: { type: String, required: true, trim: true },
-    content: { type: String, required: true, trim: true },
-    images: [
-      {
-        url: { type: String, required: true, minlength: 8, trim: true },
-        alt: { type: String, required: true, minlength: 20, trim: true },
-      },
-    ],
-    links: [
-      {
-        url: { type: String, required: true, minlength: 8, trim: true },
-        alt: { type: String, required: true, minlength: 20, trim: true },
-      },
-    ],
-  },
-  { timestamps: true }
-)
+import { Model, model, models, Schema } from "mongoose"
+import { TUser } from "@/schemas/user.schema"
 
 const UserSchema = new Schema<TUser>(
   {
@@ -50,14 +30,14 @@ const UserSchema = new Schema<TUser>(
     firstMessage: {
       type: String,
       required: true,
-      minlength: 80,
+      minlength: 40,
       trim: true,
     },
-    instructions: { type: [instructionSchema], default: [] },
   },
   {
     timestamps: true,
-  }
+  },
 )
 
-export const User = models.User || model<TUser>("User", UserSchema)
+export const User: Model<TUser> =
+  models.User || model<TUser>("User", UserSchema)
