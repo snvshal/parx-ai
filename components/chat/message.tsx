@@ -9,6 +9,7 @@ import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
 import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
+import { format } from "date-fns"
 
 export const MemoChatMessage = memo(function ChatMessage({
   message,
@@ -16,16 +17,6 @@ export const MemoChatMessage = memo(function ChatMessage({
   message: UIMessage
 }) {
   const isAssistant = message.role === "assistant"
-
-  const formatTime = (timestamp?: Date) => {
-    if (!timestamp) return ""
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    })
-  }
 
   return (
     <div
@@ -92,7 +83,7 @@ export const MemoChatMessage = memo(function ChatMessage({
               isAssistant ? "text-foreground/50" : "text-white/50"
             )}
           >
-            {formatTime(message.createdAt as Date)}
+            {format(message.createdAt as Date, "h:mm a")}
           </div>
         </div>
       </div>

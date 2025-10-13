@@ -1,7 +1,10 @@
 "use client"
 
 import { HeaderComponent } from "@/components/header"
-import { ActionItems, ActionItemsProps } from "../settings/components"
+import {
+  ActionItems,
+  ActionItemsProps,
+} from "@/components/settings/settings-list"
 import {
   BookOpenTextIcon,
   CircleHelpIcon,

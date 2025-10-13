@@ -23,8 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useEffect, useRef, useTransition } from "react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { LucideIcon, SparklesIcon } from "lucide-react"
+import { LucideIcon, SparklesIcon, TriangleAlertIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -77,7 +76,7 @@ export function SettingsComponent({ user }: { user: TUser }) {
       role: "text",
       Icon: MailIcon,
       name: (
-        <div className="flex items-start justify-center flex-col">
+        <div className="flex flex-col items-start justify-center">
           <span className="leading-4">Email</span>
           <span className="text-sm text-muted-foreground">{user.email}</span>
         </div>
@@ -102,8 +101,8 @@ export function SettingsComponent({ user }: { user: TUser }) {
         theme === "system"
           ? SunMoonIcon
           : theme === "dark"
-          ? MoonIcon
-          : SunIcon,
+            ? MoonIcon
+            : SunIcon,
       name: `Theme (${theme})`,
       action: () => setOpenTheme(true),
     },
@@ -131,10 +130,11 @@ export function SettingsComponent({ user }: { user: TUser }) {
           <Link href={`/m/${user.username}`}>My AI</Link>
         </Button>
       }
+      className="max-sm:px-0"
     >
       <div className="space-y-2">
-        <div className="flex items-center justify-start gap-4 h-10 w-full px-4 rounded-md">
-          <Avatar className="w-6 h-6">
+        <div className="flex h-12 w-full items-center justify-start gap-4 px-4 sm:h-10 sm:rounded-md">
+          <Avatar className="h-6 w-6">
             <AvatarImage src={user.avatar || ""} alt={user.name || "Avatar"} />
             <AvatarFallback className="text-sm">
               {user.name?.charAt(0).toUpperCase() || "A"}
@@ -184,7 +184,7 @@ export function AlertDialogComponent({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <Button
             variant="destructive"
             onClick={handleClick}
@@ -239,36 +239,6 @@ export function ThemeDialog({ open, setOpen }: ThemeDialogProps) {
   )
 }
 
-export type AlertMessageProps = {
-  message: React.ReactNode | string | null | undefined
-  variant?: "destructive" | "default" | "success" | "warning"
-  className?: string
-}
-
-export function AlertMessage({
-  message,
-  variant = "destructive",
-  className,
-}: AlertMessageProps) {
-  const alertRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (message && alertRef.current) {
-      alertRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
-
-      if (alertRef.current.focus) alertRef.current.focus()
-    }
-  }, [message])
-
-  if (!message) return null
-
-  return (
-    <Alert variant={variant} className={className} ref={alertRef} tabIndex={-1}>
-      <AlertDescription>{message}</AlertDescription>
-    </Alert>
-  )
-}
-
 export function ActionItems({ items }: { items: ActionItemsProps[] }) {
   return (
     <div className="space-y-2">
@@ -276,18 +246,18 @@ export function ActionItems({ items }: { items: ActionItemsProps[] }) {
         const { role, Icon, url, name, action, className } = item
 
         const baseClasses = cn(
-          "flex items-center justify-start gap-4 h-10 w-full px-4 rounded-md",
+          "flex items-center justify-start gap-4 h-12 sm:h-10 w-full px-4 sm:rounded-md",
           role !== "text" && "cursor-pointer hover:bg-accent",
-          className
+          className,
         )
 
         if (role === "link" && url) {
           return (
             <Link key={index} href={url} className={baseClasses}>
-              <div className="w-6 flex items-center justify-center">
+              <div className="flex w-6 items-center justify-center">
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
-              <div className="flex-1 flex justify-start">{name}</div>
+              <div className="flex flex-1 justify-start">{name}</div>
             </Link>
           )
         }
@@ -305,10 +275,10 @@ export function ActionItems({ items }: { items: ActionItemsProps[] }) {
             onClick={action}
             className={baseClasses}
           >
-            <div className="w-6 flex items-center justify-center">
+            <div className="flex w-6 items-center justify-center">
               <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
-            <div className="flex-1 flex justify-start">
+            <div className="flex flex-1 justify-start">
               {typeof name === "string" ? <span>{name}</span> : name}
             </div>
           </div>

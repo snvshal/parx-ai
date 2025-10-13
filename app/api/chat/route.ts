@@ -1,64 +1,98 @@
 import { streamText } from "ai"
 import { google } from "@ai-sdk/google"
 import { NextRequest, NextResponse } from "next/server"
-import { TUser } from "@/schemas/user.schema"
-import { getUserByUsername } from "@/app/m/[username]/actions"
+import { Chat } from "@/models/chat.model"
+import { Message } from "@/models/message.model"
+import { getInstructionsByUserId } from "@/app/actions/so"
+import { getSessionUser } from "@/app/actions/session-user"
+import { getUserByUsername, saveMessage } from "@/app/actions/chat"
 
-// Allow streaming responses up to 30 seconds
 export const maxDuration = 30
+export const runtime = "nodejs"
 
 export async function POST(req: NextRequest) {
   try {
     const { messages, username } = await req.json()
 
-    if (!messages || !messages.length) {
+    if (!messages?.length) {
       throw new Error("Messages cannot be null, undefined, or an empty array.")
     }
 
     const lastMessage = messages[messages.length - 1]
+    const lastMessageText = lastMessage?.content
 
-    if (
-      lastMessage.role === "user" &&
-      (!lastMessage.content || !lastMessage.content.trim())
-    ) {
+    if (lastMessage.role === "user" && !lastMessageText.trim()) {
       throw new Error(
-        "The user's last prompt cannot be empty or only whitespace."
+        "The user's last prompt cannot be empty or only whitespace.",
       )
     }
 
-    // const model = google("gemini-1.5-flash")
-    const model = google("gemini-2.0-flash-exp")
+    const [persona, sessionUser] = await Promise.all([
+      getUserByUsername(username),
+      getSessionUser(),
+    ])
 
-    const userData: TUser | null = await getUserByUsername(username)
+    if (!persona) throw new Error("Persona not found")
 
-    const content =
-      userData?.instructions
-        ?.map(({ type, content }) => `"${type}": "${content}"\n`)
-        .join(" ") ?? ""
+    let chat = null
+    if (sessionUser) {
+      chat = await Chat.findOne({
+        userId: sessionUser._id,
+        personaId: persona._id,
+      })
+      if (!chat) throw new Error("Chat not found")
 
-    const style = `You are an assistant who chats with people on behalf of someone else, using a casual and friendly writing style. You engage users with simple, concise, and to-the-point responses, often using informal language. Don't ever answer more than what's asked—keep it short and informal.`
-
-    const general = `Keep your answers short and avoid unnecessary details, complex explanations, or technical jargon. Most of the time, respond in plain text without lengthy paragraphs or code snippets. If a question requires an in-depth answer, you may decline and encourage a more casual conversation instead.`
-
-    const customInstructions = `Always stay on point, answer only what's asked, and maintain a chatty yet straightforward tone. Your main role is to behave like a person based on the given context: ${content}.`
-
-    const deny = `If someone asks about something not mentioned in the context, politely decline with something like "I don't have context on that right now" or "I'm not sure about that at the moment."`
-
-    const image = `If there is any image link use this format "![Alt text](image_url_or_path)" to show them as image instead giving a link.`
-
-    const sica = [style, general, image, customInstructions, deny]
-    const systemInstructionContent = sica.join(" ")
-
-    const systemInstruction = {
-      role: "system",
-      content: systemInstructionContent,
+      await saveMessage(String(persona._id), {
+        role: "user",
+        content: lastMessageText,
+      })
     }
 
-    const messagesWithSystemInstruction = [systemInstruction, ...messages]
+    const systemInstructionContent = await getInstructionsByUserId(
+      String(persona._id),
+    )
+
+    const messagesWithSystemInstruction = [
+      { role: "system", content: systemInstructionContent },
+      ...messages,
+    ]
+
+    let assistantMessageId: string | null = null
+    if (sessionUser && chat) {
+      const assistantMessage = await Message.create({
+        chatId: chat._id,
+        userId: sessionUser._id,
+        personaId: persona._id,
+        type: "text",
+        role: "assistant",
+        content: "",
+      })
+      assistantMessageId = assistantMessage._id.toString()
+      chat.lastMessage = assistantMessage._id
+      await chat.save()
+    }
+
+    let runningText = ""
+    let flushTimer: NodeJS.Timeout | null = null
+
+    const debouncedFlush = (id: string, text: string) => {
+      if (flushTimer) clearTimeout(flushTimer)
+      flushTimer = setTimeout(() => {
+        Message.findByIdAndUpdate(id, { $set: { content: text } }).catch(
+          (err) => console.error("Debounced update failed:", err),
+        )
+      }, 200)
+    }
 
     const result = streamText({
-      model,
+      model: google("gemini-2.5-flash"),
       messages: messagesWithSystemInstruction,
+      onChunk: ({ chunk }) => {
+        if (assistantMessageId && chunk.type === "text-delta") {
+          runningText += chunk.textDelta
+          debouncedFlush(assistantMessageId, runningText)
+        }
+      },
     })
 
     return result.toDataStreamResponse()
@@ -66,7 +100,7 @@ export async function POST(req: NextRequest) {
     console.error("Error processing request:", error)
     return NextResponse.json(
       { error: "Error processing request" },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

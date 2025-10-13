@@ -1,41 +1,7 @@
 import { z } from "zod"
-import { Document, Types } from "mongoose"
+import { Document } from "mongoose"
 
-export const instructionSchema = z.object({
-  type: z.string().trim().min(1, { message: "Instruction type is required." }),
-  content: z
-    .string()
-    .trim()
-    .min(1, { message: "Instruction content is required." }),
-  images: z
-    .array(
-      z.object({
-        url: z
-          .string()
-          .trim()
-          .min(8, { message: "Image URL must be at least 8 characters long." }),
-        alt: z.string().trim().min(20, {
-          message: "Image ALT text must be at least 20 characters long.",
-        }),
-      })
-    )
-    .default([]),
-  links: z
-    .array(
-      z.object({
-        url: z
-          .string()
-          .trim()
-          .min(8, { message: "Link URL must be at least 8 characters long." }),
-        alt: z.string().trim().min(20, {
-          message: "Link ALT text must be at least 20 characters long.",
-        }),
-      })
-    )
-    .default([]),
-})
-
-export const userSchema = z.object({
+export const UserSchema = z.object({
   username: z
     .string()
     .trim()
@@ -56,15 +22,13 @@ export const userSchema = z.object({
   firstMessage: z
     .string()
     .trim()
-    .min(80, { message: "First Message must be at least 80 characters long." }),
-  instructions: z.array(instructionSchema).default([]),
+    .min(40, { message: "First Message must be at least 40 characters long." }),
+
+  createdAt: z.date().default(() => new Date()),
+  updatedAt: z.date().default(() => new Date()),
 })
 
-export type TInstruction = z.infer<typeof instructionSchema> & {
-  _id: Types.ObjectId
-}
-
-export type TUser = Omit<z.infer<typeof userSchema>, "instructions"> &
-  Document & {
-    instructions: TInstruction[]
-  }
+export type TUser = z.infer<typeof UserSchema> & Document
+export type TUserWithoutDoc = z.infer<typeof UserSchema>
+// export type TUser = Omit<z.infer<typeof UserSchema>, "instructions"> &
+//   Document

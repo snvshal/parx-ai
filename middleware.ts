@@ -17,7 +17,7 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === "/") {
     return NextResponse.redirect(
-      new URL(`/m/${token ? token.username : "snvshal"}`, req.url)
+      new URL(`/m/${token ? token.username : "snvshal"}`, req.url),
     )
   }
 
@@ -38,7 +38,7 @@ export async function middleware(req: NextRequest) {
   if (!token && !isPublicRoute && !isAuthRoute) {
     const redirectUrl = new URL(
       `/sign-in?callbackUrl=${encodeURIComponent(pathname)}`,
-      req.url
+      req.url,
     )
     return NextResponse.redirect(redirectUrl)
   }

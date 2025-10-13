@@ -1,5 +1,5 @@
-import { getSessionUser } from "./[category]/actions"
-import { SettingsComponent } from "./components"
+import { SettingsComponent } from "@/components/settings/settings-list"
+import { getSessionUser } from "../actions/session-user"
 
 export default async function SettingsPage() {
   const user = await getSessionUser()

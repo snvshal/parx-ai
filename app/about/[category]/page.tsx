@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation"
-import { HowToUse, Information, PrivacyPolicy, TermsOfUse } from "./components"
 import { HeaderComponent } from "@/components/header"
+import { HowToUse } from "@/components/about/how-to-use"
+import { Information } from "@/components/about/information"
+import { PrivacyPolicy } from "@/components/about/privacy-policy"
+import { TermsOfUse } from "@/components/about/terms-of-use"
+import FooterComponent from "@/components/footer"
 
 export default async function AboutCategory({
   params,
@@ -14,6 +18,7 @@ export default async function AboutCategory({
       return (
         <HeaderComponent page="How to Use">
           <HowToUse />
+          <FooterComponent />
         </HeaderComponent>
       )
 
@@ -21,6 +26,7 @@ export default async function AboutCategory({
       return (
         <HeaderComponent page="Information">
           <Information />
+          <FooterComponent />
         </HeaderComponent>
       )
 
@@ -28,6 +34,7 @@ export default async function AboutCategory({
       return (
         <HeaderComponent page="Privacy Policy">
           <PrivacyPolicy />
+          <FooterComponent />
         </HeaderComponent>
       )
 
@@ -35,6 +42,7 @@ export default async function AboutCategory({
       return (
         <HeaderComponent page="Terms of Use">
           <TermsOfUse />
+          <FooterComponent />
         </HeaderComponent>
       )
 
