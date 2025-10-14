@@ -91,7 +91,7 @@ export const setNotification = async (content: string) => {
     .map((n) => n.userId.toString())
 
   const { text } = await generateText({
-    model: google("gemini-2.5-flash"), // Or 'gemini-1.5-flash' for lighter usage
+    model: google("gemini-2.5-flash"),
     prompt: `Use this context data and make it as a clickbait notification for a third person, and never explain it give a single text direct answer(in just "{title}::{message}" format always): ${content}`,
   })
 

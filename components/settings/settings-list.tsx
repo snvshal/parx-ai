@@ -132,8 +132,8 @@ export function SettingsComponent({ user }: { user: TUser }) {
       }
       className="max-sm:px-0"
     >
-      <div className="space-y-2">
-        <div className="flex h-12 w-full items-center justify-start gap-4 px-4 sm:h-10 sm:rounded-md">
+      <div className="sm:space-y-2">
+        <div className="flex h-14 w-full items-center justify-start gap-4 px-4 sm:h-12 sm:rounded-md">
           <Avatar className="h-6 w-6">
             <AvatarImage src={user.avatar || ""} alt={user.name || "Avatar"} />
             <AvatarFallback className="text-sm">
@@ -241,12 +241,12 @@ export function ThemeDialog({ open, setOpen }: ThemeDialogProps) {
 
 export function ActionItems({ items }: { items: ActionItemsProps[] }) {
   return (
-    <div className="space-y-2">
+    <div className="sm:space-y-2">
       {items.map((item, index) => {
         const { role, Icon, url, name, action, className } = item
 
         const baseClasses = cn(
-          "flex items-center justify-start gap-4 h-12 sm:h-10 w-full px-4 sm:rounded-md",
+          "flex items-center justify-start gap-4 h-14 sm:h-12 w-full px-4 sm:rounded-md",
           role !== "text" && "cursor-pointer hover:bg-accent",
           className,
         )
