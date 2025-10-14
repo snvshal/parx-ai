@@ -11,6 +11,7 @@ import { TUser } from "@/schemas/user.schema"
 import { Message as SDKMessage } from "ai"
 import { ContextUser } from "@/hooks/use-user"
 import { getSessionUser } from "@/app/actions/session-user"
+import { revalidatePath } from "next/cache"
 
 export const getUserByUsername = async (
   username: string,
@@ -27,16 +28,16 @@ export const getUserByUsername = async (
 
 export const getContextUser = async (): Promise<ContextUser | null> => {
   try {
-    const user = await getSessionUser()
+    const sessionUser = await getSessionUser()
 
-    if (!user) return null
+    if (!sessionUser) return null
 
     const contextUser = {
-      id: user?._id?.toString(),
-      username: user?.username,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
+      id: sessionUser._id?.toString(),
+      username: sessionUser.username,
+      name: sessionUser.name,
+      email: sessionUser.email,
+      avatar: sessionUser.avatar,
     } as ContextUser
 
     return contextUser
@@ -54,8 +55,10 @@ export type ChatSession = z.infer<typeof ChatSchema> & {
 export const getChats = async (): Promise<ChatSession[]> => {
   try {
     await connectToDatabase()
-    const user = await getSessionUser()
-    const chats = await Chat.find({ userId: user?.id }).lean()
+    const sessionUser = await getSessionUser()
+    if (!sessionUser) return []
+
+    const chats = await Chat.find({ userId: sessionUser._id }).lean()
 
     let chatSessions: ChatSession[] = []
     await Promise.all(
@@ -81,12 +84,41 @@ export const getChats = async (): Promise<ChatSession[]> => {
 export const getChat = async (personaId: string): Promise<TChat | null> => {
   try {
     await connectToDatabase()
-    const user = await getSessionUser()
-    const chat = await Chat.findOne({ userId: user?.id, personaId }).lean()
+    const sessionUser = await getSessionUser()
+    if (!sessionUser) return null
+
+    const chat = await Chat.findOne({
+      userId: sessionUser._id,
+      personaId,
+    }).lean()
     return chat || null
   } catch (error) {
     console.error(`Error fetching chats for user "${personaId}":`, error)
     return null
+  }
+}
+
+export const deleteChat = async (
+  personaId: string,
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    await connectToDatabase()
+    const sessionUser = await getSessionUser()
+    if (!sessionUser)
+      return { success: false, message: "User not authenticated." }
+
+    const chat = await Chat.findOneAndDelete({
+      userId: sessionUser._id,
+      personaId,
+    })
+    if (!chat) return { success: false, message: "Chat not found." }
+
+    revalidatePath("/")
+
+    return { success: true, message: "Chat deleted." }
+  } catch (error) {
+    console.error(`Error fetching chats for user "${personaId}":`, error)
+    return { success: false, message: "Some error occurred." }
   }
 }
 
@@ -147,8 +179,6 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
       personaId,
     }).sort({ createdAt: 1 })
 
-    // console.log("messages:", personaId, messages)
-
     return (
       messages.map((msg: TMessage) => ({
         id: msg._id.toString(),
@@ -170,14 +200,15 @@ export const saveMessage = async (
 ): Promise<{ success: boolean; message: TMessage | null }> => {
   try {
     await connectToDatabase()
-    const user = await getSessionUser()
+    const sessionUser = await getSessionUser()
+    if (!sessionUser) return { success: false, message: null }
 
-    const chat = await Chat.findOne({ userId: user?._id, personaId })
+    const chat = await Chat.findOne({ userId: sessionUser._id, personaId })
     if (!chat) throw new Error("Chat not found")
 
     const newMessage = await Message.create({
       chatId: chat._id,
-      userId: user?._id,
+      userId: sessionUser._id,
       personaId,
       type: "text",
       ...message,
@@ -190,5 +221,59 @@ export const saveMessage = async (
   } catch (error) {
     console.error(`Error saving message for chat "${personaId}":`, error)
     return { success: false, message: null }
+  }
+}
+
+export const deleteMessages = async (
+  personaId: string,
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    await connectToDatabase()
+
+    const sessionUser = await getSessionUser()
+    if (!sessionUser) {
+      return { success: false, message: "User not authenticated." }
+    }
+
+    const persona = await User.findById(personaId)
+    if (!persona) {
+      return { success: false, message: "Persona not found." }
+    }
+
+    const result = await Message.deleteMany({
+      userId: sessionUser._id,
+      personaId,
+    })
+
+    if (result.deletedCount === 0) {
+      return { success: false, message: "No messages found to delete." }
+    }
+
+    const chat = await Chat.findOne({
+      userId: sessionUser._id,
+      personaId,
+    })
+    if (!chat) {
+      return { success: false, message: "No messages found to delete." }
+    }
+
+    await Message.create({
+      chatId: chat._id,
+      userId: sessionUser._id,
+      personaId,
+      type: "text",
+      role: "assistant",
+      content: persona.firstMessage,
+    })
+
+    revalidatePath(`/m/${persona.username}`)
+
+    return { success: true, message: "Messages deleted successfully." }
+  } catch (error) {
+    console.error(`Error deleting messages for persona "${personaId}":`, error)
+    return {
+      success: false,
+      message: "An error occurred while deleting messages.",
+    }
   }
 }

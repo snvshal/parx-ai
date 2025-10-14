@@ -2,7 +2,6 @@ import { Chat } from "@/components/chat/component"
 import { getMessages, getUserByUsername } from "@/app/actions/chat"
 import { TUser } from "@/schemas/user.schema"
 import { notFound } from "next/navigation"
-import { getServerSession } from "next-auth"
 
 export default async function Username({
   params,
@@ -14,7 +13,7 @@ export default async function Username({
   const persona: TUser | null = await getUserByUsername(username)
   if (!persona) notFound()
 
-  const msgs = await getMessages(persona._id?.toString() as string)
+  const msgs = await getMessages(String(persona._id))
 
   return (
     <main className="flex min-h-[100dvh] items-center justify-center">

@@ -14,25 +14,17 @@ export async function POST(req: NextRequest) {
   try {
     const { messages, username } = await req.json()
 
-    if (!messages?.length) {
-      throw new Error("Messages cannot be null, undefined, or an empty array.")
-    }
+    if (!messages?.length) throw new Error("Messages cannot be empty.")
 
     const lastMessage = messages[messages.length - 1]
-    const lastMessageText = lastMessage?.content
-
-    if (lastMessage.role === "user" && !lastMessageText.trim()) {
-      throw new Error(
-        "The user's last prompt cannot be empty or only whitespace.",
-      )
-    }
+    if (lastMessage.role === "user" && !lastMessage.content.trim())
+      throw new Error("User's last message cannot be empty.")
 
     const [persona, sessionUser] = await Promise.all([
       getUserByUsername(username),
       getSessionUser(),
     ])
-
-    if (!persona) throw new Error("Persona not found")
+    if (!persona) throw new Error("Persona not found.")
 
     let chat = null
     if (sessionUser) {
@@ -40,20 +32,17 @@ export async function POST(req: NextRequest) {
         userId: sessionUser._id,
         personaId: persona._id,
       })
-      if (!chat) throw new Error("Chat not found")
+      if (!chat) throw new Error("Chat not found.")
 
       await saveMessage(String(persona._id), {
         role: "user",
-        content: lastMessageText,
+        content: lastMessage.content,
       })
     }
 
-    const systemInstructionContent = await getInstructionsByUserId(
-      String(persona._id),
-    )
-
-    const messagesWithSystemInstruction = [
-      { role: "system", content: systemInstructionContent },
+    const systemInstruction = await getInstructionsByUserId(String(persona._id))
+    const messagesWithSystem = [
+      { role: "system", content: systemInstruction },
       ...messages,
     ]
 
@@ -72,26 +61,38 @@ export async function POST(req: NextRequest) {
       await chat.save()
     }
 
-    let runningText = ""
+    let buffer = ""
     let flushTimer: NodeJS.Timeout | null = null
+    const FLUSH_INTERVAL = 300
 
-    const debouncedFlush = (id: string, text: string) => {
+    const flushContent = async (final = false) => {
+      if (!assistantMessageId || !buffer.trim()) return
+      try {
+        await Message.findByIdAndUpdate(assistantMessageId, { content: buffer })
+      } catch (err) {
+        console.error("DB flush error:", err)
+      }
+      if (final && flushTimer) clearTimeout(flushTimer)
+    }
+
+    const debouncedFlush = () => {
       if (flushTimer) clearTimeout(flushTimer)
-      flushTimer = setTimeout(() => {
-        Message.findByIdAndUpdate(id, { $set: { content: text } }).catch(
-          (err) => console.error("Debounced update failed:", err),
-        )
-      }, 200)
+      flushTimer = setTimeout(flushContent, FLUSH_INTERVAL)
     }
 
     const result = streamText({
       model: google("gemini-2.5-flash"),
-      messages: messagesWithSystemInstruction,
+      messages: messagesWithSystem,
+
       onChunk: ({ chunk }) => {
         if (assistantMessageId && chunk.type === "text-delta") {
-          runningText += chunk.textDelta
-          debouncedFlush(assistantMessageId, runningText)
+          buffer += chunk.textDelta
+          debouncedFlush()
         }
+      },
+
+      onFinish: async () => {
+        await flushContent(true)
       },
     })
 
