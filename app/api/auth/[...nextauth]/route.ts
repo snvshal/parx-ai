@@ -19,8 +19,17 @@ const handler = NextAuth({
         const existingUser: TUser | null = await User.findOne({
           email: user.email,
         })
+
         if (!existingUser) {
-          const username = user.email?.split("@")[0].toLowerCase()
+          const baseUsername = user.email!.split("@")[0].toLowerCase()
+          let username = baseUsername
+
+          const isUsernameTaken = await User.exists({ username })
+          if (isUsernameTaken) {
+            const suffix =
+              Date.now().toString(36) + Math.random().toString(36).slice(2, 5)
+            username = `${baseUsername}_${suffix}`
+          }
 
           const userData: TUserWithoutDoc = {
             email: user.email!,
