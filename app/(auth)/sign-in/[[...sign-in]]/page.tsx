@@ -24,51 +24,65 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md rounded-3xl p-8">
-        <CardHeader className="flex flex-col items-center space-y-1 p-0">
-          <CardTitle className="flex items-center justify-center mb-1 gap-4">
-            SN AI
-          </CardTitle>
-          <CardDescription className="text-center">
-            Customize AI with Your Own Instructions
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="mt-6 space-y-4 p-0">
-          <div className="flex items-center justify-center w-full space-y-4">
-            <Button
-              variant="outline"
-              onClick={handleSignIn}
-              className="flex items-center justify-center gap-2 rounded-full px-4 py-5"
-            >
-              <Image
-                src="/google.svg"
-                width={24}
-                height={24}
-                alt="google icon"
-              />
-              <span>Continue with Google</span>
-            </Button>
-          </div>
-          <div className="text-center text-sm text-muted-foreground">
-            By continuing, you agree to StatsDaily&#39;s{" "}
-            <Link
-              href="/about/terms-of-use"
-              className="font-semibold hover:underline"
-            >
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/about/privacy-policy"
-              className="font-semibold hover:underline"
-            >
-              Privacy Policy
-            </Link>
-            .
-          </div>
-        </CardContent>
-      </Card>
+    <div className="flex h-[100dvh] flex-col items-center justify-center md:flex-row">
+      <div className="relative flex h-1/2 w-full items-center justify-center bg-muted/10 max-md:hidden md:h-full md:w-1/2">
+        <Image
+          src="/login.gif"
+          alt="gif"
+          fill
+          className="scale-x-[-1] object-cover"
+          priority
+        />
+      </div>
+
+      <div className="relative flex h-auto w-full items-center justify-center p-8 md:h-full md:w-1/2">
+        <Card className="max-w-sm border-0 shadow-none">
+          <CardHeader className="flex flex-col items-center space-y-2 p-0">
+            <CardTitle className="text-3xl font-semibold">Parx AI</CardTitle>
+            <CardDescription className="text-center text-base">
+              Customize AI with Your Own Instructions
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="mt-6 space-y-6 p-0">
+            <div className="flex w-full justify-center">
+              <Button
+                variant="outline"
+                onClick={handleSignIn}
+                className="flex items-center justify-center gap-2 rounded-full px-6 py-5 text-base"
+              >
+                <Image
+                  src="/google.svg"
+                  width={24}
+                  height={24}
+                  alt="google icon"
+                />
+                <span>Continue with Google</span>
+              </Button>
+            </div>
+
+            <p className="text-center text-sm text-muted-foreground">
+              By continuing, you agree to StatsDaily&#39;s{" "}
+              <Link
+                href="/about/terms-of-use"
+                target="_blank"
+                className="font-semibold hover:underline"
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/about/privacy-policy"
+                target="_blank"
+                className="font-semibold hover:underline"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

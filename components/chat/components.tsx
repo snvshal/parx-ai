@@ -1,29 +1,18 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { MemoChatMessage } from "@/components/chat/message"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
-  BotIcon,
   CircleHelpIcon,
   EllipsisVerticalIcon,
   FlagIcon,
   MessageCircleIcon,
   RotateCcwIcon,
-  // FlagIcon,
-  // InfoIcon,
-  SendHorizontalIcon,
   SettingsIcon,
   Share2Icon,
   SparklesIcon,
-  TrashIcon,
   UsersIcon,
 } from "lucide-react"
-import { useChat } from "@ai-sdk/react"
-import { useEffect, useRef, useState, useTransition } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { TUser } from "@/schemas/user.schema"
+import { useState, useTransition } from "react"
 import Link from "next/link"
 
 import {
@@ -35,9 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession } from "next-auth/react"
-import { Message, UIMessage } from "ai"
 import { useRouter } from "next/navigation"
-import { AlertMessage } from "../co"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,140 +38,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { deleteMessages } from "@/app/actions/chat"
 import { toast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
-export function Chat({ persona, msgs }: { persona: TUser; msgs: Message[] }) {
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    status,
-    // setMessages,
-  } = useChat({
-    // api: "/api/chat",
-    initialMessages: msgs,
-    onError: (error) => {
-      console.error("Chat error:", error)
-    },
-  })
-
-  // console.log("Chat messages:", messages, msgs)
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    handleSubmit(event, {
-      body: { username: persona.username },
-    })
-  }
-
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (status === "ready" && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [status])
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]",
-      )
-      if (scrollElement) {
-        scrollElement.scrollTo({
-          top: scrollElement.scrollHeight,
-          behavior: "smooth",
-        })
-      }
-    }
-  }, [messages])
-
-  // useEffect(() => setMessages(msgs), [setMessages])
-
-  return (
-    <div className="mx-auto flex h-[100dvh] w-full max-w-2xl flex-col overflow-hidden sm:my-4 sm:h-[calc(100dvh-2rem)] sm:rounded-3xl sm:border">
-      {/* Chat Header */}
-      <div className="z-10 flex items-center justify-between border-b px-4 py-3">
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center justify-center gap-2">
-            <Avatar className="h-9 w-9">
-              <AvatarImage
-                src={persona.avatar}
-                alt={persona.name || "Avatar"}
-              />
-              <AvatarFallback>
-                <BotIcon className="h-4 w-4" aria-hidden={true} />
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <Link
-                target={persona.socialLink ? "_blank" : "_self"}
-                href={persona.socialLink || `/m/${persona.username}`}
-                className="text-sm font-medium hover:underline"
-              >
-                {persona.name}
-              </Link>
-              <p className="text-xs text-muted-foreground">
-                {status === "submitted" ? "Typing..." : "Online"}
-              </p>
-            </div>
-          </div>
-          <ChatDropdownMenu
-            id={String(persona._id)}
-            name={persona.name}
-            username={persona.username}
-          />
-        </div>
-      </div>
-
-      {/* Chat Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-y-auto px-4">
-        <div>
-          {messages.map((message, i) => (
-            <MemoChatMessage key={i} message={message} />
-          ))}
-          {status === "submitted" && <ThinkingAnimation />}
-          {status === "error" && (
-            <AlertMessage
-              message="Something went wrong. Please try again."
-              className="mb-4"
-            />
-          )}
-        </div>
-      </ScrollArea>
-
-      {/* Input Area */}
-      <div className="z-10 border-t bg-background p-4">
-        <form
-          onSubmit={input.trim() ? onSubmit : (e) => e.preventDefault()}
-          className="flex items-center gap-3"
-        >
-          <Input
-            ref={inputRef}
-            name="message"
-            placeholder="Message..."
-            value={input}
-            onChange={handleInputChange}
-            disabled={!(status === "ready")}
-            className="flex-1 rounded-full border-muted bg-muted/80 px-4"
-            autoComplete="off"
-          />
-
-          <Button
-            type="submit"
-            size="icon"
-            disabled={!(status === "ready") || !input.trim()}
-            className="rounded-full"
-          >
-            <SendHorizontalIcon className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-function ThinkingAnimation() {
+export function ThinkingAnimation() {
   return (
     <div className="my-4 flex items-end gap-2">
       <div className="flex gap-1 rounded-2xl bg-accent p-4">
@@ -200,7 +56,7 @@ function ThinkingAnimation() {
   )
 }
 
-function ChatDropdownMenu({
+export function ChatDropdownMenu({
   id,
   name,
   username,
@@ -255,27 +111,31 @@ function ChatDropdownMenu({
               <span>What is it?</span>
             </DropdownMenuItem>
           </Link>
-          <Link href="/settings">
-            {status === "authenticated" ? (
+          {status === "authenticated" ? (
+            <Link href="/settings">
               <DropdownMenuItem className="h-9 cursor-pointer">
                 <SettingsIcon className="mr-2 h-4 w-4" aria-hidden={true} />
                 <span>Settings</span>
               </DropdownMenuItem>
-            ) : (
+            </Link>
+          ) : (
+            <Link href="/settings">
               <DropdownMenuItem className="h-9 cursor-pointer">
                 <SparklesIcon className="mr-2 h-4 w-4" aria-hidden={true} />
                 <span>Make My AI</span>
               </DropdownMenuItem>
-            )}
-          </Link>
-          <DropdownMenuItem
-            role="button"
-            onClick={() => router.push("/m")}
-            className="h-9 cursor-pointer"
-          >
-            <MessageCircleIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-            <span>Chats</span>
-          </DropdownMenuItem>
+            </Link>
+          )}
+          {status === "authenticated" && (
+            <DropdownMenuItem
+              role="button"
+              onClick={() => router.push("/m")}
+              className="h-9 cursor-pointer"
+            >
+              <MessageCircleIcon className="mr-2 h-4 w-4" aria-hidden={true} />
+              <span>Chats</span>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem
             role="button"
             onClick={() => router.push("/people")}
@@ -284,15 +144,17 @@ function ChatDropdownMenu({
             <UsersIcon className="mr-2 h-4 w-4" aria-hidden={true} />
             <span>People</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            role="button"
-            onClick={() => setOpenDeleteChat(true)}
-            className="h-9 cursor-pointer"
-          >
-            <RotateCcwIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-            <span>Reset Chat</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+          {status === "authenticated" && (
+            <DropdownMenuItem
+              role="button"
+              onClick={() => setOpenDeleteChat(true)}
+              className="h-9 cursor-pointer"
+            >
+              <RotateCcwIcon className="mr-2 h-4 w-4" aria-hidden={true} />
+              <span>Reset Chat</span>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem className="h-9 cursor-pointer">
             <FlagIcon className="mr-2 h-4 w-4" aria-hidden={true} />
             <span>Report Chat</span>
           </DropdownMenuItem>
@@ -367,5 +229,31 @@ function DeleteChatAlert({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  )
+}
+
+// Extracted fallback skeleton for Suspense streaming
+export function ChatListSidebarSkeleton() {
+  return (
+    <aside className="w-80 border-r bg-background p-4 max-sm:hidden">
+      <h2 className="mb-4 text-lg font-semibold">Chats</h2>
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full rounded-md" />
+        ))}
+      </div>
+    </aside>
+  )
+}
+
+function Skeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      {...props}
+    />
   )
 }

@@ -13,6 +13,7 @@ export async function middleware(req: NextRequest) {
     "/about",
     "/about/:category*",
     "/api/chat",
+    "/people",
   ]
 
   if (pathname === "/") {

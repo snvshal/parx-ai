@@ -8,7 +8,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import Loading from "@/app/loading"
 
-const fetchUserChats = async (): Promise<ChatSession[]> => {
+export const fetchUserChats = async (): Promise<ChatSession[]> => {
   const chats = await getChats()
   return chats
 }

@@ -1,7 +1,7 @@
 import { getChats } from "@/app/actions/chat"
 import { Badge } from "@/components/ui/badge"
 import { HeaderComponent } from "@/components/header"
-import { ChatList } from "@/components/show/chat-list"
+import { ChatListComponent } from "@/components/show/chat-list"
 
 export default async function ChatListPage() {
   const chats = await getChats()
@@ -15,7 +15,7 @@ export default async function ChatListPage() {
         </Badge>
       }
     >
-      <ChatList />
+      <ChatListComponent />
     </HeaderComponent>
   )
 }
