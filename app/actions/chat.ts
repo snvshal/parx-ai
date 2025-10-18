@@ -58,7 +58,9 @@ export const getChats = async (): Promise<ChatSession[]> => {
     const sessionUser = await getSessionUser()
     if (!sessionUser) return []
 
-    const chats = await Chat.find({ userId: sessionUser._id }).lean()
+    const chats = await Chat.find({ userId: sessionUser._id })
+      .sort({ updatedAt: -1 })
+      .lean()
 
     let chatSessions: ChatSession[] = []
     await Promise.all(
@@ -73,7 +75,7 @@ export const getChats = async (): Promise<ChatSession[]> => {
         })
       }),
     )
-
+    console.log("geted")
     return JSON.parse(JSON.stringify(chatSessions))
   } catch (error) {
     console.error(`Error fetching chats for user`, error)
