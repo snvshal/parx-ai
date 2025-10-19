@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Parx AI chatbot",
     short_name: "Parx",
-    description: "Parx AI chatbot",
+    description:
+      "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

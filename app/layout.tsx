@@ -13,20 +13,23 @@ const fira = Fira_Code({ subsets: ["latin"] })
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.METADATA_BASE_URL!),
   title: "Parx AI chatbot",
-  description: "A simple Parx AI chatbot using Next.js and Gemini",
+  description:
+    "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
   icons: [
     { rel: "apple-touch-icon", url: "/icons/icon-192x192.png" },
     { rel: "icon", url: "/icons/icon-192x192.png" },
   ],
   openGraph: {
     title: "Parx AI chatbot",
-    description: "A simple Parx AI chatbot using Next.js and Gemini",
+    description:
+      "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
     images: [{ url: "/icons/icon-192x192.png" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Parx AI chatbot",
-    description: "A simple Parx AI chatbot using Next.js and Gemini",
+    description:
+      "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
     images: ["/icons/icon-192x192.png"],
     creator: "@snvshal",
   },
