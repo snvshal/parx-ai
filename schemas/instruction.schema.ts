@@ -3,7 +3,6 @@ import { Document, Types } from "mongoose"
 import { ZodObjectId } from "./chat.schema"
 
 export const InstructionSchema = z.object({
-  // _id: ZodObjectId,
   userId: ZodObjectId,
 
   type: z.string().trim().min(1, { message: "Instruction type is required." }),
@@ -21,7 +20,7 @@ export const InstructionSchema = z.object({
         alt: z.string().trim().min(20, {
           message: "Image ALT text must be at least 20 characters long.",
         }),
-      })
+      }),
     )
     .default([]),
   links: z
@@ -34,14 +33,12 @@ export const InstructionSchema = z.object({
         alt: z.string().trim().min(20, {
           message: "Link ALT text must be at least 20 characters long.",
         }),
-      })
+      }),
     )
     .default([]),
-
-  // createdAt: z.date().default(() => new Date()),
-  // updatedAt: z.date().default(() => new Date()),
 })
 
+export type TInstructionWithoutDoc = z.infer<typeof InstructionSchema>
 export type TInstruction = z.infer<typeof InstructionSchema> &
   Document & {
     _id: Types.ObjectId

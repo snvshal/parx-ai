@@ -3,6 +3,8 @@ import GoogleProvider from "next-auth/providers/google"
 import { User } from "@/models/user.model"
 import connectToDatabase from "@/lib/db"
 import { TUser, TUserWithoutDoc, UserSchema } from "@/schemas/user.schema"
+import { InstructionSchema } from "@/schemas/instruction.schema"
+import { Instruction } from "@/models/instruction.model"
 
 const handler = NextAuth({
   providers: [
@@ -33,17 +35,39 @@ const handler = NextAuth({
 
           const userData: TUserWithoutDoc = {
             email: user.email!,
-            name: user.name?.slice(0, 20)!,
-            username: username!,
-            avatar: user.image!,
+            name: user.name?.slice(0, 20) || "New User",
+            username,
+            avatar: user.image || "",
             socialLink: "",
-            firstMessage: `Hi! I'm ${user.name}. Happy to chat about my hobbies, experiences, or anything fun that comes up! 😊`,
+            firstMessage: `Hi! I'm ${user.name || "a new user"}. Happy to chat about my hobbies, experiences, or anything fun that comes up! 😊`,
             createdAt: new Date(),
             updatedAt: new Date(),
           }
 
           const validatedData = UserSchema.parse(userData)
-          await User.create(validatedData)
+          const newUser = await User.create(validatedData)
+
+          const customInstructions = [
+            {
+              userId: newUser._id?.toString(),
+              type: "How I talk and behave",
+              content: "I am friendly, witty, and concise in responses.",
+              mediaUrls: [],
+              links: [],
+            },
+            {
+              userId: newUser._id?.toString(),
+              type: "What topics I love",
+              content: "I'm into tech, gaming, fitness, and travel.",
+              mediaUrls: [],
+              links: [],
+            },
+          ]
+
+          const validatedInstructions = customInstructions.map((i) =>
+            InstructionSchema.parse(i),
+          )
+          await Instruction.insertMany(validatedInstructions)
         }
 
         return true
