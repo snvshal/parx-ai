@@ -3,12 +3,8 @@ import GoogleProvider from "next-auth/providers/google"
 import { User } from "@/models/user.model"
 import connectToDatabase from "@/lib/db"
 import { TUser, TUserWithoutDoc, UserSchema } from "@/schemas/user.schema"
-import {
-  InstructionSchema,
-  TInstructionWithoutDoc,
-} from "@/schemas/instruction.schema"
+import { InstructionSchema } from "@/schemas/instruction.schema"
 import { Instruction } from "@/models/instruction.model"
-import { Types } from "mongoose"
 
 const handler = NextAuth({
   providers: [
@@ -51,16 +47,16 @@ const handler = NextAuth({
           const validatedData = UserSchema.parse(userData)
           const newUser = await User.create(validatedData)
 
-          const customInstructions: TInstructionWithoutDoc[] = [
+          const customInstructions = [
             {
-              userId: newUser._id as Types.ObjectId,
+              userId: newUser._id?.toString(),
               type: "How I talk and behave",
               content: "I am friendly, witty, and concise in responses.",
               mediaUrls: [],
               links: [],
             },
             {
-              userId: newUser._id as Types.ObjectId,
+              userId: newUser._id?.toString(),
               type: "What topics I love",
               content: "I'm into tech, gaming, fitness, and travel.",
               mediaUrls: [],
