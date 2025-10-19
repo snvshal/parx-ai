@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#ffffff",
+    background_color: "#242427",
+    theme_color: "#242427",
     icons: [
       {
         src: "/icons/icon-48x48.png",
