@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "VSHAL AI chatbot",
-    short_name: "VSHAL",
-    description: "VSHAL chatbot",
+    name: "Parx AI chatbot",
+    short_name: "Parx",
+    description: "Parx AI chatbot",
     start_url: "/",
     display: "standalone",
-    background_color: "#242427",
-    theme_color: "#242427",
+    background_color: "#ffffff",
+    theme_color: "#ffffff",
     icons: [
       {
         src: "/icons/icon-48x48.png",
