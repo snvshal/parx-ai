@@ -39,6 +39,7 @@ import {
 import { deleteMessages } from "@/app/actions/chat"
 import { toast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { Skeleton } from "../co"
 
 export function ThinkingAnimation() {
   return (
@@ -127,23 +128,22 @@ export function ChatDropdownMenu({
             </Link>
           )}
           {status === "authenticated" && (
-            <DropdownMenuItem
-              role="button"
-              onClick={() => router.push("/m")}
-              className="h-9 cursor-pointer"
-            >
-              <MessageCircleIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-              <span>Chats</span>
-            </DropdownMenuItem>
+            <Link href="/chats">
+              <DropdownMenuItem className="h-9 cursor-pointer">
+                <MessageCircleIcon
+                  className="mr-2 h-4 w-4"
+                  aria-hidden={true}
+                />
+                <span>Chats</span>
+              </DropdownMenuItem>
+            </Link>
           )}
-          <DropdownMenuItem
-            role="button"
-            onClick={() => router.push("/people")}
-            className="h-9 cursor-pointer"
-          >
-            <UsersIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-            <span>People</span>
-          </DropdownMenuItem>
+          <Link href="/people">
+            <DropdownMenuItem className="h-9 cursor-pointer">
+              <UsersIcon className="mr-2 h-4 w-4" aria-hidden={true} />
+              <span>People</span>
+            </DropdownMenuItem>
+          </Link>
           {status === "authenticated" && (
             <DropdownMenuItem
               role="button"
@@ -232,7 +232,6 @@ function DeleteChatAlert({
   )
 }
 
-// Extracted fallback skeleton for Suspense streaming
 export function ChatListSidebarSkeleton() {
   return (
     <aside className="w-80 border-r bg-background p-4 max-sm:hidden">
@@ -243,17 +242,5 @@ export function ChatListSidebarSkeleton() {
         ))}
       </div>
     </aside>
-  )
-}
-
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
-      {...props}
-    />
   )
 }
