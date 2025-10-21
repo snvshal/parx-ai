@@ -3,9 +3,6 @@ import "server-only"
 import { buildSystemInstruction } from "@/lib/utils"
 import { Instruction } from "@/models/instruction.model"
 import connectToDatabase from "@/lib/db"
-import { getServerSession } from "next-auth"
-import { TUser } from "@/schemas/user.schema"
-import { User } from "@/models/user.model"
 
 export const getInstructionsByUserId = async (userId: string) => {
   try {
