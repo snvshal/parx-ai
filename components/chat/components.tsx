@@ -119,7 +119,7 @@ export function ChatDropdownMenu({
               </DropdownMenuItem>
             </Link>
           ) : (
-            <Link href="/settings">
+            <Link href="/sign-in">
               <DropdownMenuItem className="h-9 cursor-pointer">
                 <SparklesIcon className="mr-2 h-4 w-4" aria-hidden={true} />
                 <span>Make My AI</span>
