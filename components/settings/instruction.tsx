@@ -41,6 +41,8 @@ import { InstructionSchema, TInstruction } from "@/schemas/instruction.schema"
 import { AlertDialogComponent } from "./settings-list"
 import { AlertMessage } from "../co"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useSessionUser } from "@/hooks/use-session-user"
+import { Badge } from "../ui/badge"
 
 const instructionFormSchema = InstructionSchema.pick({
   type: true,
@@ -80,8 +82,9 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
   const [error, setError] = useState<string | null>(null)
   const [isEditingId, setIsEditingId] = useState<string | null>(null)
 
-  useEffect(() => setInstructions(inst), [inst])
+  const { user } = useSessionUser()
 
+  useEffect(() => setInstructions(inst), [inst])
   useEffect(() => {
     const hasAddNewInst = localStorage.getItem("addNewInstruction")
     if (hasAddNewInst === "true") {
@@ -211,21 +214,30 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
       ) : (
         <Accordion type="single" collapsible>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold">Added Instructions</h2>
-            {/* <Button>
-              <Link href={`/m/${user.username}`}>Test</Link>
-            </Button> */}
+            <h2 className="text-lg font-bold">
+              Added Instructions{" "}
+              <Badge variant="outline">{instructions.length}</Badge>
+            </h2>
+            {instructions.length ? (
+              <Button>
+                <Link href={`/m/${user?.username}`}>Test</Link>
+              </Button>
+            ) : null}
           </div>
-          {instructions.map((instruction) => (
-            <InstructionItem
-              key={instruction._id.toString()}
-              instruction={instruction}
-              isEditingId={isEditingId}
-              setIsEditingId={setIsEditingId}
-              onUpdate={handleUpdate}
-              onDelete={handleDelete}
-            />
-          ))}
+          {!instructions.length ? (
+            <p className="text-muted-foreground">No Instructions here</p>
+          ) : (
+            instructions.map((instruction) => (
+              <InstructionItem
+                key={instruction._id.toString()}
+                instruction={instruction}
+                isEditingId={isEditingId}
+                setIsEditingId={setIsEditingId}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}
+              />
+            ))
+          )}
         </Accordion>
       )}
     </HeaderComponent>

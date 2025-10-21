@@ -6,7 +6,8 @@ import { getServerSession, Session } from "next-auth"
 import SessionProviderComponent from "@/components/session-provider"
 import { Toaster } from "@/components/ui/toaster"
 import NotificationSetup from "@/components/notification-setup"
-import { UserProvider } from "@/hooks/use-user"
+import { SessionUserProvider } from "@/hooks/use-session-user"
+import { getContextUser } from "./actions/session-user"
 
 const fira = Fira_Code({ subsets: ["latin"] })
 
@@ -49,7 +50,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const session: Session | null = await getServerSession()
-
+  const contextUser = await getContextUser()
   return (
     <html lang="en">
       <body className={fira.className}>
@@ -60,10 +61,10 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <UserProvider>
+            <SessionUserProvider initialUser={contextUser}>
               {children}
               <NotificationSetup />
-            </UserProvider>
+            </SessionUserProvider>
             <Toaster />
           </ThemeProvider>
         </SessionProviderComponent>
