@@ -11,7 +11,10 @@ export default function FooterComponent() {
       <div className="flex w-full items-center justify-between py-4">
         <p className="flex items-center justify-center gap-2 py-4">
           <CopyrightIcon size={16} />
-          <span>{new Date().getFullYear()} Parx AI. All rights reserved.</span>
+          <span>
+            {new Date().getFullYear()} Parx AI.{" "}
+            <span className="max-sm:hidden">All rights reserved.</span>
+          </span>
         </p>
         <Link
           href={x}

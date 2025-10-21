@@ -1,6 +1,5 @@
 "use client"
 
-import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
@@ -18,9 +17,29 @@ export default function SignUpPage() {
   const callbackUrl = searchParams.get("callbackUrl") || "/"
   const router = useRouter()
 
-  const handleSignIn = async () => {
-    await signIn("google", { callbackUrl })
-    router.replace(callbackUrl)
+  const handleSignIn = () => {
+    const width = 500
+    const height = 600
+    const left = window.screen.width / 2 - width / 2
+    const top = window.screen.height / 2 - height / 2
+
+    const popup = window.open(
+      `/api/auth/signin/google?callbackUrl=${encodeURIComponent("/auth/success")}`,
+      "googleSignIn",
+      `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,status=no,resizable=yes,scrollbars=yes`,
+    )
+
+    if (!popup) return
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data === "SIGNED_IN") {
+        popup.close()
+        window.removeEventListener("message", handleMessage)
+        router.replace(callbackUrl)
+      }
+    }
+
+    window.addEventListener("message", handleMessage)
   }
 
   return (

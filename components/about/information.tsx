@@ -1,7 +1,7 @@
 export function Information() {
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-4 text-2xl font-bold">About This Platform</h1>
+      <h1 className="mb-4 text-2xl font-bold">This Platform</h1>
       <p className="mb-4">
         This platform allows you to <b>modify AI-generated responses</b> by
         adding <b>Custom Instructions (System Prompts)</b>. With this feature,

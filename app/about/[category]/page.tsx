@@ -16,7 +16,7 @@ export default async function AboutCategory({
   switch (category) {
     case "how-to-use":
       return (
-        <HeaderComponent page="How to Use">
+        <HeaderComponent page="About /">
           <HowToUse />
           <FooterComponent />
         </HeaderComponent>
@@ -24,7 +24,7 @@ export default async function AboutCategory({
 
     case "information":
       return (
-        <HeaderComponent page="Information">
+        <HeaderComponent page="About /">
           <Information />
           <FooterComponent />
         </HeaderComponent>
@@ -32,7 +32,7 @@ export default async function AboutCategory({
 
     case "privacy-policy":
       return (
-        <HeaderComponent page="Privacy Policy">
+        <HeaderComponent page="About /">
           <PrivacyPolicy />
           <FooterComponent />
         </HeaderComponent>
@@ -40,7 +40,7 @@ export default async function AboutCategory({
 
     case "terms-of-use":
       return (
-        <HeaderComponent page="Terms of Use">
+        <HeaderComponent page="About /">
           <TermsOfUse />
           <FooterComponent />
         </HeaderComponent>

@@ -1,42 +1,61 @@
-"use client"
-
-import { ChatSession, getChats } from "@/app/actions/chat"
+import { Suspense } from "react"
+import { getChats } from "@/app/actions/chat"
+import { HeaderComponent } from "@/components/header"
+import { ChatSession } from "@/app/actions/chat"
 import { Card, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import Loading from "@/app/loading"
+import { ChatListSkeleton } from "@/components/co"
 
-export const fetchUserChats = async (): Promise<ChatSession[]> => {
-  const chats = await getChats()
-  return chats
+export default async function ChatListPage() {
+  const chatsPromise = getChats()
+
+  return (
+    <HeaderComponent
+      page="Chats"
+      actionItem={
+        <Suspense
+          fallback={
+            <Badge variant="outline" className="px-4 py-1">
+              ...
+            </Badge>
+          }
+        >
+          <ChatCount chatsPromise={chatsPromise} />
+        </Suspense>
+      }
+    >
+      <Suspense fallback={<ChatListSkeleton count={4} />}>
+        <ChatList chatsPromise={chatsPromise} />
+      </Suspense>
+    </HeaderComponent>
+  )
 }
 
-export function ChatList() {
-  const [chats, setChats] = useState<ChatSession[]>([])
-  const [loading, setLoading] = useState(true)
+async function ChatCount({
+  chatsPromise,
+}: {
+  chatsPromise: Promise<ChatSession[]>
+}) {
+  const chats = await chatsPromise
+  return (
+    <Badge variant="outline" className="px-4 py-1">
+      {chats.length}
+    </Badge>
+  )
+}
 
-  useEffect(() => {
-    fetchUserChats().then((data) => {
-      setChats(data)
-      setLoading(false)
-    })
-  }, [])
-
-  if (loading) return <Loading />
+async function ChatList({
+  chatsPromise,
+}: {
+  chatsPromise: Promise<ChatSession[]>
+}) {
+  const chats = await chatsPromise
 
   return (
     <div className="container mx-auto">
       <div className="flex flex-col gap-6">
-        {/* <div className="flex items-center justify-between px-4">
-          <h1 className="text-xl font-bold md:text-3xl">Chats</h1>
-          <Badge variant="outline" className="px-4 py-1">
-            {chats.length}
-          </Badge>
-        </div> */}
-
-        {/* <ScrollArea className="flex-1"> */}
         <div className="flex flex-col gap-4">
           {chats.map((chat) => (
             <Link key={chat.chatId} href={`/m/${chat.persona.username}`}>
@@ -67,27 +86,10 @@ export function ChatList() {
                     {chat.unreadCount > 0 ? chat.unreadCount : "0"}
                   </Badge>
                 </CardHeader>
-                {/* <CardContent>
-                    {person.instructions?.length ? (
-                      person.instructions.map((instruction, index) => (
-                        <div
-                          key={index}
-                          className="text-sm text-muted-foreground"
-                        >
-                          <p>{instruction.content}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No instructions provided.
-                      </p>
-                    )}
-                  </CardContent> */}
               </Card>
             </Link>
           ))}
         </div>
-        {/* </ScrollArea> */}
       </div>
     </div>
   )

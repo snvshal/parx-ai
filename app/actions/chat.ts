@@ -9,7 +9,6 @@ import { ChatSchema, TChat } from "@/schemas/chat.schema"
 import { TMessage } from "@/schemas/message.schema"
 import { TUser } from "@/schemas/user.schema"
 import { Message as SDKMessage } from "ai"
-import { ContextUser } from "@/hooks/use-user"
 import { getSessionUser } from "@/app/actions/session-user"
 import { revalidatePath } from "next/cache"
 
@@ -22,26 +21,6 @@ export const getUserByUsername = async (
     return userData || null
   } catch (error) {
     console.error(`Error fetching user by username "${username}":`, error)
-    return null
-  }
-}
-
-export const getContextUser = async (): Promise<ContextUser | null> => {
-  try {
-    const sessionUser = await getSessionUser()
-
-    if (!sessionUser) return null
-
-    const contextUser = {
-      id: sessionUser._id?.toString(),
-      username: sessionUser.username,
-      name: sessionUser.name,
-      email: sessionUser.email,
-      avatar: sessionUser.avatar,
-    } as ContextUser
-
-    return contextUser
-  } catch (error) {
     return null
   }
 }
@@ -75,7 +54,6 @@ export const getChats = async (): Promise<ChatSession[]> => {
         })
       }),
     )
-    console.log("geted")
     return JSON.parse(JSON.stringify(chatSessions))
   } catch (error) {
     console.error(`Error fetching chats for user`, error)
