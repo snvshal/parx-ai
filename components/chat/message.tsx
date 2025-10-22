@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { CheckIcon, CopyIcon } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import rehypeRaw from "rehype-raw"
 import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
 import type { UIMessage } from "ai"
@@ -21,30 +22,30 @@ export const MemoChatMessage = memo(function ChatMessage({
   return (
     <div
       className={cn(
-        "group flex w-full items-start gap-2 my-4",
-        !isAssistant && "flex-row-reverse"
+        "group my-4 flex w-full items-start gap-2",
+        !isAssistant && "flex-row-reverse",
       )}
     >
       <div
         className={cn(
-          "flex flex-col gap-2 max-w-[80%] min-w-0",
-          isAssistant && "items-end"
+          "flex min-w-0 max-w-[80%] flex-col gap-2",
+          isAssistant && "items-end",
         )}
       >
         <div
           className={cn(
-            "rounded-2xl px-4 py-2 text-sm break-words w-full",
+            "w-full break-words rounded-2xl px-4 py-2 text-sm",
             isAssistant
               ? "bg-accent"
-              : "dark:bg-blue-800 bg-blue-700 text-white"
+              : "bg-blue-700 text-white dark:bg-blue-800",
           )}
         >
           {/* eslint-disable @next/next/no-img-element */}
           {isAssistant ? (
-            <div className="prose prose-sm dark:prose-invert w-full overflow-hidden break-words">
+            <div className="prose prose-sm w-full overflow-hidden break-words dark:prose-invert">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeHighlight]}
+                rehypePlugins={[rehypeHighlight, rehypeRaw]}
                 components={{
                   pre: CodeBlock as Components["pre"],
                   code: InlineCode,
@@ -52,13 +53,29 @@ export const MemoChatMessage = memo(function ChatMessage({
                     <img
                       {...props}
                       alt="image"
-                      className="max-w-full h-auto max-h-80 rounded-lg my-2"
+                      className="my-2 h-auto max-h-80 max-w-full rounded-lg"
                     />
+                  ),
+                  video: ({ node, ...props }) => (
+                    <video
+                      {...props}
+                      controls
+                      className="my-2 max-w-full rounded-lg"
+                    />
+                  ),
+                  iframe: ({ node, ...props }) => (
+                    <div className="my-2 aspect-video w-full max-w-full overflow-hidden rounded-lg">
+                      <iframe
+                        {...props}
+                        className="h-full w-full"
+                        allowFullScreen
+                      />
+                    </div>
                   ),
                   a: ({ children, target = "_blank", ...props }) => (
                     <a
                       target={target}
-                      className="whitespace-pre-wrap break-words overflow-hidden text-sm no-underline hover:underline text-blue-500"
+                      className="overflow-hidden whitespace-pre-wrap break-words text-sm text-blue-500 no-underline hover:underline"
                       {...props}
                     >
                       {children}
@@ -72,15 +89,15 @@ export const MemoChatMessage = memo(function ChatMessage({
             </div>
           ) : (
             <div className="w-full">
-              <p className="leading-relaxed whitespace-pre-wrap break-words overflow-hidden">
+              <p className="overflow-hidden whitespace-pre-wrap break-words leading-relaxed">
                 {message.content}
               </p>
             </div>
           )}
           <div
             className={cn(
-              "text-[10px] text-right mt-1",
-              isAssistant ? "text-foreground/50" : "text-white/50"
+              "mt-1 text-right text-[10px]",
+              isAssistant ? "text-foreground/50" : "text-white/50",
             )}
           >
             {format(message.createdAt as Date, "h:mm a")}
@@ -98,7 +115,7 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
   const language =
     codeElement.props.node?.properties?.className?.[1]?.replace(
       "language-",
-      ""
+      "",
     ) || "text"
 
   const handleCopy = () => {
@@ -128,7 +145,7 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
       <div className="overflow-x-auto">
         <pre
           ref={codeRef}
-          className="m-0 p-4 text-sm text-white/90 whitespace-pre-wrap break-words"
+          className="m-0 whitespace-pre-wrap break-words p-4 text-sm text-white/90"
           {...props}
         >
           <code className="block">{codeElement.props.children}</code>
@@ -146,8 +163,8 @@ function InlineCode({
   return (
     <span
       className={cn(
-        "rounded bg-foreground/10 px-1 py-0.5 text-sm break-all",
-        className
+        "break-all rounded bg-foreground/10 px-1 py-0.5 text-sm",
+        className,
       )}
       {...props}
     >
