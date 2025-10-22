@@ -63,7 +63,7 @@ export default function Chat({
   }, [messages])
 
   return (
-    <div className="chat-container mx-auto flex h-screen w-full max-w-2xl flex-col overflow-hidden md:h-[calc(100dvh-2rem)] md:rounded-3xl md:border">
+    <div className="chat-container mx-auto flex h-screen w-full max-w-2xl flex-col overflow-hidden lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border">
       <div className="z-10 flex flex-shrink-0 items-center justify-between border-b px-4 py-3">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center justify-center gap-2">

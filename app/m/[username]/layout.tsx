@@ -12,12 +12,14 @@ export default async function ChatLayout({
   children: React.ReactNode
 }) {
   return (
-    <main className="chat-container relative flex h-screen items-center justify-center md:h-[100dvh]">
+    <main className="chat-container relative flex h-screen items-center justify-center">
       <div className="flex w-full max-w-full">
         <Suspense fallback={<ChatListSidebarSkeleton />}>
           <ChatListSidebar />
         </Suspense>
-        <div className="mx-auto flex-1 md:px-4">{children}</div>
+        <div className="mx-auto flex flex-1 items-center lg:px-4">
+          {children}
+        </div>
       </div>
     </main>
   )
@@ -30,9 +32,9 @@ async function ChatListSidebar() {
   const chats = await getChats()
 
   return (
-    <aside className="w-80 border-r bg-background p-4 max-sm:hidden">
-      <h2 className="mb-4 text-lg font-semibold">Chats</h2>
-      <ScrollArea className="h-[calc(100dvh-6rem)]">
+    <aside className="w-80 border-r bg-background p-4 max-md:w-auto max-sm:hidden">
+      <h2 className="mb-4 h-8 text-lg font-semibold">Chats</h2>
+      <ScrollArea className="h-[calc(100dvh-5rem)]">
         {chats.length === 0 ? (
           <p className="text-sm text-muted-foreground">No chats found</p>
         ) : (
@@ -41,7 +43,7 @@ async function ChatListSidebar() {
               <Link
                 key={chat.chatId}
                 href={`/m/${chat.persona.username}`}
-                className="flex w-full items-center gap-3 rounded-lg p-2 hover:bg-accent"
+                className="flex w-full items-center gap-3 rounded-full p-2 hover:bg-accent md:rounded-lg"
               >
                 <Avatar>
                   <AvatarImage
@@ -52,7 +54,7 @@ async function ChatListSidebar() {
                     {chat.persona.name.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col text-left">
+                <div className="flex flex-col text-left max-md:hidden">
                   <span className="font-medium">{chat.persona.name}</span>
                   <span className="line-clamp-1 text-sm text-muted-foreground">
                     {chat.lastMessageContent}
