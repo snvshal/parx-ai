@@ -6,47 +6,28 @@ import { PrivacyPolicy } from "@/components/about/privacy-policy"
 import { TermsOfUse } from "@/components/about/terms-of-use"
 import FooterComponent from "@/components/footer"
 
+const CATEGORY_COMPONENTS = {
+  "how-to-use": HowToUse,
+  information: Information,
+  "privacy-policy": PrivacyPolicy,
+  "terms-of-use": TermsOfUse,
+} as const
+
 export default async function AboutCategory({
   params,
 }: {
   params: Promise<{ category: string }>
 }) {
-  const category = (await params).category
+  const { category } = await params
+  const Component =
+    CATEGORY_COMPONENTS[category as keyof typeof CATEGORY_COMPONENTS]
 
-  switch (category) {
-    case "how-to-use":
-      return (
-        <HeaderComponent page="About /">
-          <HowToUse />
-          <FooterComponent />
-        </HeaderComponent>
-      )
+  if (!Component) return notFound()
 
-    case "information":
-      return (
-        <HeaderComponent page="About /">
-          <Information />
-          <FooterComponent />
-        </HeaderComponent>
-      )
-
-    case "privacy-policy":
-      return (
-        <HeaderComponent page="About /">
-          <PrivacyPolicy />
-          <FooterComponent />
-        </HeaderComponent>
-      )
-
-    case "terms-of-use":
-      return (
-        <HeaderComponent page="About /">
-          <TermsOfUse />
-          <FooterComponent />
-        </HeaderComponent>
-      )
-
-    default:
-      return notFound()
-  }
+  return (
+    <HeaderComponent page="About /">
+      <Component />
+      <FooterComponent />
+    </HeaderComponent>
+  )
 }

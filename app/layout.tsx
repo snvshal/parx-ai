@@ -24,14 +24,14 @@ export const metadata: Metadata = {
     title: "Parx AI chatbot",
     description:
       "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
-    images: [{ url: "/icons/icon-192x192.png" }],
+    images: [{ url: "/opengraph-image.png" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Parx AI chatbot",
     description:
       "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
-    images: ["/icons/icon-192x192.png"],
+    images: ["/opengraph-image.png"],
     creator: "@snvshal",
   },
 }

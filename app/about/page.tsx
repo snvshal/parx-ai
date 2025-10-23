@@ -40,7 +40,7 @@ export default function AboutPage() {
     },
   ]
   return (
-    <HeaderComponent page="About">
+    <HeaderComponent page="About" className="max-sm:px-0">
       <ActionItems items={aboutItems} />
     </HeaderComponent>
   )

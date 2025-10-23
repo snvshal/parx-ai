@@ -13,8 +13,8 @@ import Link from "next/link"
 import { Message } from "ai"
 import { AlertMessage } from "../co"
 import { useMobileKeyboard } from "@/hooks/use-mobile-keyboard"
-
 import { ChatDropdownMenu, ThinkingAnimation } from "./components"
+import InstallPWA from "../install-pwa"
 
 export default function Chat({
   persona,
@@ -89,11 +89,14 @@ export default function Chat({
               </p>
             </div>
           </div>
-          <ChatDropdownMenu
-            id={String(persona._id)}
-            name={persona.name}
-            username={persona.username}
-          />
+          <div className="flex items-center gap-2">
+            <InstallPWA />
+            <ChatDropdownMenu
+              id={String(persona._id)}
+              name={persona.name}
+              username={persona.username}
+            />
+          </div>
         </div>
       </div>
 
