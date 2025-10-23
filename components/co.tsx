@@ -54,23 +54,24 @@ export function Skeleton({
 export function ChatListSkeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="container mx-auto">
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-4">
-          {Array.from({ length: count }).map((_, i) => (
-            <Card key={i} className="p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <Skeleton className="h-12 w-12 rounded-full" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-48" />
-                  </div>
+      <div className="flex flex-col sm:gap-4 sm:p-4">
+        {Array.from({ length: count }).map((_, i) => (
+          <Card
+            key={i}
+            className="p-4 max-sm:rounded-none max-sm:border-0 max-sm:border-b"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-48" />
                 </div>
-                <Skeleton className="h-6 w-8 rounded-md" />
               </div>
-            </Card>
-          ))}
-        </div>
+              <Skeleton className="h-6 w-8 rounded-md" />
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   )
