@@ -108,7 +108,7 @@ async function PeopleList({
   )
 }
 
-export function InstructionBadge({
+function InstructionBadge({
   status,
 }: {
   status: TPersona["instructionStatus"]
