@@ -43,7 +43,7 @@ export const MemoChatMessage = memo(function ChatMessage({
         >
           {/* eslint-disable @next/next/no-img-element */}
           {isAssistant ? (
-            <div className="prose prose-sm w-full overflow-hidden break-words dark:prose-invert">
+            <div className="prose prose-sm w-full overflow-hidden break-all dark:prose-invert">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight, rehypeRaw]}
@@ -106,7 +106,7 @@ export const MemoChatMessage = memo(function ChatMessage({
             </div>
           ) : (
             <div className="w-full">
-              <p className="overflow-hidden whitespace-pre-wrap break-words leading-relaxed">
+              <p className="overflow-hidden whitespace-pre-wrap break-all leading-relaxed">
                 {message.content}
               </p>
             </div>
@@ -162,7 +162,7 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
       <div className="overflow-x-auto">
         <pre
           ref={codeRef}
-          className="m-0 whitespace-pre-wrap break-words p-4 text-sm text-white/90"
+          className="m-0 whitespace-pre-wrap break-all p-4 text-sm text-white/90"
           {...props}
         >
           <code className="block">{codeElement.props.children}</code>

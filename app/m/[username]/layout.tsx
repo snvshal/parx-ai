@@ -43,7 +43,7 @@ async function ChatListSidebar() {
               <Link
                 key={chat.chatId}
                 href={`/m/${chat.persona.username}`}
-                className="flex w-full items-center gap-3 rounded-full p-2 hover:bg-accent md:rounded-lg"
+                className="flex h-14 items-center gap-3 rounded-full p-2 hover:bg-accent md:w-72 md:rounded-lg"
               >
                 <Avatar>
                   <AvatarImage

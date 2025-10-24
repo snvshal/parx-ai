@@ -59,7 +59,7 @@ async function ChatList({
       <div className="flex flex-col sm:gap-4 sm:p-4">
         {chats.map((chat) => (
           <Link key={chat.chatId} href={`/m/${chat.persona.username}`}>
-            <Card className="group relative transition-all max-sm:rounded-none max-sm:border-0 max-sm:border-b sm:hover:shadow-[0_0_10px_#3b82f6]">
+            <Card className="group relative rounded-3xl transition-all max-sm:rounded-none max-sm:border-0 max-sm:border-b sm:hover:shadow-[0_0_10px_#3b82f6]">
               <div className="absolute inset-0 z-10 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10 sm:hidden" />
               <CardHeader className="flex flex-row items-center justify-between gap-4">
                 <div className="flex gap-4">
@@ -73,18 +73,21 @@ async function ChatList({
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-semibold">{chat.persona.name}</div>
-                    <div className="text-sm text-muted-foreground">
+                    <p className="font-semibold">{chat.persona.name}</p>
+                    <p className="text-sm text-muted-foreground">
                       {chat.lastMessageContent
                         ? chat.lastMessageContent.length > 40
                           ? chat.lastMessageContent.substring(0, 40) + "..."
                           : chat.lastMessageContent
                         : "No messages yet"}
-                    </div>
+                    </p>
                   </div>
                 </div>
                 {chat.unreadCount ? (
-                  <Badge variant="secondary" className="px-2 py-1">
+                  <Badge
+                    variant="secondary"
+                    className="rounded-full px-3 py-1.5 font-medium"
+                  >
                     {chat.unreadCount > 0 ? chat.unreadCount : "0"}
                   </Badge>
                 ) : null}
