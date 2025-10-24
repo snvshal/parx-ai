@@ -41,19 +41,19 @@ export const getChats = async (): Promise<ChatSession[]> => {
       .sort({ updatedAt: -1 })
       .lean()
 
-    let chatSessions: ChatSession[] = []
-    await Promise.all(
+    const chatSessions: ChatSession[] = await Promise.all(
       chats.map(async (chat) => {
         const persona = await User.findById(chat.personaId).lean()
         const lastMessage = await Message.findById(chat.lastMessage).lean()
-        chatSessions.push({
+        return {
           ...chat,
           chatId: chat._id.toString(),
           persona: persona as TUser,
           lastMessageContent: lastMessage?.content as string,
-        })
+        }
       }),
     )
+
     return JSON.parse(JSON.stringify(chatSessions))
   } catch (error) {
     console.error(`Error fetching chats for user`, error)

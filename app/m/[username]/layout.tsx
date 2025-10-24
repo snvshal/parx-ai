@@ -1,10 +1,25 @@
-import { getChats } from "@/app/actions/chat"
+import { getChats, getUserByUsername } from "@/app/actions/chat"
 import { getSessionUser } from "@/app/actions/session-user"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Suspense } from "react"
-import Link from "next/link"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ChatListSidebarSkeleton } from "@/components/chat/components"
+import { ChatList, ChatListSidebarSkeleton } from "@/components/chat/components"
+import { Metadata } from "next"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>
+}): Promise<Metadata> {
+  const username = (await params).username
+  const user = await getUserByUsername(username)
+  if (!user) return { title: "Persona not found" }
+  const { name, firstMessage } = user
+
+  return {
+    title: `${name} (@${username})`,
+    description: firstMessage,
+  }
+}
 
 export default async function ChatLayout({
   children,
@@ -39,29 +54,7 @@ async function ChatListSidebar() {
           <p className="text-sm text-muted-foreground">No chats found</p>
         ) : (
           <div className="space-y-2">
-            {chats.map((chat) => (
-              <Link
-                key={chat.chatId}
-                href={`/m/${chat.persona.username}`}
-                className="flex h-14 items-center gap-3 rounded-full p-2 hover:bg-accent md:w-72 md:rounded-lg"
-              >
-                <Avatar>
-                  <AvatarImage
-                    src={chat.persona.avatar}
-                    alt={chat.persona.name}
-                  />
-                  <AvatarFallback>
-                    {chat.persona.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col text-left max-md:hidden">
-                  <span className="font-medium">{chat.persona.name}</span>
-                  <span className="line-clamp-1 text-sm text-muted-foreground">
-                    {chat.lastMessageContent}
-                  </span>
-                </div>
-              </Link>
-            ))}
+            <ChatList chats={chats} />
           </div>
         )}
       </ScrollArea>
