@@ -11,6 +11,7 @@ import "highlight.js/styles/github-dark.css"
 import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
 import { format } from "date-fns"
+import { Tweet } from "react-tweet"
 
 export const MemoChatMessage = memo(function ChatMessage({
   message,
@@ -72,15 +73,31 @@ export const MemoChatMessage = memo(function ChatMessage({
                       />
                     </div>
                   ),
-                  a: ({ children, target = "_blank", ...props }) => (
-                    <a
-                      target={target}
-                      className="overflow-hidden whitespace-pre-wrap break-words text-sm text-blue-500 no-underline hover:underline"
-                      {...props}
-                    >
-                      {children}
-                    </a>
-                  ),
+                  a: ({ href, children, ...props }) => {
+                    if (
+                      href?.startsWith("https://x.com/") &&
+                      href.includes("/status/") &&
+                      href?.includes("x.com")
+                    ) {
+                      const tweetId = href.split("/status/")[1]?.split("?")[0]
+                      return (
+                        <div className="my-3">
+                          <Tweet id={tweetId} />
+                        </div>
+                      )
+                    }
+                    return (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="break-all text-blue-500 hover:underline"
+                        {...props}
+                      >
+                        {children}
+                      </a>
+                    )
+                  },
                   ol: ({ children }) => <ol className="ml-3">{children}</ol>,
                 }}
               >
