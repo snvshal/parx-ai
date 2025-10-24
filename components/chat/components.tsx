@@ -12,7 +12,7 @@ import {
   SparklesIcon,
   UsersIcon,
 } from "lucide-react"
-import { useState, useTransition } from "react"
+import { memo, useState, useTransition } from "react"
 import Link from "next/link"
 
 import {
@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,10 +36,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deleteMessages } from "@/app/actions/chat"
+import { ChatSession, deleteMessages } from "@/app/actions/chat"
 import { toast } from "@/hooks/use-toast"
-import { cn } from "@/lib/utils"
 import { Skeleton } from "../co"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function ThinkingAnimation() {
   return (
@@ -244,3 +244,41 @@ export function ChatListSidebarSkeleton() {
     </aside>
   )
 }
+
+export const ChatList = memo(function ChatList({
+  chats,
+}: {
+  chats: ChatSession[]
+}) {
+  const { username } = useParams()
+  return (
+    <>
+      {chats.map((chat) => (
+        <Link
+          key={chat.chatId}
+          href={`/m/${chat.persona.username}`}
+          style={{
+            backgroundColor:
+              username === chat.persona.username
+                ? "hsl(var(--accent))"
+                : "none",
+          }}
+          className="flex h-14 items-center gap-3 rounded-full p-2 hover:bg-accent md:w-72 md:rounded-lg"
+        >
+          <Avatar>
+            <AvatarImage src={chat.persona.avatar} alt={chat.persona.name} />
+            <AvatarFallback>
+              {chat.persona.name.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col text-left max-md:hidden">
+            <span className="font-medium">{chat.persona.name}</span>
+            <span className="line-clamp-1 text-sm text-muted-foreground">
+              {chat.lastMessageContent}
+            </span>
+          </div>
+        </Link>
+      ))}
+    </>
+  )
+})
