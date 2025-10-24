@@ -13,7 +13,10 @@ const fira = Fira_Code({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.METADATA_BASE_URL!),
-  title: "Parx AI chatbot",
+  title: {
+    default: "Parx AI chatbot",
+    template: "%s / Parx AI chatbot",
+  },
   description:
     "Customize your own AI with personal instructions that match your style. Chat, adapt, and share your unique AI with friends — simple, smart, and social.",
   icons: [

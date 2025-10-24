@@ -1,8 +1,25 @@
-import { getChats } from "@/app/actions/chat"
+import { getChats, getUserByUsername } from "@/app/actions/chat"
 import { getSessionUser } from "@/app/actions/session-user"
 import { Suspense } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatList, ChatListSidebarSkeleton } from "@/components/chat/components"
+import { Metadata } from "next"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>
+}): Promise<Metadata> {
+  const username = (await params).username
+  const user = await getUserByUsername(username)
+  if (!user) return { title: "Persona not found" }
+  const { name, firstMessage } = user
+
+  return {
+    title: `${name} (@${username})`,
+    description: firstMessage,
+  }
+}
 
 export default async function ChatLayout({
   children,
