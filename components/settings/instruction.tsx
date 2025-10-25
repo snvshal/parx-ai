@@ -171,24 +171,13 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
 
   return (
     <HeaderComponent
-      page="Instructions"
+      page={`Instructions${addNewInstruction ? " / New" : ""}`}
       actionItem={
-        <Button
-          variant="outline"
-          onClick={() => {
-            setAddNewInst(!addNewInstruction)
-            setError(null)
-          }}
-        >
-          <PlusIcon
-            className={cn(
-              "h-4 w-4 transition-transform",
-              addNewInstruction ? "rotate-45" : "rotate-0",
-            )}
-            aria-hidden={true}
-          />
-          {addNewInstruction ? "Cancel" : "Add New"}
-        </Button>
+        addNewInstruction ? undefined : (
+          <Button>
+            <Link href={`/m/${user?.username}`}>Test</Link>
+          </Button>
+        )
       }
     >
       {addNewInstruction ? (
@@ -208,19 +197,26 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
             isSubmitting={isPending}
             error={error}
             setError={setError}
-            submitButtonText="+ Add"
+            submitButtonText="Submit"
           />
         </div>
       ) : (
         <Accordion type="single" collapsible>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold">
-              Added Instructions{" "}
-              <Badge variant="outline">{instructions.length}</Badge>
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold">Added</h2>
+              <Badge variant="secondary">{instructions.length}</Badge>
+            </div>
             {instructions.length ? (
-              <Button>
-                <Link href={`/m/${user?.username}`}>Test</Link>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAddNewInst(!addNewInstruction)
+                  setError(null)
+                }}
+              >
+                <PlusIcon className="h-4 w-4" aria-hidden={true} />
+                Add New
               </Button>
             ) : null}
           </div>

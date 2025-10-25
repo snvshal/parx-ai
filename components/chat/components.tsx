@@ -12,7 +12,7 @@ import {
   SparklesIcon,
   UsersIcon,
 } from "lucide-react"
-import { memo, useState, useTransition } from "react"
+import { memo, useState } from "react"
 import Link from "next/link"
 
 import {
@@ -24,10 +24,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession } from "next-auth/react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -67,7 +66,6 @@ export function ChatDropdownMenu({
   username: string
 }) {
   const { status } = useSession()
-  const router = useRouter()
   const [openDeleteChat, setOpenDeleteChat] = useState(false)
 
   const handleShare = async () => {
@@ -189,22 +187,23 @@ function DeleteChatAlert({
   personaId: string
   personaName: string
 }) {
-  const [isPending, startTransition] = useTransition()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const deleteChatFunc = () => {
-    startTransition(async () => {
-      try {
-        const { success } = await deleteMessages(personaId)
-        if (success) {
-          toast({ description: "Chat deleted successfully!" })
-        }
-      } catch (error) {
-        console.error(error)
-        toast({ description: "Error deleting chat.", variant: "destructive" })
-      } finally {
-        setOpen(false)
+  const deleteChatFunc = async () => {
+    setIsLoading(true)
+
+    try {
+      const { success } = await deleteMessages(personaId)
+      if (success) {
+        setIsLoading(false)
+        toast({ description: "Chat deleted successfully!" })
       }
-    })
+    } catch (error) {
+      console.error(error)
+      toast({ description: "Error deleting chat.", variant: "destructive" })
+    } finally {
+      setOpen(false)
+    }
   }
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -218,14 +217,14 @@ function DeleteChatAlert({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
+          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <Button
+            variant="destructive"
             onClick={deleteChatFunc}
-            disabled={isPending}
-            className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90"
+            disabled={isLoading}
           >
-            {isPending ? "Processing..." : "Reset Chat"}
-          </AlertDialogAction>
+            {isLoading ? "Processing..." : "Reset Chat"}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
