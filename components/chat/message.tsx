@@ -43,28 +43,28 @@ export const MemoChatMessage = memo(function ChatMessage({
         >
           {/* eslint-disable @next/next/no-img-element */}
           {isAssistant ? (
-            <div className="prose prose-sm w-full overflow-hidden break-all dark:prose-invert">
+            <div className="prose prose-sm w-full overflow-hidden break-words dark:prose-invert">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight, rehypeRaw]}
                 components={{
                   pre: CodeBlock as Components["pre"],
                   code: InlineCode,
-                  img: ({ node, ...props }) => (
+                  img: ({ ...props }) => (
                     <img
                       {...props}
                       alt="image"
                       className="my-2 h-auto max-h-80 max-w-full rounded-lg"
                     />
                   ),
-                  video: ({ node, ...props }) => (
+                  video: ({ ...props }) => (
                     <video
                       {...props}
                       controls
                       className="my-2 max-w-full rounded-lg"
                     />
                   ),
-                  iframe: ({ node, ...props }) => (
+                  iframe: ({ ...props }) => (
                     <div className="my-2 aspect-video w-full max-w-full overflow-hidden rounded-lg">
                       <iframe
                         {...props}
@@ -76,8 +76,7 @@ export const MemoChatMessage = memo(function ChatMessage({
                   a: ({ href, children, ...props }) => {
                     if (
                       href?.startsWith("https://x.com/") &&
-                      href.includes("/status/") &&
-                      href?.includes("x.com")
+                      href.includes("/status/")
                     ) {
                       const tweetId = href.split("/status/")[1]?.split("?")[0]
                       return (
@@ -106,7 +105,7 @@ export const MemoChatMessage = memo(function ChatMessage({
             </div>
           ) : (
             <div className="w-full">
-              <p className="overflow-hidden whitespace-pre-wrap break-all leading-relaxed">
+              <p className="overflow-hidden whitespace-pre-wrap break-words leading-relaxed">
                 {message.content}
               </p>
             </div>

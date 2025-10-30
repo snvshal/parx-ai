@@ -22,8 +22,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useEffect, useRef, useTransition } from "react"
-import { LucideIcon, SparklesIcon, TriangleAlertIcon } from "lucide-react"
+import { useTransition } from "react"
+import { LucideIcon, SparklesIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 

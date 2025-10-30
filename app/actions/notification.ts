@@ -69,10 +69,11 @@ export async function sendNotification(
           },
           payload,
         )
-      } catch (err: any) {
-        console.error("Push send error:", err.statusCode)
+      } catch (err: unknown) {
+        const error = err as Error & { statusCode?: number }
+        console.error("Push send error:", error.statusCode)
         // Remove expired/invalid subscriptions
-        if (err.statusCode === 410 || err.statusCode === 404) {
+        if (error.statusCode === 410 || error.statusCode === 404) {
           await Subscription.findByIdAndDelete(sub._id)
         }
       }
@@ -113,9 +114,10 @@ export async function sendNotificationToMany(
           },
           payload,
         )
-      } catch (err: any) {
-        console.error("Push send error:", err.statusCode)
-        if (err.statusCode === 410 || err.statusCode === 404) {
+      } catch (err: unknown) {
+        const error = err as Error & { statusCode?: number }
+        console.error("Push send error:", error.statusCode)
+        if (error.statusCode === 410 || error.statusCode === 404) {
           await Subscription.findByIdAndDelete(sub._id)
         }
       }

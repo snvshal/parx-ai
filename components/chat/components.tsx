@@ -36,9 +36,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { ChatSession, deleteMessages } from "@/app/actions/chat"
-import { toast } from "@/hooks/use-toast"
 import { Skeleton } from "../co"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { toast } from "sonner"
 
 export function ThinkingAnimation() {
   return (
@@ -196,11 +196,11 @@ function DeleteChatAlert({
       const { success } = await deleteMessages(personaId)
       if (success) {
         setIsLoading(false)
-        toast({ description: "Chat deleted successfully!" })
+        toast.success("Chat deleted successfully!")
       }
     } catch (error) {
       console.error(error)
-      toast({ description: "Error deleting chat.", variant: "destructive" })
+      toast.error("Error deleting chat.")
     } finally {
       setOpen(false)
     }

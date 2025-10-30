@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { memo, useEffect, useState, useTransition } from "react"
 import {
   TrashIcon,
   PencilIcon,
@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/accordion"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/hooks/use-toast"
 import {
   Form,
   FormControl,
@@ -32,10 +31,9 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import Link from "next/link"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { InstructionSchema, TInstruction } from "@/schemas/instruction.schema"
 import { AlertDialogComponent } from "./settings-list"
@@ -43,6 +41,7 @@ import { AlertMessage } from "../co"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useSessionUser } from "@/hooks/use-session-user"
 import { Badge } from "../ui/badge"
+import { toast } from "sonner"
 
 const instructionFormSchema = InstructionSchema.pick({
   type: true,
@@ -76,21 +75,15 @@ type InstructionItemProps = {
 export type TNewInstruction = Omit<z.infer<typeof InstructionSchema>, "userId">
 
 export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
-  const [instructions, setInstructions] = useState<TInstruction[]>([])
-  const [addNewInstruction, setAddNewInstruction] = useState(false)
+  const [instructions, setInstructions] = useState<TInstruction[]>(inst)
+  const [addNewInstruction, setAddNewInstruction] = useState(
+    localStorage.getItem("addNewInstruction") === "true",
+  )
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [isEditingId, setIsEditingId] = useState<string | null>(null)
 
   const { user } = useSessionUser()
-
-  useEffect(() => setInstructions(inst), [inst])
-  useEffect(() => {
-    const hasAddNewInst = localStorage.getItem("addNewInstruction")
-    if (hasAddNewInst === "true") {
-      setAddNewInstruction(true)
-    }
-  }, [])
 
   const setAddNewInst = (value: boolean) => {
     setAddNewInstruction(value)
@@ -120,9 +113,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
         setAddNewInst(false)
       })
 
-      toast({
-        description: "Instruction added successfully!",
-      })
+      toast.success("Instruction added successfully!")
     } catch {
       setError("Failed to add instruction.")
     }
@@ -240,7 +231,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
   )
 }
 
-export const InstructionForm = ({
+export const InstructionForm = memo(function InstructionForm({
   defaultValues = { type: "", content: "" },
   onSubmit,
   onCancel,
@@ -248,18 +239,18 @@ export const InstructionForm = ({
   error,
   setError,
   submitButtonText,
-}: InstructionFormProps) => {
+}: InstructionFormProps) {
   const form = useForm<z.infer<typeof instructionFormSchema>>({
     resolver: zodResolver(instructionFormSchema),
     defaultValues,
   })
 
-  const { watch } = form
+  const values = useWatch({ control: form.control })
 
   useEffect(() => {
-    const subscription = watch(() => setError(null))
-    return () => subscription.unsubscribe()
-  }, [watch, setError])
+    const se = () => setError(null)
+    se()
+  }, [values, setError])
 
   const handleSubmit = async (
     values: z.infer<typeof instructionFormSchema>,
@@ -332,7 +323,7 @@ export const InstructionForm = ({
       </form>
     </Form>
   )
-}
+})
 
 export const InstructionItem = ({
   instruction,
@@ -358,11 +349,12 @@ export const InstructionItem = ({
 
       if (result.success) {
         setIsEditingId(null)
-        toast({ description: result.message })
+        toast.success(result.message)
       } else {
         setError(result.message)
       }
     } catch (err) {
+      console.error("Error:", err)
       setError("Failed to update instruction.")
     } finally {
       setIsSubmitting(false)
@@ -373,18 +365,12 @@ export const InstructionItem = ({
     try {
       const result = await onDelete(id)
       if (result.success) {
-        toast({ description: result.message })
+        toast.success(result.message)
       } else {
-        toast({
-          variant: "destructive",
-          description: result.message,
-        })
+        toast.error(result.message)
       }
     } catch {
-      toast({
-        variant: "destructive",
-        description: "Failed to delete instruction.",
-      })
+      toast.error("Failed to delete instruction.")
     }
   }
 
@@ -453,10 +439,11 @@ export function WarningComponent() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    const hasDismissed = localStorage.getItem("warningDismissed")
-    if (!hasDismissed) {
-      setIsVisible(true)
+    const setWCD = () => {
+      const hasDismissed = localStorage.getItem("warningDismissed")
+      if (!hasDismissed) setIsVisible(true)
     }
+    setWCD()
   }, [])
 
   const handleClose = () => {

@@ -2,22 +2,16 @@
 
 import connectToDatabase from "@/lib/db"
 import { User } from "@/models/user.model"
-import { TUser, UserSchema } from "@/schemas/user.schema"
+import { TUser } from "@/schemas/user.schema"
 import { getServerSession } from "next-auth"
 import { revalidatePath } from "next/cache"
-import { Types } from "mongoose"
 import { formatZodError } from "@/lib/utils"
-// import { ProfileSettingsProps, TNewInstruction } from "./components"
 import { Instruction } from "@/models/instruction.model"
 import { InstructionSchema, TInstruction } from "@/schemas/instruction.schema"
-import {
-  sendNotification,
-  sendNotificationToMany,
-} from "@/app/actions/notification"
+import { sendNotificationToMany } from "@/app/actions/notification"
 import { Chat } from "@/models/chat.model"
-import { generateText, streamText } from "ai"
+import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
-import z from "zod"
 import { getSessionUser } from "@/app/actions/session-user"
 import { TNewInstruction } from "@/components/settings/instruction"
 
@@ -31,9 +25,9 @@ export const getInstructions = async (): Promise<TInstruction[]> => {
     const user: TUser | null = await User.findOne({ email: session.user.email })
     if (!user) throw new Error("User not found")
 
-    const instructions = await Instruction.find({ userId: user._id })
-      .sort({ updatedAt: -1 })
-      .lean()
+    const instructions = await Instruction.find({ userId: user._id }).sort({
+      updatedAt: -1,
+    })
 
     return instructions || []
   } catch (error) {

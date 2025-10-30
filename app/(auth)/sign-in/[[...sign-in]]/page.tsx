@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import {
   Card,
   CardContent,
@@ -15,7 +15,6 @@ import Image from "next/image"
 export default function SignUpPage() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/"
-  const router = useRouter()
 
   const handleSignIn = () => {
     const width = 500
@@ -35,7 +34,7 @@ export default function SignUpPage() {
       if (event.data === "SIGNED_IN") {
         popup.close()
         window.removeEventListener("message", handleMessage)
-        router.replace(callbackUrl)
+        window.location.href = callbackUrl
       }
     }
 

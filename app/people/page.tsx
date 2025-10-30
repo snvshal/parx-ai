@@ -87,7 +87,7 @@ async function PeopleList({
                   </div>
                 </div>
                 <div>
-                  <p className="my-3 break-all">{persona.firstMessage}</p>
+                  <p className="my-3 break-words">{persona.firstMessage}</p>
                   <div className="flex items-center gap-4">
                     <InstructionBadge status={persona.instructionStatus} />
                     <Badge
