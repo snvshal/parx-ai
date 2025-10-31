@@ -6,7 +6,6 @@ const MessageSchema = new Schema<TMessage>(
     chatId: { type: Schema.Types.ObjectId, ref: "Chat", required: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     personaId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-
     role: {
       type: String,
       enum: ["system", "user", "assistant", "data"],
@@ -17,16 +16,14 @@ const MessageSchema = new Schema<TMessage>(
       enum: ["text", "image", "video", "audio", "file", "system"],
       required: true,
     },
-
     content: { type: String, trim: true },
     mediaUrl: { type: String },
     metadata: { type: Schema.Types.Mixed },
     feedback: { type: String, enum: ["like", "dislike"] },
-
     isEdited: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 )
 
 MessageSchema.index({ chatId: 1, createdAt: -1 })

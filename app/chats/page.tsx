@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { Suspense } from "react"
 import { getChats } from "@/app/actions/chat"
 import { HeaderComponent } from "@/components/header"

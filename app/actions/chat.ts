@@ -5,12 +5,13 @@ import connectToDatabase from "@/lib/db"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
 import { User } from "@/models/user.model"
-import { ChatSchema, TChat } from "@/schemas/chat.schema"
+import { ChatZodSchema, TChat } from "@/schemas/chat.schema"
 import { TMessage } from "@/schemas/message.schema"
 import { TUser } from "@/schemas/user.schema"
 import { Message as SDKMessage } from "ai"
 import { getSessionUser } from "@/app/actions/session-user"
 import { revalidatePath } from "next/cache"
+import { Types } from "mongoose"
 
 export const getUserByUsername = async (
   username: string,
@@ -25,7 +26,7 @@ export const getUserByUsername = async (
   }
 }
 
-export type ChatSession = z.infer<typeof ChatSchema> & {
+export type ChatSession = TChat & {
   chatId: string
   persona: TUser
   lastMessageContent: string
@@ -140,12 +141,12 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
         content: persona.firstMessage,
       })
 
-      newChat.lastMessage = firstMessage._id
+      newChat.lastMessage = firstMessage._id as Types.ObjectId
       await newChat.save()
 
       return [
         {
-          id: firstMessage._id.toString(),
+          id: String(firstMessage._id),
           role: firstMessage.role,
           content: firstMessage.content,
           createdAt: firstMessage.createdAt,
@@ -161,7 +162,7 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
 
     return (
       messages.map((msg: TMessage) => ({
-        id: msg._id.toString(),
+        id: String(msg._id),
         role: msg.role,
         content: msg.content || "",
         createdAt: msg.createdAt,
@@ -194,7 +195,7 @@ export const saveMessage = async (
       ...message,
     })
 
-    chat.lastMessage = newMessage._id
+    chat.lastMessage = newMessage._id as Types.ObjectId
     await chat.save()
 
     return JSON.parse(JSON.stringify({ success: true, message: newMessage }))

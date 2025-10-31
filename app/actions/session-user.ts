@@ -38,6 +38,7 @@ export const getContextUser = async (): Promise<ContextUser | null> => {
 
     return contextUser
   } catch (error) {
+    console.error("Error:", error)
     return null
   }
 }

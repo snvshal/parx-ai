@@ -1,7 +1,7 @@
 import { z } from "zod"
-import { Document } from "mongoose"
+import { MDoc, Simplify } from "@/types/helper.type"
 
-export const UserSchema = z.object({
+export const UserZodSchema = z.object({
   username: z
     .string()
     .trim()
@@ -23,12 +23,7 @@ export const UserSchema = z.object({
     .string()
     .trim()
     .min(40, { message: "First Message must be at least 40 characters long." }),
-
-  createdAt: z.date().default(() => new Date()),
-  updatedAt: z.date().default(() => new Date()),
 })
 
-export type TUser = z.infer<typeof UserSchema> & Document
-export type TUserWithoutDoc = z.infer<typeof UserSchema>
-// export type TUser = Omit<z.infer<typeof UserSchema>, "instructions"> &
-//   Document
+export type TPUser = z.infer<typeof UserZodSchema>
+export type TUser = Simplify<TPUser & MDoc>

@@ -1,14 +1,13 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { memo, useEffect, useState, useTransition } from "react"
 
 import { updateProfile } from "@/app/actions/settings/profile"
-import { UserSchema } from "@/schemas/user.schema"
+import { UserZodSchema } from "@/schemas/user.schema"
 import Image from "next/image"
 import { HeaderComponent } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
-
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -19,7 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { AlertMessage } from "../co"
@@ -32,11 +31,11 @@ export type ProfileSettingsProps = {
   firstMessage: string
 }
 
-export const ProfileSettings = ({
+export const ProfileSettings = memo(function ProfileSettings({
   profile,
 }: {
   profile: ProfileSettingsProps
-}) => {
+}) {
   const { data: session, update } = useSession()
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<{
@@ -44,7 +43,7 @@ export const ProfileSettings = ({
     text: string
   } | null>(null)
 
-  const profileSchema = UserSchema.pick({
+  const profileSchema = UserZodSchema.pick({
     username: true,
     name: true,
     avatar: true,
@@ -57,12 +56,12 @@ export const ProfileSettings = ({
     defaultValues: profile,
   })
 
-  const { watch } = form
+  const values = useWatch({ control: form.control })
 
   useEffect(() => {
-    const subscription = watch(() => setMessage(null))
-    return () => subscription.unsubscribe()
-  }, [watch])
+    const sm = () => setMessage(null)
+    sm()
+  }, [values, setMessage])
 
   const handleSubmit = (values: z.infer<typeof profileSchema>) => {
     startTransition(async () => {
@@ -219,4 +218,4 @@ export const ProfileSettings = ({
       </div>
     </HeaderComponent>
   )
-}
+})

@@ -21,7 +21,7 @@ export default function FooterComponent() {
           className="flex h-6 w-6 items-center justify-center rounded bg-black"
           target="_blank"
         >
-          <Image src="/x.png" width={16} height={16} alt="X handle" />
+          <Image src="/x.png" width={16} height={16} alt="X handle" priority />
         </Link>
       </div>
     </footer>

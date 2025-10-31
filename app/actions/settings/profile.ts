@@ -5,7 +5,7 @@ import { ProfileSettingsProps } from "@/components/settings/profile"
 import connectToDatabase from "@/lib/db"
 import { formatZodError } from "@/lib/utils"
 import { User } from "@/models/user.model"
-import { UserSchema } from "@/schemas/user.schema"
+import { UserZodSchema } from "@/schemas/user.schema"
 import { revalidatePath } from "next/cache"
 
 export const getProfile = async (): Promise<ProfileSettingsProps> => {
@@ -46,7 +46,7 @@ export const updateProfile = async (
     const sessionUser = await getSessionUser()
     if (!sessionUser) throw new Error("Unauthorized")
 
-    const validationResult = UserSchema.pick({
+    const validationResult = UserZodSchema.pick({
       username: true,
       name: true,
       avatar: true,
