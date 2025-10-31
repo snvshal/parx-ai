@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { SettingsComponent } from "@/components/settings/settings-list"
 import { getSessionUser } from "../actions/session-user"
 

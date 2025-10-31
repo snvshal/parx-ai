@@ -1,7 +1,8 @@
 import { z } from "zod"
 import { ZodObjectId } from "./chat.schema"
+import { MDoc } from "@/types/helper.type"
 
-export const SubscriptionSchema = z.object({
+export const SubscriptionZodSchema = z.object({
   userId: ZodObjectId,
   endpoint: z.string().url("Invalid endpoint URL"),
   keys: z.object({
@@ -10,4 +11,5 @@ export const SubscriptionSchema = z.object({
   }),
 })
 
-export type TSubscription = z.infer<typeof SubscriptionSchema>
+export type TPSubscription = z.infer<typeof SubscriptionZodSchema>
+export type TSubscription = TPSubscription & MDoc

@@ -7,7 +7,10 @@ import { getServerSession } from "next-auth"
 import { revalidatePath } from "next/cache"
 import { formatZodError } from "@/lib/utils"
 import { Instruction } from "@/models/instruction.model"
-import { InstructionSchema, TInstruction } from "@/schemas/instruction.schema"
+import {
+  InstructionZodSchema,
+  TInstruction,
+} from "@/schemas/instruction.schema"
 import { sendNotificationToMany } from "@/app/actions/notification"
 import { Chat } from "@/models/chat.model"
 import { generateText } from "ai"
@@ -53,7 +56,7 @@ export const addInstruction = async (
       ...newInstruction,
     }
 
-    const validationResult = InstructionSchema.safeParse(validInstruction)
+    const validationResult = InstructionZodSchema.safeParse(validInstruction)
     if (!validationResult.success) {
       return { error: formatZodError(validationResult.error) }
     }

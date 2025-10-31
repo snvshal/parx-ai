@@ -6,6 +6,7 @@ import { Message } from "@/models/message.model"
 import { getInstructionsByUserId } from "@/app/actions/so"
 import { getSessionUser } from "@/app/actions/session-user"
 import { getUserByUsername, saveMessage } from "@/app/actions/chat"
+import { Types } from "mongoose"
 
 export const maxDuration = 30
 export const runtime = "nodejs"
@@ -56,8 +57,8 @@ export async function POST(req: NextRequest) {
         role: "assistant",
         content: "",
       })
-      assistantMessageId = assistantMessage._id.toString()
-      chat.lastMessage = assistantMessage._id
+      assistantMessageId = String(assistantMessage._id)
+      chat.lastMessage = assistantMessage._id as Types.ObjectId
       await chat.save()
     }
 

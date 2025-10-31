@@ -3,7 +3,7 @@
 import { memo, useEffect, useState, useTransition } from "react"
 
 import { updateProfile } from "@/app/actions/settings/profile"
-import { UserSchema } from "@/schemas/user.schema"
+import { UserZodSchema } from "@/schemas/user.schema"
 import Image from "next/image"
 import { HeaderComponent } from "@/components/header"
 import { Button } from "@/components/ui/button"
@@ -43,7 +43,7 @@ export const ProfileSettings = memo(function ProfileSettings({
     text: string
   } | null>(null)
 
-  const profileSchema = UserSchema.pick({
+  const profileSchema = UserZodSchema.pick({
     username: true,
     name: true,
     avatar: true,

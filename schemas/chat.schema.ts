@@ -1,4 +1,5 @@
-import { Document, Types } from "mongoose"
+import { MDoc } from "@/types/helper.type"
+import { Types } from "mongoose"
 import { z } from "zod"
 
 export const ZodObjectId = z
@@ -8,19 +9,15 @@ export const ZodObjectId = z
   })
   .transform((val) => new Types.ObjectId(val))
 
-export const ChatSchema = z.object({
+export const ChatZodSchema = z.object({
   userId: ZodObjectId,
   personaId: ZodObjectId,
-
   lastMessage: ZodObjectId.optional(),
   unreadCount: z.number().default(0),
-
   isPinned: z.boolean().default(false),
   isArchived: z.boolean().default(false),
   isMuted: z.boolean().default(false),
-
-  createdAt: z.date().default(() => new Date()),
-  updatedAt: z.date().default(() => new Date()),
 })
 
-export type TChat = z.infer<typeof ChatSchema> & Document
+export type TPChat = z.infer<typeof ChatZodSchema>
+export type TChat = TPChat & MDoc

@@ -35,7 +35,10 @@ import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { format } from "date-fns"
-import { InstructionSchema, TInstruction } from "@/schemas/instruction.schema"
+import {
+  InstructionZodSchema,
+  TInstruction,
+} from "@/schemas/instruction.schema"
 import { AlertDialogComponent } from "./settings-list"
 import { AlertMessage } from "../co"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -43,7 +46,7 @@ import { useSessionUser } from "@/hooks/use-session-user"
 import { Badge } from "../ui/badge"
 import { toast } from "sonner"
 
-const instructionFormSchema = InstructionSchema.pick({
+const instructionFormSchema = InstructionZodSchema.pick({
   type: true,
   content: true,
 })
@@ -72,7 +75,10 @@ type InstructionItemProps = {
   onDelete: (id: string) => Promise<{ success: boolean; message: string }>
 }
 
-export type TNewInstruction = Omit<z.infer<typeof InstructionSchema>, "userId">
+export type TNewInstruction = Omit<
+  z.infer<typeof InstructionZodSchema>,
+  "userId"
+>
 
 export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
   const [instructions, setInstructions] = useState<TInstruction[]>(inst)
@@ -127,7 +133,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
         setInstructions(
           (prev) =>
             prev.map((inst) =>
-              inst._id.toString() === id ? { ...inst, type, content } : inst,
+              String(inst._id) === id ? { ...inst, type, content } : inst,
             ) as TInstruction[],
         )
       }
@@ -147,7 +153,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
 
       if (result.success) {
         setInstructions((prev) =>
-          prev.filter((inst) => inst._id.toString() !== id),
+          prev.filter((inst) => String(inst._id) !== id),
         )
       }
 
@@ -216,7 +222,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
           ) : (
             instructions.map((instruction) => (
               <InstructionItem
-                key={instruction._id.toString()}
+                key={String(instruction._id)}
                 instruction={instruction}
                 isEditingId={isEditingId}
                 setIsEditingId={setIsEditingId}
@@ -336,7 +342,7 @@ export const InstructionItem = ({
   const [error, setError] = useState<string | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  const id = instruction._id.toString()
+  const id = String(instruction._id)
 
   const handleUpdate = async (
     values: z.infer<typeof instructionFormSchema>,

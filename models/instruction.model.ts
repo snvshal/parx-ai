@@ -19,7 +19,7 @@ const InstructionSchema = new Schema<TInstruction>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 )
 
 export const Instruction: Model<TInstruction> =

@@ -5,12 +5,13 @@ import connectToDatabase from "@/lib/db"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
 import { User } from "@/models/user.model"
-import { ChatSchema, TChat } from "@/schemas/chat.schema"
+import { ChatZodSchema, TChat } from "@/schemas/chat.schema"
 import { TMessage } from "@/schemas/message.schema"
 import { TUser } from "@/schemas/user.schema"
 import { Message as SDKMessage } from "ai"
 import { getSessionUser } from "@/app/actions/session-user"
 import { revalidatePath } from "next/cache"
+import { Types } from "mongoose"
 
 export const getUserByUsername = async (
   username: string,
@@ -25,7 +26,7 @@ export const getUserByUsername = async (
   }
 }
 
-export type ChatSession = z.infer<typeof ChatSchema> & {
+export type ChatSession = TChat & {
   chatId: string
   persona: TUser
   lastMessageContent: string
@@ -37,17 +38,17 @@ export const getChats = async (): Promise<ChatSession[]> => {
     const sessionUser = await getSessionUser()
     if (!sessionUser) return []
 
-    const chats = await Chat.find({ userId: sessionUser._id }).sort({
-      updatedAt: -1,
-    })
+    const chats = await Chat.find({ userId: sessionUser._id })
+      .sort({ updatedAt: -1 })
+      .lean()
 
     const chatSessions: ChatSession[] = await Promise.all(
       chats.map(async (chat) => {
-        const persona = await User.findById(chat.personaId)
-        const lastMessage = await Message.findById(chat.lastMessage)
+        const persona = await User.findById(chat.personaId).lean()
+        const lastMessage = await Message.findById(chat.lastMessage).lean()
         return {
           ...chat,
-          chatId: String(chat._id),
+          chatId: chat._id.toString(),
           persona: persona as TUser,
           lastMessageContent: lastMessage?.content as string,
         }
@@ -70,7 +71,7 @@ export const getChat = async (personaId: string): Promise<TChat | null> => {
     const chat = await Chat.findOne({
       userId: sessionUser._id,
       personaId,
-    })
+    }).lean()
     return chat || null
   } catch (error) {
     console.error(`Error fetching chats for user "${personaId}":`, error)
@@ -106,7 +107,7 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
   try {
     await connectToDatabase()
 
-    const persona = await User.findById(personaId)
+    const persona = await User.findById(personaId).lean()
     if (!persona) throw new Error("Persona not found")
 
     const sessionUser = await getSessionUser()
@@ -140,12 +141,12 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
         content: persona.firstMessage,
       })
 
-      newChat.lastMessage = firstMessage._id
+      newChat.lastMessage = firstMessage._id as Types.ObjectId
       await newChat.save()
 
       return [
         {
-          id: firstMessage._id.toString(),
+          id: String(firstMessage._id),
           role: firstMessage.role,
           content: firstMessage.content,
           createdAt: firstMessage.createdAt,
@@ -161,7 +162,7 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
 
     return (
       messages.map((msg: TMessage) => ({
-        id: msg._id.toString(),
+        id: String(msg._id),
         role: msg.role,
         content: msg.content || "",
         createdAt: msg.createdAt,
@@ -194,7 +195,7 @@ export const saveMessage = async (
       ...message,
     })
 
-    chat.lastMessage = newMessage._id
+    chat.lastMessage = newMessage._id as Types.ObjectId
     await chat.save()
 
     return JSON.parse(JSON.stringify({ success: true, message: newMessage }))

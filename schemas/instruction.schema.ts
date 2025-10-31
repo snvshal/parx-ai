@@ -1,10 +1,9 @@
 import { z } from "zod"
-import { Document, Types } from "mongoose"
 import { ZodObjectId } from "./chat.schema"
+import { MDoc } from "@/types/helper.type"
 
-export const InstructionSchema = z.object({
+export const InstructionZodSchema = z.object({
   userId: ZodObjectId,
-
   type: z.string().trim().min(1, { message: "Instruction type is required." }),
   content: z
     .string()
@@ -38,10 +37,5 @@ export const InstructionSchema = z.object({
     .default([]),
 })
 
-export type TInstructionWithoutDoc = z.infer<typeof InstructionSchema>
-export type TInstruction = z.infer<typeof InstructionSchema> &
-  Document & {
-    _id: Types.ObjectId
-    createdAt: Date
-    updatedAt: Date
-  }
+export type TPInstruction = z.infer<typeof InstructionZodSchema>
+export type TInstruction = TPInstruction & MDoc

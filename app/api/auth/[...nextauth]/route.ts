@@ -2,8 +2,8 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { User } from "@/models/user.model"
 import connectToDatabase from "@/lib/db"
-import { TUser, TUserWithoutDoc, UserSchema } from "@/schemas/user.schema"
-import { InstructionSchema } from "@/schemas/instruction.schema"
+import { TPUser, TUser, UserZodSchema } from "@/schemas/user.schema"
+import { InstructionZodSchema } from "@/schemas/instruction.schema"
 import { Instruction } from "@/models/instruction.model"
 
 const handler = NextAuth({
@@ -33,18 +33,16 @@ const handler = NextAuth({
             username = `${baseUsername}_${suffix}`
           }
 
-          const userData: TUserWithoutDoc = {
+          const userData: TPUser = {
             email: user.email!,
             name: user.name?.slice(0, 20) || "New User",
             username,
             avatar: user.image || "",
             socialLink: "",
             firstMessage: `Hi! I'm ${user.name || "a new user"}. Happy to chat about my hobbies, experiences, or anything fun that comes up! 😊`,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           }
 
-          const validatedData = UserSchema.parse(userData)
+          const validatedData = UserZodSchema.parse(userData)
           const newUser = await User.create(validatedData)
 
           const customInstructions = [
@@ -65,7 +63,7 @@ const handler = NextAuth({
           ]
 
           const validatedInstructions = customInstructions.map((i) =>
-            InstructionSchema.parse(i),
+            InstructionZodSchema.parse(i),
           )
           await Instruction.insertMany(validatedInstructions)
         }
