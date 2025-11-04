@@ -1,17 +1,17 @@
 "use server"
 
-import z from "zod"
 import connectToDatabase from "@/lib/db"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
 import { User } from "@/models/user.model"
-import { ChatZodSchema, TChat } from "@/schemas/chat.schema"
+import { TChat } from "@/schemas/chat.schema"
 import { TMessage } from "@/schemas/message.schema"
 import { TUser } from "@/schemas/user.schema"
 import { Message as SDKMessage } from "ai"
 import { getSessionUser } from "@/app/actions/session-user"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { Types } from "mongoose"
+import { ps } from "@/lib/utils"
 
 export const getUserByUsername = async (
   username: string,
@@ -55,7 +55,7 @@ export const getChats = async (): Promise<ChatSession[]> => {
       }),
     )
 
-    return JSON.parse(JSON.stringify(chatSessions))
+    return ps(chatSessions)
   } catch (error) {
     console.error(`Error fetching chats for user`, error)
     return []
@@ -144,6 +144,8 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
       newChat.lastMessage = firstMessage._id as Types.ObjectId
       await newChat.save()
 
+      revalidateTag("chat-list", "max")
+
       return [
         {
           id: String(firstMessage._id),
@@ -198,7 +200,7 @@ export const saveMessage = async (
     chat.lastMessage = newMessage._id as Types.ObjectId
     await chat.save()
 
-    return JSON.parse(JSON.stringify({ success: true, message: newMessage }))
+    return ps({ success: true, message: newMessage })
   } catch (error) {
     console.error(`Error saving message for chat "${personaId}":`, error)
     return { success: false, message: null }

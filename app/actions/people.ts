@@ -49,13 +49,13 @@ function estimateTokens(text: string): number {
 export const getPeople = async (
   params: TStatusParams = {
     lowCount: 1,
-    mediumCount: 3,
-    highCount: 5,
-    greatCount: 10,
+    mediumCount: 5,
+    highCount: 15,
+    greatCount: 25,
     lowTokens: 200,
-    mediumTokens: 600,
-    highTokens: 1000,
-    greatTokens: 2000,
+    mediumTokens: 1000,
+    highTokens: 5000,
+    greatTokens: 20000,
   },
 ): Promise<TPersonaResponse> => {
   try {

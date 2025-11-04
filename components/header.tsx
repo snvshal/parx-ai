@@ -17,7 +17,7 @@ export function HeaderComponent({
 }) {
   const router = useRouter()
   return (
-    <div className="h-dvh">
+    <div className="h-dvh w-full">
       <header className="sticky top-0 z-20 box-border h-16 border-b bg-background">
         <div className="mx-auto flex h-full max-w-3xl items-center justify-between px-4">
           <div className="flex gap-4">

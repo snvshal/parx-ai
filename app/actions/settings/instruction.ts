@@ -4,8 +4,8 @@ import connectToDatabase from "@/lib/db"
 import { User } from "@/models/user.model"
 import { TUser } from "@/schemas/user.schema"
 import { getServerSession } from "next-auth"
-import { revalidatePath } from "next/cache"
-import { formatZodError } from "@/lib/utils"
+import { revalidateTag } from "next/cache"
+import { formatZodError, ps } from "@/lib/utils"
 import { Instruction } from "@/models/instruction.model"
 import {
   InstructionZodSchema,
@@ -22,17 +22,16 @@ export const getInstructions = async (): Promise<TInstruction[]> => {
   try {
     await connectToDatabase()
 
-    const session = await getServerSession()
-    if (!session?.user) throw new Error("Unauthorized")
-
-    const user: TUser | null = await User.findOne({ email: session.user.email })
+    const user: TUser | null = await getSessionUser()
     if (!user) throw new Error("User not found")
 
-    const instructions = await Instruction.find({ userId: user._id }).sort({
-      updatedAt: -1,
-    })
+    const instructions = await Instruction.find({ userId: user._id })
+      .sort({
+        updatedAt: -1,
+      })
+      .lean()
 
-    return instructions || []
+    return ps(instructions) || []
   } catch (error) {
     console.error("Error fetching instructions:", error)
     throw new Error("Failed to fetch instructions")
@@ -63,11 +62,12 @@ export const addInstruction = async (
 
     const addedInstruction = await Instruction.create(validInstruction)
 
-    revalidatePath("/settings/instructions")
+    revalidateTag("settings-instructions", "max")
+    // revalidatePath("/settings/instructions")
 
     setNotification(addedInstruction.content)
 
-    return JSON.parse(JSON.stringify(addedInstruction))
+    return ps(addedInstruction)
   } catch (error) {
     console.error("Error adding instruction:", error)
     return {
@@ -123,7 +123,9 @@ export const updateInstruction = async (
     if (content) instruction.content = content
 
     await instruction.save()
-    revalidatePath("/settings/instructions")
+
+    revalidateTag("settings-instructions", "max")
+    // revalidatePath("/settings/instructions")
 
     return {
       success: true,
@@ -156,7 +158,8 @@ export const deleteInstruction = async (
       userId: user._id,
     })
 
-    revalidatePath("/settings/instructions")
+    revalidateTag("settings-instructions", "max")
+    // revalidatePath("/settings/instructions")
     return {
       success: true,
       message: "Instruction deleted successfully!",

@@ -15,6 +15,8 @@ import { AlertMessage } from "../co"
 import { useMobileKeyboard } from "@/hooks/use-mobile-keyboard"
 import { ChatDropdownMenu, ThinkingAnimation } from "./components"
 import InstallPWA from "../install-pwa"
+import { useSession } from "next-auth/react"
+import { cn } from "@/lib/utils"
 
 export default function Chat({
   persona,
@@ -30,8 +32,6 @@ export default function Chat({
     },
   })
 
-  useMobileKeyboard()
-
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     handleSubmit(event, {
@@ -41,10 +41,13 @@ export default function Chat({
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  useMobileKeyboard()
 
   useEffect(() => {
     if (status === "ready" && inputRef.current) {
-      inputRef.current.focus()
+      setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true })
+      }, 100)
     }
   }, [status])
 
@@ -54,16 +57,27 @@ export default function Chat({
         "[data-radix-scroll-area-viewport]",
       )
       if (scrollElement) {
-        scrollElement.scrollTo({
-          top: scrollElement.scrollHeight,
-          behavior: "smooth",
+        requestAnimationFrame(() => {
+          scrollElement.scrollTo({
+            top: scrollElement.scrollHeight,
+            behavior: "smooth",
+          })
         })
       }
     }
   }, [messages])
 
+  const { status: authStatus } = useSession()
+  const token = authStatus === "authenticated"
   return (
-    <div className="chat-container mx-auto flex h-screen w-full max-w-2xl flex-col overflow-hidden lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border">
+    <div
+      className={cn(
+        "chat-container mx-auto flex h-screen w-full max-w-2xl flex-col overflow-hidden",
+        token
+          ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
+          : "sm:h-[calc(100dvh-2rem)] sm:rounded-3xl sm:border",
+      )}
+    >
       <div className="z-10 flex flex-shrink-0 items-center justify-between border-b px-4 py-3">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center justify-center gap-2">
