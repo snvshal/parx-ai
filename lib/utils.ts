@@ -29,3 +29,5 @@ export const buildSystemInstruction = (
     SYSTEM_INSTRUCTIONS.deny,
   ].join(" ")
 }
+
+export const ps = (obj: object | object[]) => JSON.parse(JSON.stringify(obj))

@@ -1,4 +1,4 @@
-import "server-only"
+"use server"
 
 import connectToDatabase from "@/lib/db"
 import { getServerSession } from "next-auth"

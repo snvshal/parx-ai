@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession } from "next-auth/react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -39,6 +39,17 @@ import { ChatSession, deleteMessages } from "@/app/actions/chat"
 import { Skeleton } from "../co"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Card, CardContent } from "../ui/card"
+import { ScrollArea } from "../ui/scroll-area"
+import { cn } from "@/lib/utils"
 
 export function ThinkingAnimation() {
   return (
@@ -56,7 +67,7 @@ export function ThinkingAnimation() {
   )
 }
 
-export function ChatDropdownMenu({
+export const ChatDropdownMenu = memo(function ChatDropdownMenu({
   id,
   name,
   username,
@@ -67,6 +78,7 @@ export function ChatDropdownMenu({
 }) {
   const { status } = useSession()
   const [openDeleteChat, setOpenDeleteChat] = useState(false)
+  const [IsDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleShare = async () => {
     try {
@@ -91,7 +103,7 @@ export function ChatDropdownMenu({
   }
 
   return (
-    <>
+    <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
@@ -104,12 +116,14 @@ export function ChatDropdownMenu({
         <DropdownMenuContent className="w-56" align="end">
           <DropdownMenuLabel>{name} AI</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <Link href={`/m/${username}/what-is-it`}>
-            <DropdownMenuItem className="h-9 cursor-pointer">
-              <CircleHelpIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-              <span>What is it?</span>
-            </DropdownMenuItem>
-          </Link>
+          <DropdownMenuItem
+            role="button"
+            onClick={() => setIsDialogOpen(true)}
+            className="h-9 cursor-pointer"
+          >
+            <CircleHelpIcon className="mr-2 h-4 w-4" aria-hidden={true} />
+            <span>What is it?</span>
+          </DropdownMenuItem>
           {status === "authenticated" ? (
             <Link href="/settings">
               <DropdownMenuItem className="h-9 cursor-pointer">
@@ -172,9 +186,10 @@ export function ChatDropdownMenu({
         open={openDeleteChat}
         setOpen={setOpenDeleteChat}
       />
-    </>
+      <WhatIsItDialog open={IsDialogOpen} setOpen={setIsDialogOpen} />
+    </div>
   )
-}
+})
 
 function DeleteChatAlert({
   open,
@@ -279,5 +294,127 @@ export const ChatList = memo(function ChatList({
         </Link>
       ))}
     </>
+  )
+})
+
+export function ChatBoxSkeleton() {
+  const { status: authStatus } = useSession()
+  const token = authStatus === "authenticated"
+  return (
+    <div
+      className={cn(
+        "chat-container mx-auto flex h-screen w-full max-w-2xl flex-col overflow-hidden",
+        token
+          ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
+          : "sm:h-[calc(100dvh-2rem)] sm:rounded-3xl sm:border",
+      )}
+    >
+      <div className="z-10 flex flex-shrink-0 items-center justify-between border-b px-4 py-3">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center justify-center gap-2">
+            <Skeleton className="h-9 w-9 rounded-full" />
+            <div className="space-y-1">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-9 rounded-full" />
+          </div>
+        </div>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div className="space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}
+            >
+              <div
+                className={`max-w-[75%] space-y-2 rounded-2xl p-3 ${
+                  i % 2 === 0 ? "bg-muted/50" : "bg-primary/10"
+                }`}
+              >
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-4 w-32" />
+                {i === 1 && <Skeleton className="h-4 w-20" />}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="z-10 flex-shrink-0 border-t bg-background p-4">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 flex-1 rounded-full" />
+          <Skeleton className="h-9 w-9 rounded-full" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export const WhatIsItDialog = memo(function WhatIsItDialog({
+  open,
+  setOpen,
+}: {
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+}) {
+  const { username } = useParams()
+  const router = useRouter()
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger></DialogTrigger>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle className="mb-4">What is this chatbot?</DialogTitle>
+          <DialogDescription></DialogDescription>
+          <Card>
+            <ScrollArea className="h-full overflow-auto max-md:h-[calc(100dvh-8rem)]">
+              <CardContent className="space-y-4 p-4">
+                <p>
+                  This chatbot is customized based on @{username}&#39;s defined
+                  instructions. Its responses are influenced by system prompts
+                  and preferences set by @{username}.
+                </p>
+                <h2 className="text-lg font-semibold">How does it work?</h2>
+                <ul className="list-inside list-disc space-y-1">
+                  <li>
+                    Custom instructions set by @{username} define response
+                    behavior.
+                  </li>
+                  <li>
+                    The chatbot&#39;s tone, knowledge, and preferences are
+                    adjusted based on these instructions.
+                  </li>
+                  <li>
+                    AI responses are generated using a combination of predefined
+                    logic and model capabilities.
+                  </li>
+                </ul>
+                <h2 className="text-lg font-semibold">
+                  Can I make my own chatbot?
+                </h2>
+                <p>
+                  Yes! You can personalize your own chatbot by defining how it
+                  should respond, what knowledge it should focus on, and its
+                  preferred style of interaction.
+                </p>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    onClick={() => {
+                      setOpen(false)
+                      router.push("/settings")
+                    }}
+                  >
+                    Create Your Own
+                  </Button>
+                </div>
+              </CardContent>
+            </ScrollArea>
+          </Card>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   )
 })

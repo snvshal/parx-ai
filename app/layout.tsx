@@ -52,26 +52,34 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session: Session | null = await getServerSession()
-  const contextUser = await getContextUser()
   return (
     <html lang="en">
       <body className={fira.className}>
-        <SessionProviderComponent session={session}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <SessionUserProvider initialUser={contextUser}>
-              {children}
-              <NotificationSetup />
-            </SessionUserProvider>
-            <Toaster />
-          </ThemeProvider>
-        </SessionProviderComponent>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionWrapper>{children}</SessionWrapper>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
+  )
+}
+
+async function SessionWrapper({ children }: { children: React.ReactNode }) {
+  "use cache: private"
+  const session: Session | null = await getServerSession()
+  const contextUser = await getContextUser()
+
+  return (
+    <SessionProviderComponent session={session}>
+      <SessionUserProvider initialUser={contextUser}>
+        {children}
+        <NotificationSetup />
+      </SessionUserProvider>
+    </SessionProviderComponent>
   )
 }

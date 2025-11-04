@@ -6,7 +6,7 @@ import connectToDatabase from "@/lib/db"
 import { formatZodError } from "@/lib/utils"
 import { User } from "@/models/user.model"
 import { UserZodSchema } from "@/schemas/user.schema"
-import { revalidatePath } from "next/cache"
+import { revalidateTag } from "next/cache"
 
 export const getProfile = async (): Promise<ProfileSettingsProps> => {
   try {
@@ -80,7 +80,9 @@ export const updateProfile = async (
       sessionUser.firstMessage = firstMessage
 
     await sessionUser.save()
-    revalidatePath("/settings/profile")
+
+    revalidateTag("settings-profile", "max")
+    // revalidatePath("/settings/profile")
 
     return { success: true, message: "Profile updated successfully!" }
   } catch (error) {

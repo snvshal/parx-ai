@@ -1,10 +1,13 @@
-export const dynamic = "force-dynamic"
-
 import { SettingsComponent } from "@/components/settings/settings-list"
 import { getSessionUser } from "../actions/session-user"
+import { ps } from "@/lib/utils"
 
-export default async function SettingsPage() {
+async function Settings() {
+  "use cache: private"
   const user = await getSessionUser()
-
-  return <SettingsComponent user={JSON.parse(JSON.stringify(user))} />
+  if (!user) return null
+  return <SettingsComponent user={ps(user)} />
+}
+export default async function SettingsPage() {
+  return <Settings />
 }

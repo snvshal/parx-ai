@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic"
-
 import { Suspense } from "react"
 import { getChats } from "@/app/actions/chat"
 import { HeaderComponent } from "@/components/header"
@@ -9,9 +7,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ChatListSkeleton } from "@/components/co"
+import { cacheTag } from "next/cache"
 
 export default async function ChatListPage() {
-  const chatsPromise = getChats()
+  "use cache: private"
+  cacheTag("chat-list")
+  const chats = await getChats()
 
   return (
     <HeaderComponent
@@ -24,38 +25,21 @@ export default async function ChatListPage() {
             </Badge>
           }
         >
-          <ChatCount chatsPromise={chatsPromise} />
+          <Badge variant="outline" className="px-4 py-1">
+            {chats.length}
+          </Badge>
         </Suspense>
       }
       className="max-sm:p-0"
     >
       <Suspense fallback={<ChatListSkeleton count={4} />}>
-        <ChatList chatsPromise={chatsPromise} />
+        <ChatList chats={chats} />
       </Suspense>
     </HeaderComponent>
   )
 }
 
-async function ChatCount({
-  chatsPromise,
-}: {
-  chatsPromise: Promise<ChatSession[]>
-}) {
-  const chats = await chatsPromise
-  return (
-    <Badge variant="outline" className="px-4 py-1">
-      {chats.length}
-    </Badge>
-  )
-}
-
-async function ChatList({
-  chatsPromise,
-}: {
-  chatsPromise: Promise<ChatSession[]>
-}) {
-  const chats = await chatsPromise
-
+async function ChatList({ chats }: { chats: ChatSession[] }) {
   return (
     <div className="container mx-auto">
       <div className="flex flex-col sm:gap-4 sm:p-4">

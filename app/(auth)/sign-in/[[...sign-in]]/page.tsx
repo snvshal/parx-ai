@@ -48,8 +48,10 @@ export default function SignUpPage() {
           src="/login.gif"
           alt="gif"
           fill
+          sizes="50vw"
           className="scale-x-[-1] object-cover"
           priority
+          unoptimized
         />
       </div>
 

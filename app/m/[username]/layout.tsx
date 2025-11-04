@@ -1,24 +1,32 @@
 import { getChats, getUserByUsername } from "@/app/actions/chat"
 import { getSessionUser } from "@/app/actions/session-user"
-import { Suspense } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatList, ChatListSidebarSkeleton } from "@/components/chat/components"
 import { Metadata } from "next"
+import { cacheTag } from "next/cache"
+import { getServerSession } from "next-auth"
+import { cn } from "@/lib/utils"
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ username: string }>
-}): Promise<Metadata> {
-  const username = (await params).username
-  const user = await getUserByUsername(username)
-  if (!user) return { title: "Persona not found" }
-  const { name, firstMessage } = user
+// export async function generateMetadata({
+//   params,
+// }: {
+//   params: Promise<{ username: string }>
+// }): Promise<Metadata> {
+//   const username = (await params).username
+//   const user = await getUserByUsername(username)
+//   if (!user) return { title: "Persona not found" }
+//   const { name, firstMessage } = user
 
-  return {
-    title: `${name} (@${username})`,
-    description: firstMessage,
-  }
+//   return {
+//     title: `${name} (@${username})`,
+//     description: firstMessage,
+//   }
+// }
+
+async function getCachedChatList() {
+  "use cache: private"
+  cacheTag("chat-list")
+  return await getChats()
 }
 
 export default async function ChatLayout({
@@ -26,13 +34,20 @@ export default async function ChatLayout({
 }: {
   children: React.ReactNode
 }) {
+  const session = await getServerSession()
+  const user = session?.user
   return (
     <main className="chat-container relative flex h-screen items-center justify-center">
       <div className="flex w-full max-w-full">
-        <Suspense fallback={<ChatListSidebarSkeleton />}>
-          <ChatListSidebar />
-        </Suspense>
-        <div className="mx-auto flex flex-1 items-center lg:px-4">
+        {/* <Suspense fallback={<ChatListSidebarSkeleton />}> */}
+        {user && <ChatListSidebar />}
+        {/* </Suspense> */}
+        <div
+          className={cn(
+            "mx-auto flex flex-1 items-center lg:px-4",
+            !user && "sm:px-4",
+          )}
+        >
           {children}
         </div>
       </div>
@@ -41,11 +56,7 @@ export default async function ChatLayout({
 }
 
 async function ChatListSidebar() {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser) return null
-
-  const chats = await getChats()
-
+  const chats = await getCachedChatList()
   return (
     <aside className="w-80 border-r bg-background p-4 max-md:w-auto max-sm:hidden">
       <h2 className="mb-4 h-8 text-lg font-semibold">Chats</h2>

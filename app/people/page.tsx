@@ -8,17 +8,6 @@ import { ChatListSkeleton } from "@/components/co"
 import Link from "next/link"
 
 export default async function PeoplePage() {
-  const peoplePromise = getPeople({
-    lowCount: 1,
-    mediumCount: 5,
-    highCount: 15,
-    greatCount: 25,
-    lowTokens: 200,
-    mediumTokens: 1000,
-    highTokens: 5000,
-    greatTokens: 20000,
-  })
-
   return (
     <HeaderComponent
       page="People"
@@ -30,24 +19,21 @@ export default async function PeoplePage() {
             </Badge>
           }
         >
-          <PeopleCount peoplePromise={peoplePromise} />
+          <PeopleCount />
         </Suspense>
       }
       className="max-sm:p-0"
     >
       <Suspense fallback={<ChatListSkeleton count={4} />}>
-        <PeopleList peoplePromise={peoplePromise} />
+        <PeopleList />
       </Suspense>
     </HeaderComponent>
   )
 }
 
-async function PeopleCount({
-  peoplePromise,
-}: {
-  peoplePromise: Promise<TPersonaResponse>
-}) {
-  const res = await peoplePromise
+async function PeopleCount() {
+  "use cache"
+  const res = await getPeople()
   const people = res.success ? res.data : []
   return (
     <Badge variant="outline" className="px-4 py-1">
@@ -56,12 +42,9 @@ async function PeopleCount({
   )
 }
 
-async function PeopleList({
-  peoplePromise,
-}: {
-  peoplePromise: Promise<TPersonaResponse>
-}) {
-  const res = await peoplePromise
+async function PeopleList() {
+  "use cache"
+  const res = await getPeople()
   const people: TPersona[] = res.success ? res.data : []
 
   return (

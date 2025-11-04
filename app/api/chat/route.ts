@@ -9,7 +9,6 @@ import { getUserByUsername, saveMessage } from "@/app/actions/chat"
 import { Types } from "mongoose"
 
 export const maxDuration = 30
-export const runtime = "nodejs"
 
 export async function POST(req: NextRequest) {
   try {
