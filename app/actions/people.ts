@@ -34,6 +34,14 @@ type TStatusParams = {
   greatTokens?: number
 }
 
+const statusWeight: Record<TPersona["instructionStatus"], number> = {
+  null: 0,
+  low: 1,
+  medium: 2,
+  high: 3,
+  great: 4,
+}
+
 /**
  * Estimate tokens roughly as words * 1.3 (approx GPT tokenization ratio)
  */
@@ -120,7 +128,22 @@ export const getPeople = async (
       }),
     )
 
-    return { success: true, data: personas }
+    const scoredPersonas = personas
+      .map((p) => {
+        // base score from instruction richness
+        const base = statusWeight[p.instructionStatus] * 100
+
+        // chat influence: diminishing returns to prevent chatCount domination
+        const chatBoost = Math.log10(p.chatCount + 1) * 20
+
+        // combined weighted score
+        const score = base + chatBoost
+
+        return { ...p, score }
+      })
+      .sort((a, b) => b.score - a.score)
+
+    return { success: true, data: scoredPersonas }
   } catch (error) {
     console.error("Error fetching users:", error)
     return { success: false, data: [] }
