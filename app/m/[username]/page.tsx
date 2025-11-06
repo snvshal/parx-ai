@@ -7,7 +7,7 @@ import { notFound } from "next/navigation"
 import { ps } from "@/lib/utils"
 
 async function ChatBox({ params }: { params: Promise<{ username: string }> }) {
-  "use cache: private"
+  // "use cache: private"
   const username = (await params).username
 
   const persona: TUser | null = await getUserByUsername(username)

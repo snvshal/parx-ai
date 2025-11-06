@@ -1,6 +1,8 @@
 "use server"
 
+import { SearchResult } from "@/components/people"
 import connectToDatabase from "@/lib/db"
+import { ps } from "@/lib/utils"
 import { Chat } from "@/models/chat.model"
 import { Instruction } from "@/models/instruction.model"
 import { User } from "@/models/user.model"
@@ -55,6 +57,7 @@ function estimateTokens(text: string): number {
  * Fetch all people and calculate instruction richness status
  */
 export const getPeople = async (
+  documentCount: number = 10,
   params: TStatusParams = {
     lowCount: 1,
     mediumCount: 5,
@@ -142,10 +145,49 @@ export const getPeople = async (
         return { ...p, score }
       })
       .sort((a, b) => b.score - a.score)
+      .slice(0, documentCount ?? 10)
 
     return { success: true, data: scoredPersonas }
   } catch (error) {
     console.error("Error fetching users:", error)
     return { success: false, data: [] }
+  }
+}
+
+export const searchPeople = async (
+  query: string = "",
+  limit: number = 10,
+  documentCount: number = 100,
+): Promise<SearchResult> => {
+  try {
+    const res = await getPeople(documentCount)
+    if (!res.success) return { success: false, data: [] }
+
+    const lower = query.trim().toLowerCase()
+
+    const filtered = res.data.filter((p) => {
+      if (!lower) return true
+      return (
+        p.username.toLowerCase().includes(lower) ||
+        p.name.toLowerCase().includes(lower)
+      )
+    })
+
+    return { success: true, data: ps(filtered.slice(0, limit)) }
+  } catch (error) {
+    console.error(error)
+    return { success: false, data: [] }
+  }
+}
+
+export const getAvailablePersonaCount = async (): Promise<number> => {
+  try {
+    await connectToDatabase()
+    const count = await User.countDocuments()
+
+    return count
+  } catch (error) {
+    console.error("Error counting personas:", error)
+    return 0
   }
 }

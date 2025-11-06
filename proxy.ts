@@ -18,7 +18,7 @@ export async function proxy(req: NextRequest) {
 
   if (pathname === "/") {
     return NextResponse.redirect(
-      new URL(`/m/${token ? token.username : "snvshal"}`, req.url),
+      new URL(token ? "/chats" : "/m/snvshal", req.url),
     )
   }
 

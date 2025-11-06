@@ -13,6 +13,15 @@ const CATEGORY_COMPONENTS = {
   "terms-of-use": TermsOfUse,
 } as const
 
+export async function generateStaticParams() {
+  return [
+    { category: "how-to-use" },
+    { category: "information" },
+    { category: "privacy-policy" },
+    { category: "terms-of-use" },
+  ]
+}
+
 export default async function AboutCategory({
   params,
 }: {
