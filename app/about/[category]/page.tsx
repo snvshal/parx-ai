@@ -14,12 +14,9 @@ const CATEGORY_COMPONENTS = {
 } as const
 
 export async function generateStaticParams() {
-  return [
-    { category: "how-to-use" },
-    { category: "information" },
-    { category: "privacy-policy" },
-    { category: "terms-of-use" },
-  ]
+  return Object.keys(CATEGORY_COMPONENTS).map((category) => ({
+    category,
+  }))
 }
 
 export default async function AboutCategory({

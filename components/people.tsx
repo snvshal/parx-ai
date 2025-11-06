@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react"
-import { searchPeople, TPersona } from "@/app/actions/people"
+import { TPersona } from "@/app/actions/people"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardHeader } from "@/components/ui/card"
 import Link from "next/link"

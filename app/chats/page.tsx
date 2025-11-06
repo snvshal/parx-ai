@@ -3,7 +3,7 @@ import { getChats } from "@/app/actions/chat"
 import { HeaderComponent } from "@/components/header"
 import { ChatListSkeleton } from "@/components/co"
 import { Badge } from "@/components/ui/badge"
-import { cacheTag } from "next/cache"
+// import { cacheTag } from "next/cache"
 import ChatList from "@/components/chat-list"
 
 export default async function ChatListPage() {
