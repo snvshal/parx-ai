@@ -1,16 +1,16 @@
 "use client"
 
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MemoChatMessage } from "@/components/chat/message"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { BotIcon, SendHorizontalIcon } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
-import { useEffect, useRef } from "react"
+import { DefaultChatTransport, type UIMessage } from "ai"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TUser } from "@/schemas/user.schema"
 import Link from "next/link"
-import { Message } from "ai"
 import { AlertMessage } from "../co"
 import { useMobileKeyboard } from "@/hooks/use-mobile-keyboard"
 import { ChatDropdownMenu, ThinkingAnimation } from "./components"
@@ -23,31 +23,34 @@ export default function Chat({
   msgs,
 }: {
   persona: TUser
-  msgs: Message[]
+  msgs: UIMessage[]
 }) {
-  const { messages, input, handleInputChange, handleSubmit, status } = useChat({
-    initialMessages: msgs,
-    onError: (error) => {
-      console.error("Chat error:", error)
-    },
-  })
-
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    handleSubmit(event, {
-      body: { username: persona.username },
-    })
-  }
-
+  const [input, setInput] = useState("")
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { status: authStatus } = useSession()
+  const token = authStatus === "authenticated"
+
+  const { messages, sendMessage, status, error } = useChat({
+    messages: msgs,
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+    }),
+    onError: (err) => console.error("Chat error:", err),
+  })
+
   useMobileKeyboard()
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || status !== "ready") return
+    sendMessage({ text: input, metadata: { username: persona.username } })
+    setInput("")
+  }
 
   useEffect(() => {
     if (status === "ready" && inputRef.current) {
-      setTimeout(() => {
-        inputRef.current?.focus({ preventScroll: true })
-      }, 100)
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100)
     }
   }, [status])
 
@@ -57,18 +60,16 @@ export default function Chat({
         "[data-radix-scroll-area-viewport]",
       )
       if (scrollElement) {
-        requestAnimationFrame(() => {
+        requestAnimationFrame(() =>
           scrollElement.scrollTo({
             top: scrollElement.scrollHeight,
             behavior: "smooth",
-          })
-        })
+          }),
+        )
       }
     }
   }, [messages])
 
-  const { status: authStatus } = useSession()
-  const token = authStatus === "authenticated"
   return (
     <div
       className={cn(
@@ -87,7 +88,7 @@ export default function Chat({
                 alt={persona.name || "Avatar"}
               />
               <AvatarFallback>
-                <BotIcon className="h-4 w-4" aria-hidden={true} />
+                <BotIcon className="h-4 w-4" aria-hidden />
               </AvatarFallback>
             </Avatar>
             <div>
@@ -99,7 +100,7 @@ export default function Chat({
                 {persona.name}
               </Link>
               <p className="text-xs text-muted-foreground">
-                {status === "submitted" ? "Typing..." : "Online"}
+                {status === "streaming" ? "Typing..." : "Online"}
               </p>
             </div>
           </div>
@@ -114,17 +115,13 @@ export default function Chat({
         </div>
       </div>
 
-      {/* Chat Messages */}
-      <ScrollArea
-        ref={scrollAreaRef}
-        className="min-h-0 flex-1 overflow-y-auto px-4"
-      >
+      <ScrollArea ref={scrollAreaRef} className="min-h-0 flex-1 px-4">
         <div>
-          {messages.map((message, i) => (
-            <MemoChatMessage key={i} message={message} />
+          {messages.map((message) => (
+            <MemoChatMessage key={message.id} message={message} />
           ))}
-          {status === "submitted" && <ThinkingAnimation />}
-          {status === "error" && (
+          {status === "streaming" && <ThinkingAnimation />}
+          {error && (
             <AlertMessage
               message="Something went wrong. Please try again."
               className="mb-4"
@@ -133,19 +130,14 @@ export default function Chat({
         </div>
       </ScrollArea>
 
-      {/* Input Area */}
       <div className="z-10 flex-shrink-0 border-t bg-background p-4">
-        <form
-          onSubmit={input.trim() ? onSubmit : (e) => e.preventDefault()}
-          className="flex items-center gap-3"
-        >
+        <form onSubmit={onSubmit} className="flex items-center gap-3">
           <Input
             ref={inputRef}
-            name="message"
             placeholder="Message..."
             value={input}
-            onChange={handleInputChange}
-            disabled={!(status === "ready")}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={status !== "ready"}
             className="flex-1 rounded-full border-muted bg-muted/80 px-4"
             autoComplete="off"
           />
@@ -153,7 +145,7 @@ export default function Chat({
           <Button
             type="submit"
             size="icon"
-            disabled={!(status === "ready") || !input.trim()}
+            disabled={status !== "ready" || !input.trim()}
             className="rounded-full"
           >
             <SendHorizontalIcon className="h-4 w-4" />

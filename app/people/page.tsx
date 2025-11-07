@@ -4,7 +4,6 @@ import { getAvailablePersonaCount, getPeople } from "../actions/people"
 import { PeopleSearch } from "@/components/people"
 
 export default async function PeoplePage() {
-  // "use cache"
   const people = await getPeople()
   return (
     <HeaderComponent
@@ -18,7 +17,6 @@ export default async function PeoplePage() {
 }
 
 async function PeopleCount() {
-  // "use cache"
   const count = await getAvailablePersonaCount()
   return (
     <Badge variant="outline" className="px-4 py-1">

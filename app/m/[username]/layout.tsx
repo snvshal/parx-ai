@@ -4,8 +4,8 @@ import { ChatList } from "@/components/chat/components"
 import { Metadata } from "next"
 import { getServerSession } from "next-auth"
 import { cn } from "@/lib/utils"
-import { User } from "@/models/user.model"
-import connectToDatabase from "@/lib/db"
+// import { User } from "@/models/user.model"
+// import connectToDatabase from "@/lib/db"
 
 export async function generateMetadata({
   params,
@@ -23,14 +23,14 @@ export async function generateMetadata({
   }
 }
 
-export async function generateStaticParams() {
-  await connectToDatabase()
-  const users = await User.find({}, "username").lean()
+// export async function generateStaticParams() {
+//   await connectToDatabase()
+//   const users = await User.find({}, "username").lean()
 
-  return users.map((user) => ({
-    username: user.username,
-  }))
-}
+//   return users.map((user) => ({
+//     username: user.username,
+//   }))
+// }
 
 export default async function ChatLayout({
   children,
@@ -61,11 +61,11 @@ export default async function ChatLayout({
 async function ChatListSidebar() {
   const chats = await getChats()
   return (
-    <aside className="w-80 border-r bg-background p-4 max-md:w-auto max-sm:hidden">
+    <aside className="bg-background w-80 border-r p-4 max-md:w-auto max-sm:hidden">
       <h2 className="mb-4 h-8 text-lg font-semibold">Chats</h2>
       <ScrollArea className="h-[calc(100dvh-5rem)]">
         {chats.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No chats found</p>
+          <p className="text-muted-foreground text-sm">No chats found</p>
         ) : (
           <div className="space-y-2">
             <ChatList chats={chats} />

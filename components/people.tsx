@@ -57,12 +57,12 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
 
   return (
     <div className="relative">
-      <div className="sticky top-0 z-20 bg-background py-4">
+      <div className="bg-background sticky top-0 z-20 py-4">
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border bg-background px-4 py-2 text-sm"
+          className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
         />
       </div>
 
@@ -70,7 +70,7 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
         {loading && <PeopleListSkeleton count={4} />}
 
         {!loading && results.length === 0 && (
-          <div className="py-8 text-center text-muted-foreground">
+          <div className="text-muted-foreground py-8 text-center">
             No people found.
           </div>
         )}
@@ -88,7 +88,7 @@ export function People({ people }: { people: TPersona[] }) {
         {people.map((persona: TPersona) => (
           <Link key={persona.id} href={`/m/${persona.username}`}>
             <Card className="group relative rounded-none border-0 border-b transition-all">
-              <div className="absolute inset-0 z-10 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10" />
+              <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
               <CardHeader>
                 <div className="flex gap-4">
                   <Avatar>
@@ -99,13 +99,13 @@ export function People({ people }: { people: TPersona[] }) {
                   </Avatar>
                   <div>
                     <p className="font-semibold">{persona.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       @{persona.username}
                     </p>
                   </div>
                 </div>
                 <div>
-                  <p className="my-3 break-words">{persona.firstMessage}</p>
+                  <p className="my-3 wrap-break-word">{persona.firstMessage}</p>
                   <div className="flex items-center gap-4">
                     <InstructionBadge status={persona.instructionStatus} />
                     <Badge
@@ -165,7 +165,7 @@ export function PeopleListSkeleton({ count }: { count?: number }) {
         {[...Array(count)].map((_, i) => (
           <Link key={i} href="#" className="block">
             <Card className="group relative rounded-none border-0 border-b transition-all">
-              <div className="absolute inset-0 z-10 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10" />
+              <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
               <CardHeader>
                 <div className="flex gap-4">
                   <Avatar>
