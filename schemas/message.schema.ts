@@ -6,7 +6,7 @@ export const MessageZodSchema = z.object({
   chatId: ZodObjectId,
   userId: ZodObjectId,
   personaId: ZodObjectId,
-  role: z.enum(["system", "user", "assistant", "data"]),
+  role: z.enum(["system", "user", "assistant"]),
   type: z.enum(["text", "image", "video", "audio", "file", "system"]),
   content: z.string().min(1),
   mediaUrl: z.string().url().optional(),

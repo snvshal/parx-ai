@@ -405,12 +405,14 @@ export const InstructionItem = ({
   return (
     <AccordionItem value={id} className="mb-2 rounded-lg border px-4">
       <AccordionTrigger>
-        <span className="break-words text-base">{instruction.type}</span>
+        <span className="text-base wrap-break-word">{instruction.type}</span>
       </AccordionTrigger>
       <AccordionContent>
-        <p className="whitespace-pre-wrap break-words">{instruction.content}</p>
+        <p className="wrap-break-word whitespace-pre-wrap">
+          {instruction.content}
+        </p>
         <div className="mt-4 flex justify-between max-sm:flex-col max-sm:gap-4">
-          <p className="flex items-center text-xs text-muted-foreground">
+          <p className="text-muted-foreground flex items-center text-xs">
             Last update: {format(instruction.updatedAt, "d MMM, yyyy")}
           </p>
           <div className="flex gap-2 max-sm:justify-end">
@@ -486,7 +488,7 @@ export function WarningComponent() {
       </AlertDescription>
       <button
         onClick={handleClose}
-        className="absolute right-2 top-2 p-1 opacity-50 transition-opacity group-hover:opacity-100"
+        className="absolute top-2 right-2 p-1 opacity-50 transition-opacity group-hover:opacity-100"
         aria-label="Dismiss warning"
       >
         <XIcon className="h-4 w-4" aria-hidden={true} />

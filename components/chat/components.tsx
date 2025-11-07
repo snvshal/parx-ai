@@ -246,12 +246,12 @@ function DeleteChatAlert({
   )
 }
 
-export function ChatListSidebarSkeleton() {
+export function ChatListSidebarSkeleton({ count = 5 }: { count?: number }) {
   return (
     <aside className="w-80 border-r bg-background p-4 max-sm:hidden">
       <h2 className="mb-4 text-lg font-semibold">Chats</h2>
       <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
+        {[...Array(count)].map((_, i) => (
           <Skeleton key={i} className="h-12 w-full rounded-md" />
         ))}
       </div>

@@ -7,7 +7,7 @@ import { User } from "@/models/user.model"
 import { TChat } from "@/schemas/chat.schema"
 import { TMessage } from "@/schemas/message.schema"
 import { TUser } from "@/schemas/user.schema"
-import { Message as SDKMessage } from "ai"
+import { UIMessage } from "ai"
 import { getSessionUser } from "@/app/actions/session-user"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { Types } from "mongoose"
@@ -38,17 +38,17 @@ export const getChats = async (): Promise<ChatSession[]> => {
     const sessionUser = await getSessionUser()
     if (!sessionUser) return []
 
-    const chats = await Chat.find({ userId: sessionUser._id })
-      .sort({ updatedAt: -1 })
-      .lean()
+    const chats = await Chat.find({ userId: sessionUser._id }).sort({
+      updatedAt: -1,
+    })
 
     const chatSessions: ChatSession[] = await Promise.all(
       chats.map(async (chat) => {
-        const persona = await User.findById(chat.personaId).lean()
-        const lastMessage = await Message.findById(chat.lastMessage).lean()
+        const persona = await User.findById(chat.personaId)
+        const lastMessage = await Message.findById(chat.lastMessage)
         return {
           ...chat,
-          chatId: chat._id.toString(),
+          chatId: String(chat._id),
           persona: persona as TUser,
           lastMessageContent: lastMessage?.content as string,
         }
@@ -71,7 +71,7 @@ export const getChat = async (personaId: string): Promise<TChat | null> => {
     const chat = await Chat.findOne({
       userId: sessionUser._id,
       personaId,
-    }).lean()
+    })
     return chat || null
   } catch (error) {
     console.error(`Error fetching chats for user "${personaId}":`, error)
@@ -103,7 +103,7 @@ export const deleteChat = async (
   }
 }
 
-export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
+export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
   try {
     await connectToDatabase()
 
@@ -117,9 +117,8 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
         {
           id: "initial",
           role: "assistant",
-          content: persona.firstMessage,
-          createdAt: new Date(),
           parts: [{ type: "text", text: persona.firstMessage }],
+          metadata: { createdAt: new Date() },
         },
       ]
     }
@@ -150,9 +149,8 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
         {
           id: String(firstMessage._id),
           role: firstMessage.role,
-          content: firstMessage.content,
-          createdAt: firstMessage.createdAt,
           parts: [{ type: "text", text: firstMessage.content }],
+          metadata: { createdAt: firstMessage.createdAt },
         },
       ]
     }
@@ -163,13 +161,15 @@ export const getMessages = async (personaId: string): Promise<SDKMessage[]> => {
     }).sort({ createdAt: 1 })
 
     return (
-      messages.map((msg: TMessage) => ({
-        id: String(msg._id),
-        role: msg.role,
-        content: msg.content || "",
-        createdAt: msg.createdAt,
-        parts: [{ type: "text", text: msg.content }],
-      })) || []
+      messages.map(
+        (msg: TMessage) =>
+          ({
+            id: String(msg._id),
+            role: msg.role,
+            parts: [{ type: "text", text: msg.content }],
+            metadata: { createdAt: msg.createdAt },
+          }) as UIMessage,
+      ) || []
     )
   } catch (error) {
     console.error(`Error fetching messages for chat "${personaId}":`, error)

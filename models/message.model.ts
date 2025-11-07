@@ -8,7 +8,7 @@ const MessageSchema = new Schema<TMessage>(
     personaId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     role: {
       type: String,
-      enum: ["system", "user", "assistant", "data"],
+      enum: ["system", "user", "assistant"],
       required: true,
     },
     type: {

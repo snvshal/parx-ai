@@ -41,7 +41,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from "react"
 import { signOut } from "next-auth/react"
-import { TUser } from "@/schemas/user.schema"
+import { JSX } from "react"
+import { useSessionUser } from "@/hooks/use-session-user"
 
 export type ActionItemsProps = {
   role: "button" | "link" | "text"
@@ -65,7 +66,8 @@ export type DialogProps = {
 
 export type ThemeDialogProps = Pick<DialogProps, "open" | "setOpen">
 
-export function SettingsComponent({ user }: { user: TUser }) {
+export function SettingsComponent() {
+  const { user } = useSessionUser()
   const { theme } = useTheme()
 
   const [openTheme, setOpenTheme] = useState(false)
@@ -78,7 +80,7 @@ export function SettingsComponent({ user }: { user: TUser }) {
       name: (
         <div className="flex flex-col items-start justify-center">
           <span className="leading-4">Email</span>
-          <span className="text-sm text-muted-foreground">{user.email}</span>
+          <span className="text-muted-foreground text-sm">{user?.email}</span>
         </div>
       ),
     },
@@ -127,7 +129,7 @@ export function SettingsComponent({ user }: { user: TUser }) {
       actionItem={
         <Button variant="outline">
           <SparklesIcon className="h-4 w-4" aria-hidden={true} />
-          <Link href={`/m/${user.username}`}>My AI</Link>
+          <Link href={`/m/${user?.username}`}>My AI</Link>
         </Button>
       }
       className="max-sm:px-0"
@@ -135,12 +137,15 @@ export function SettingsComponent({ user }: { user: TUser }) {
       <div className="sm:space-y-2">
         <div className="flex h-14 w-full items-center justify-start gap-4 px-4 sm:h-12 sm:rounded-md">
           <Avatar className="h-6 w-6">
-            <AvatarImage src={user.avatar || ""} alt={user.name || "Avatar"} />
+            <AvatarImage
+              src={user?.avatar || ""}
+              alt={user?.name || "Avatar"}
+            />
             <AvatarFallback className="text-sm">
-              {user.name?.charAt(0).toUpperCase() || "A"}
+              {user?.name?.charAt(0).toUpperCase() || "A"}
             </AvatarFallback>
           </Avatar>
-          <span>{user.name}</span>
+          <span>{user?.name}</span>
         </div>
         <ActionItems items={settingsItems} />
       </div>

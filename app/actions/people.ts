@@ -1,6 +1,8 @@
 "use server"
 
+import { SearchResult } from "@/components/people"
 import connectToDatabase from "@/lib/db"
+import { ps } from "@/lib/utils"
 import { Chat } from "@/models/chat.model"
 import { Instruction } from "@/models/instruction.model"
 import { User } from "@/models/user.model"
@@ -34,6 +36,14 @@ type TStatusParams = {
   greatTokens?: number
 }
 
+const statusWeight: Record<TPersona["instructionStatus"], number> = {
+  null: 0,
+  low: 1,
+  medium: 2,
+  high: 3,
+  great: 4,
+}
+
 /**
  * Estimate tokens roughly as words * 1.3 (approx GPT tokenization ratio)
  */
@@ -47,6 +57,7 @@ function estimateTokens(text: string): number {
  * Fetch all people and calculate instruction richness status
  */
 export const getPeople = async (
+  documentCount: number = 10,
   params: TStatusParams = {
     lowCount: 1,
     mediumCount: 5,
@@ -120,9 +131,63 @@ export const getPeople = async (
       }),
     )
 
-    return { success: true, data: personas }
+    const scoredPersonas = personas
+      .map((p) => {
+        // base score from instruction richness
+        const base = statusWeight[p.instructionStatus] * 100
+
+        // chat influence: diminishing returns to prevent chatCount domination
+        const chatBoost = Math.log10(p.chatCount + 1) * 20
+
+        // combined weighted score
+        const score = base + chatBoost
+
+        return { ...p, score }
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, documentCount ?? 10)
+
+    return { success: true, data: scoredPersonas }
   } catch (error) {
     console.error("Error fetching users:", error)
     return { success: false, data: [] }
+  }
+}
+
+export const searchPeople = async (
+  query: string = "",
+  limit: number = 10,
+  documentCount: number = 100,
+): Promise<SearchResult> => {
+  try {
+    const res = await getPeople(documentCount)
+    if (!res.success) return { success: false, data: [] }
+
+    const lower = query.trim().toLowerCase()
+
+    const filtered = res.data.filter((p) => {
+      if (!lower) return true
+      return (
+        p.username.toLowerCase().includes(lower) ||
+        p.name.toLowerCase().includes(lower)
+      )
+    })
+
+    return { success: true, data: ps(filtered.slice(0, limit)) }
+  } catch (error) {
+    console.error(error)
+    return { success: false, data: [] }
+  }
+}
+
+export const getAvailablePersonaCount = async (): Promise<number> => {
+  try {
+    await connectToDatabase()
+    const count = await User.countDocuments()
+
+    return count
+  } catch (error) {
+    console.error("Error counting personas:", error)
+    return 0
   }
 }

@@ -13,6 +13,12 @@ const CATEGORY_COMPONENTS = {
   "terms-of-use": TermsOfUse,
 } as const
 
+export async function generateStaticParams() {
+  return Object.keys(CATEGORY_COMPONENTS).map((category) => ({
+    category,
+  }))
+}
+
 export default async function AboutCategory({
   params,
 }: {
