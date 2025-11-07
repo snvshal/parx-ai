@@ -10,7 +10,7 @@ import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
 import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
-import { format } from "date-fns"
+// import { format } from "date-fns"
 import { Tweet } from "react-tweet"
 
 export const MemoChatMessage = memo(function ChatMessage({
@@ -110,7 +110,7 @@ export const MemoChatMessage = memo(function ChatMessage({
           )}
         >
           {isAssistant ? (
-            <div className="prose prose-sm dark:prose-invert w-full overflow-hidden wrap-break-word">
+            <div className="w-full overflow-x-auto overflow-y-hidden leading-relaxed tracking-normal wrap-break-word whitespace-pre-wrap">
               {renderParts()}
             </div>
           ) : (
@@ -174,17 +174,13 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
           )}
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <pre
-          ref={codeRef}
-          className="m-0 p-4 text-sm break-all whitespace-pre-wrap text-white/90"
-          {...props}
-        >
-          <code className="block">
-            {(codeElement.props as { children?: React.ReactNode }).children}
-          </code>
-        </pre>
-      </div>
+      <pre
+        ref={codeRef}
+        className="m-0 overflow-x-auto p-4 text-sm whitespace-pre-wrap"
+        {...props}
+      >
+        {(codeElement.props as { children?: React.ReactNode }).children}
+      </pre>
     </div>
   )
 }
@@ -196,10 +192,7 @@ function InlineCode({
 }: React.HTMLAttributes<HTMLElement>) {
   return (
     <span
-      className={cn(
-        "bg-foreground/10 rounded px-1 py-0.5 text-sm break-all",
-        className,
-      )}
+      className={cn("bg-foreground/10 rounded px-1 py-0.5 text-sm", className)}
       {...props}
     >
       {children}

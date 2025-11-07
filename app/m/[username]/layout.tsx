@@ -40,7 +40,7 @@ export default async function ChatLayout({
   const session = await getServerSession()
   const user = session?.user
   return (
-    <main className="chat-container relative flex h-screen items-center justify-center">
+    <main className="chat-container relative flex h-dvh items-center justify-center">
       <div className="flex w-full max-w-full">
         {/* <Suspense fallback={<ChatListSidebarSkeleton />}> */}
         {user && <ChatListSidebar />}
