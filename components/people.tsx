@@ -70,7 +70,7 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
         {loading && <PeopleListSkeleton count={4} />}
 
         {!loading && results.length === 0 && (
-          <div className="text-muted-foreground py-8 text-center">
+          <div className="text-muted-foreground py-24 text-center">
             No people found.
           </div>
         )}

@@ -1,17 +1,24 @@
 import { Badge } from "@/components/ui/badge"
 import { HeaderComponent } from "@/components/header"
 import { getAvailablePersonaCount, getPeople } from "../actions/people"
-import { PeopleSearch } from "@/components/people"
+import { PeopleListSkeleton, PeopleSearch } from "@/components/people"
+import { Suspense } from "react"
+
+async function People() {
+  const people = await getPeople()
+  return <PeopleSearch data={people.data} />
+}
 
 export default async function PeoplePage() {
-  const people = await getPeople()
   return (
     <HeaderComponent
       page="People"
       actionItem={<PeopleCount />}
       className="pt-0 max-sm:p-0"
     >
-      <PeopleSearch data={people.data} />
+      <Suspense fallback={<PeopleListSkeleton count={4} />}>
+        <People />
+      </Suspense>
     </HeaderComponent>
   )
 }

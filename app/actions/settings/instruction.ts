@@ -4,7 +4,6 @@ import connectToDatabase from "@/lib/db"
 import { User } from "@/models/user.model"
 import { TUser } from "@/schemas/user.schema"
 import { getServerSession } from "next-auth"
-import { revalidateTag } from "next/cache"
 import { formatZodError, ps } from "@/lib/utils"
 import { Instruction } from "@/models/instruction.model"
 import {
@@ -17,6 +16,7 @@ import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
 import { getSessionUser } from "@/app/actions/session-user"
 import { TNewInstruction } from "@/components/settings/instruction"
+import { revalidatePath } from "next/cache"
 
 export const getInstructions = async (): Promise<TInstruction[]> => {
   try {
@@ -62,8 +62,7 @@ export const addInstruction = async (
 
     const addedInstruction = await Instruction.create(validInstruction)
 
-    revalidateTag("settings-instructions", "max")
-    // revalidatePath("/settings/instructions")
+    revalidatePath("/settings/instructions")
 
     setNotification(addedInstruction.content)
 
@@ -124,8 +123,7 @@ export const updateInstruction = async (
 
     await instruction.save()
 
-    revalidateTag("settings-instructions", "max")
-    // revalidatePath("/settings/instructions")
+    revalidatePath("/settings/instructions")
 
     return {
       success: true,
@@ -158,8 +156,8 @@ export const deleteInstruction = async (
       userId: user._id,
     })
 
-    revalidateTag("settings-instructions", "max")
-    // revalidatePath("/settings/instructions")
+    revalidatePath("/settings/instructions")
+
     return {
       success: true,
       message: "Instruction deleted successfully!",

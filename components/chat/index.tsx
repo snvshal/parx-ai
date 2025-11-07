@@ -31,7 +31,7 @@ export default function Chat({
   const { status: authStatus } = useSession()
   const token = authStatus === "authenticated"
 
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, setMessages, status, error } = useChat({
     messages: msgs,
     transport: new DefaultChatTransport({
       api: "/api/chat",
@@ -73,13 +73,13 @@ export default function Chat({
   return (
     <div
       className={cn(
-        "chat-container mx-auto flex h-screen w-full max-w-2xl flex-col overflow-hidden",
+        "chat-container mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
         token
           ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
           : "sm:h-[calc(100dvh-2rem)] sm:rounded-3xl sm:border",
       )}
     >
-      <div className="z-10 flex flex-shrink-0 items-center justify-between border-b px-4 py-3">
+      <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center justify-center gap-2">
             <Avatar className="h-9 w-9">
@@ -99,18 +99,14 @@ export default function Chat({
               >
                 {persona.name}
               </Link>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {status === "streaming" ? "Typing..." : "Online"}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <InstallPWA />
-            <ChatDropdownMenu
-              id={String(persona._id)}
-              name={persona.name}
-              username={persona.username}
-            />
+            <ChatDropdownMenu setMessages={setMessages} />
           </div>
         </div>
       </div>
@@ -120,7 +116,7 @@ export default function Chat({
           {messages.map((message) => (
             <MemoChatMessage key={message.id} message={message} />
           ))}
-          {status === "streaming" && <ThinkingAnimation />}
+          {status === "submitted" && <ThinkingAnimation />}
           {error && (
             <AlertMessage
               message="Something went wrong. Please try again."
@@ -130,7 +126,7 @@ export default function Chat({
         </div>
       </ScrollArea>
 
-      <div className="z-10 flex-shrink-0 border-t bg-background p-4">
+      <div className="bg-background z-10 shrink-0 border-t p-4">
         <form onSubmit={onSubmit} className="flex items-center gap-3">
           <Input
             ref={inputRef}
@@ -138,7 +134,7 @@ export default function Chat({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={status !== "ready"}
-            className="flex-1 rounded-full border-muted bg-muted/80 px-4"
+            className="border-muted bg-muted/80 flex-1 rounded-full px-4"
             autoComplete="off"
           />
 

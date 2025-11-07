@@ -10,6 +10,7 @@ import {
   SettingsIcon,
   Share2Icon,
   SparklesIcon,
+  TrashIcon,
   UsersIcon,
 } from "lucide-react"
 import { memo, useState } from "react"
@@ -19,8 +20,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession } from "next-auth/react"
@@ -35,7 +34,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ChatSession, deleteMessages } from "@/app/actions/chat"
+import { ChatSession, deleteChat, deleteMessages } from "@/app/actions/chat"
 import { Skeleton } from "../co"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
@@ -50,15 +49,16 @@ import {
 import { Card, CardContent } from "../ui/card"
 import { ScrollArea } from "../ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { UIMessage } from "ai"
 
 export function ThinkingAnimation() {
   return (
     <div className="my-4 flex items-end gap-2">
-      <div className="flex gap-1 rounded-2xl bg-accent p-4">
+      <div className="bg-accent flex gap-1 rounded-2xl p-4">
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="inline-block h-2 w-2 animate-bounce rounded-full bg-primary/40"
+            className="bg-primary/40 inline-block h-2 w-2 animate-bounce rounded-full"
             style={{ animationDelay: `${i * 0.2}s` }}
           />
         ))}
@@ -68,16 +68,15 @@ export function ThinkingAnimation() {
 }
 
 export const ChatDropdownMenu = memo(function ChatDropdownMenu({
-  id,
-  name,
-  username,
+  setMessages,
 }: {
-  id: string
-  name: string
-  username: string
+  setMessages: (messages: UIMessage[]) => void
 }) {
   const { status } = useSession()
   const [openDeleteChat, setOpenDeleteChat] = useState(false)
+  const [action, setAction] = useState<"delete" | "reset" | undefined>(
+    undefined,
+  )
   const [IsDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleShare = async () => {
@@ -108,14 +107,12 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
             <EllipsisVerticalIcon
-              className="h-5 w-5 text-foreground/80"
+              className="text-foreground/80 h-5 w-5"
               aria-hidden={true}
             />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end">
-          <DropdownMenuLabel>{name} AI</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <DropdownMenuItem
             role="button"
             onClick={() => setIsDialogOpen(true)}
@@ -159,11 +156,32 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
           {status === "authenticated" && (
             <DropdownMenuItem
               role="button"
-              onClick={() => setOpenDeleteChat(true)}
+              onClick={() => {
+                setOpenDeleteChat(true)
+                setAction("reset")
+              }}
               className="h-9 cursor-pointer"
             >
               <RotateCcwIcon className="mr-2 h-4 w-4" aria-hidden={true} />
               <span>Reset Chat</span>
+            </DropdownMenuItem>
+          )}
+          {status === "authenticated" && (
+            <DropdownMenuItem
+              role="button"
+              onClick={() => {
+                setOpenDeleteChat(true)
+                setAction("delete")
+              }}
+              className="h-9 cursor-pointer"
+            >
+              <TrashIcon
+                className="text-destructive hover:text-destructive mr-2 h-4 w-4"
+                aria-hidden={true}
+              />
+              <span className="text-destructive hover:text-destructive">
+                Delete Chat
+              </span>
             </DropdownMenuItem>
           )}
           <DropdownMenuItem className="h-9 cursor-pointer">
@@ -181,10 +199,10 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
         </DropdownMenuContent>
       </DropdownMenu>
       <DeleteChatAlert
-        personaId={id}
-        personaName={username}
         open={openDeleteChat}
         setOpen={setOpenDeleteChat}
+        action={action as "delete" | "reset"}
+        setMessages={setMessages}
       />
       <WhatIsItDialog open={IsDialogOpen} setOpen={setIsDialogOpen} />
     </div>
@@ -194,24 +212,37 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
 function DeleteChatAlert({
   open,
   setOpen,
-  personaId,
-  personaName,
+  action,
+  setMessages,
 }: {
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
-  personaId: string
-  personaName: string
+  action: "delete" | "reset"
+  setMessages: (messages: UIMessage[]) => void
 }) {
   const [isLoading, setIsLoading] = useState(false)
-
+  const { username } = useParams()
+  const router = useRouter()
   const deleteChatFunc = async () => {
     setIsLoading(true)
-
     try {
-      const { success } = await deleteMessages(personaId)
-      if (success) {
-        setIsLoading(false)
-        toast.success("Chat deleted successfully!")
+      if (action === "delete") {
+        router.replace("/chats")
+
+        const { success } = await deleteChat(username as string)
+        if (success) {
+          setIsLoading(false)
+          toast.success("Chat deleted successfully!")
+        }
+      } else if (action === "reset") {
+        const { success, firstMessage } = await deleteMessages(
+          username as string,
+        )
+        if (success && firstMessage) {
+          setMessages([firstMessage])
+          setIsLoading(false)
+          toast.success("Chat reset successfully!")
+        }
       }
     } catch (error) {
       console.error(error)
@@ -228,7 +259,7 @@ function DeleteChatAlert({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. It will reset and permanently delete
-            your previous messages with @{personaName}.
+            your previous messages with @{username}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -238,7 +269,11 @@ function DeleteChatAlert({
             onClick={deleteChatFunc}
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Reset Chat"}
+            {isLoading
+              ? "Processing..."
+              : action === "delete"
+                ? "Delete Chat"
+                : "Reset Chat"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -248,7 +283,7 @@ function DeleteChatAlert({
 
 export function ChatListSidebarSkeleton({ count = 5 }: { count?: number }) {
   return (
-    <aside className="w-80 border-r bg-background p-4 max-sm:hidden">
+    <aside className="bg-background w-80 border-r p-4 max-sm:hidden">
       <h2 className="mb-4 text-lg font-semibold">Chats</h2>
       <div className="space-y-3">
         {[...Array(count)].map((_, i) => (
@@ -273,11 +308,9 @@ export const ChatList = memo(function ChatList({
           href={`/m/${chat.persona.username}`}
           style={{
             backgroundColor:
-              username === chat.persona.username
-                ? "hsl(var(--accent))"
-                : "none",
+              username === chat.persona.username ? "var(--accent)" : "none",
           }}
-          className="flex h-14 items-center gap-3 rounded-full p-2 hover:bg-accent md:w-72 md:rounded-lg"
+          className="hover:bg-accent flex h-14 items-center gap-3 rounded-full p-2 md:w-72 md:rounded-lg"
         >
           <Avatar>
             <AvatarImage src={chat.persona.avatar} alt={chat.persona.name} />
@@ -287,7 +320,7 @@ export const ChatList = memo(function ChatList({
           </Avatar>
           <div className="flex flex-col text-left max-md:hidden">
             <span className="font-medium">{chat.persona.name}</span>
-            <span className="line-clamp-1 text-sm text-muted-foreground">
+            <span className="text-muted-foreground line-clamp-1 text-sm">
               {chat.lastMessageContent}
             </span>
           </div>
@@ -303,13 +336,13 @@ export function ChatBoxSkeleton() {
   return (
     <div
       className={cn(
-        "chat-container mx-auto flex h-screen w-full max-w-2xl flex-col overflow-hidden",
+        "chat-container mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
         token
           ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
           : "sm:h-[calc(100dvh-2rem)] sm:rounded-3xl sm:border",
       )}
     >
-      <div className="z-10 flex flex-shrink-0 items-center justify-between border-b px-4 py-3">
+      <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center justify-center gap-2">
             <Skeleton className="h-9 w-9 rounded-full" />
@@ -343,7 +376,7 @@ export function ChatBoxSkeleton() {
           ))}
         </div>
       </div>
-      <div className="z-10 flex-shrink-0 border-t bg-background p-4">
+      <div className="bg-background z-10 shrink-0 border-t p-4">
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 flex-1 rounded-full" />
           <Skeleton className="h-9 w-9 rounded-full" />
