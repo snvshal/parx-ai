@@ -37,8 +37,7 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
         </div>
       )}
 
-      {/* 💬 Chat List */}
-      <ScrollArea className="h-[calc(100dvh-10rem)]">
+      <ScrollArea className="h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)]">
         {filtered.map((chat) => (
           <Link key={chat.chatId} href={`/m/${chat.persona.username}`}>
             <Card className="group relative rounded-none border-0 border-b transition-all">

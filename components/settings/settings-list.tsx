@@ -1,294 +1,98 @@
 "use client"
 
-import { useTheme } from "next-themes"
+import React from "react"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { useTransition } from "react"
-import { LucideIcon, SparklesIcon } from "lucide-react"
+  ArrowLeftIcon,
+  SettingsIcon,
+  User2Icon,
+  UserCircle2Icon,
+  BookAIcon,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
-import { HeaderComponent } from "@/components/header"
-import {
-  UserIcon,
-  MailIcon,
-  BookAIcon,
-  SunIcon,
-  LogOutIcon,
-  MoonIcon,
-  InfoIcon,
-  SunMoonIcon,
-} from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useState } from "react"
-import { signOut } from "next-auth/react"
-import { JSX } from "react"
-import { useSessionUser } from "@/hooks/use-session-user"
+import { usePathname, useRouter } from "next/navigation"
+import { ScrollArea } from "../ui/scroll-area"
+import LinkLoadingIndicator from "../ui/link-loading-indicator"
 
-export type ActionItemsProps = {
-  role: "button" | "link" | "text"
-  Icon: LucideIcon
-  url?: string
-  name: string | JSX.Element
-  action?: () => void
-  className?: string | string[]
-}
+const items = [
+  {
+    title: "General",
+    url: "/settings/general",
+    icon: SettingsIcon,
+  },
+  {
+    title: "Profile",
+    url: "/settings/profile",
+    icon: User2Icon,
+  },
+  {
+    title: "Instructions",
+    url: "/settings/instructions",
+    icon: BookAIcon,
+  },
+  {
+    title: "Account",
+    url: "/settings/account",
+    icon: UserCircle2Icon,
+  },
+]
 
-export type DialogProps = {
-  open: boolean
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
-  action: () => void
-  trigger: JSX.Element
-  hidden?: boolean
-  actionName: string
-  title: string
-  description: string
-}
-
-export type ThemeDialogProps = Pick<DialogProps, "open" | "setOpen">
-
-export function SettingsComponent() {
-  const { user } = useSessionUser()
-  const { theme } = useTheme()
-
-  const [openTheme, setOpenTheme] = useState(false)
-  const [openSignOut, setOpenSignOut] = useState(false)
-
-  const settingsItems: ActionItemsProps[] = [
-    {
-      role: "text",
-      Icon: MailIcon,
-      name: (
-        <div className="flex flex-col items-start justify-center">
-          <span className="leading-4">Email</span>
-          <span className="text-muted-foreground text-sm">{user?.email}</span>
-        </div>
-      ),
-    },
-    {
-      role: "link",
-      Icon: UserIcon,
-      url: "/settings/profile",
-      name: "Profile",
-    },
-    {
-      role: "link",
-      Icon: BookAIcon,
-      url: "/settings/instructions",
-      name: "Instructions",
-      action: () => localStorage.setItem("addNewInstruction", "false"),
-    },
-    {
-      role: "button",
-      Icon:
-        theme === "system"
-          ? SunMoonIcon
-          : theme === "dark"
-            ? MoonIcon
-            : SunIcon,
-      name: `Theme (${theme})`,
-      action: () => setOpenTheme(true),
-    },
-    {
-      role: "link",
-      Icon: InfoIcon,
-      url: "/about",
-      name: "About",
-    },
-    {
-      role: "button",
-      Icon: LogOutIcon,
-      name: "Sign Out",
-      className: "text-red-500 hover:bg-red-500/10",
-      action: () => setOpenSignOut(true),
-    },
-  ]
-
+export function SettingsHeader({
+  page,
+  children,
+}: {
+  page: string
+  children: React.ReactNode
+}) {
   return (
-    <HeaderComponent
-      page="Settings"
-      actionItem={
-        <Button variant="outline">
-          <SparklesIcon className="h-4 w-4" aria-hidden={true} />
-          <Link href={`/m/${user?.username}`}>My AI</Link>
-        </Button>
-      }
-      className="max-sm:px-0"
-    >
-      <div className="sm:space-y-2">
-        <div className="flex h-14 w-full items-center justify-start gap-4 px-4 sm:h-12 sm:rounded-md">
-          <Avatar className="h-6 w-6">
-            <AvatarImage
-              src={user?.avatar || ""}
-              alt={user?.name || "Avatar"}
-            />
-            <AvatarFallback className="text-sm">
-              {user?.name?.charAt(0).toUpperCase() || "A"}
-            </AvatarFallback>
-          </Avatar>
-          <span>{user?.name}</span>
-        </div>
-        <ActionItems items={settingsItems} />
-      </div>
-      <ThemeDialog open={openTheme} setOpen={setOpenTheme} />
-      <AlertDialogComponent
-        open={openSignOut}
-        setOpen={setOpenSignOut}
-        action={signOut}
-        trigger={<span>Sign Out</span>}
-        hidden={true}
-        actionName="Sign Out"
-        title="Confirm Sign Out"
-        description={`Are you sure you want to sign out? You will need to log in again to access your account.`}
-      />
-    </HeaderComponent>
+    <div className="flex h-full w-full flex-col">
+      <p className="flex p-6 pb-0 text-xl font-bold">
+        <span className="w-full border-b pb-4">{page}</span>
+      </p>
+      <div className="flex-1 overflow-y-auto p-6">{children}</div>
+    </div>
   )
 }
 
-export function AlertDialogComponent({
-  open,
-  setOpen,
-  action,
-  trigger,
-  hidden = false,
-  actionName,
-  title,
-  description,
-}: DialogProps) {
-  const [isPending, startTransition] = useTransition()
-
-  const handleClick = () => startTransition(action)
+export function SettingsSidebar({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const pathname = usePathname()
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger className={cn(hidden && "hidden")} asChild>
-        {trigger}
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <Button
-            variant="destructive"
-            onClick={handleClick}
-            disabled={isPending}
-          >
-            {actionName}
+    <div className="flex h-[calc(100dvh-2rem)] w-full max-sm:h-dvh max-sm:flex-col">
+      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
+        <div className="mb-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeftIcon className="h-6 w-6" aria-hidden="true" />
           </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
-
-export function ThemeDialog({ open, setOpen }: ThemeDialogProps) {
-  const { theme, setTheme } = useTheme()
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <span></span>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle></DialogTitle>
-          <DialogDescription></DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <RadioGroup
-            value={theme || "system"}
-            onValueChange={(value) => setTheme(value)}
-            className="grid gap-6"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="system" id="system" />
-              <Label htmlFor="system">System</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="light" id="light" />
-              <Label htmlFor="light">Light</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="dark" id="dark" />
-              <Label htmlFor="dark">Dark</Label>
-            </div>
-          </RadioGroup>
         </div>
-        <Button variant="secondary" onClick={() => setOpen(false)}>
-          Done
-        </Button>
-      </DialogContent>
-    </Dialog>
-  )
-}
+        <nav className="flex gap-2 max-sm:flex-wrap sm:flex-col">
+          {items.map((item) => {
+            const isActive = pathname === item.url
+            return (
+              <Link
+                key={item.title}
+                href={item.url}
+                className={cn(
+                  "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors",
+                  isActive ? "bg-muted text-foreground" : "hover:bg-muted",
+                )}
+                replace
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.title}</span>
+                <LinkLoadingIndicator />
+              </Link>
+            )
+          })}
+        </nav>
+      </aside>
 
-export function ActionItems({ items }: { items: ActionItemsProps[] }) {
-  return (
-    <div className="sm:space-y-2">
-      {items.map((item, index) => {
-        const { role, Icon, url, name, action, className } = item
-
-        const baseClasses = cn(
-          "flex items-center justify-start gap-4 h-14 sm:h-12 w-full px-4 sm:rounded-md",
-          role !== "text" && "cursor-pointer hover:bg-accent",
-          className,
-        )
-
-        if (role === "link" && url) {
-          return (
-            <Link key={index} href={url} className={baseClasses}>
-              <div className="flex w-6 items-center justify-center">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div className="flex flex-1 justify-start">{name}</div>
-            </Link>
-          )
-        }
-
-        return (
-          <div
-            key={index}
-            role={role === "button" ? "button" : undefined}
-            tabIndex={role === "button" ? 0 : undefined}
-            onKeyDown={(e) => {
-              if (role === "button" && (e.key === "Enter" || e.key === " ")) {
-                action?.()
-              }
-            }}
-            onClick={action}
-            className={baseClasses}
-          >
-            <div className="flex w-6 items-center justify-center">
-              <Icon className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div className="flex flex-1 justify-start">
-              {typeof name === "string" ? <span>{name}</span> : name}
-            </div>
-          </div>
-        )
-      })}
+      <main className="flex-1 max-sm:min-h-0">
+        <ScrollArea className="h-full overflow-y-auto">{children}</ScrollArea>
+      </main>
     </div>
   )
 }

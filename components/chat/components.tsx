@@ -5,17 +5,12 @@ import {
   CircleHelpIcon,
   EllipsisVerticalIcon,
   FlagIcon,
-  MessageCircleIcon,
   RotateCcwIcon,
-  SettingsIcon,
   Share2Icon,
-  SparklesIcon,
   TrashIcon,
   UsersIcon,
 } from "lucide-react"
 import { memo, useState } from "react"
-import Link from "next/link"
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,9 +29,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ChatSession, deleteChat, deleteMessages } from "@/app/actions/chat"
-import { Skeleton } from "../co"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { deleteChat, deleteMessages } from "@/app/actions/chat"
+import { Skeleton } from "../ui/skeleton"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -50,6 +44,7 @@ import { Card, CardContent } from "../ui/card"
 import { ScrollArea } from "../ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { UIMessage } from "ai"
+import Link from "next/link"
 
 export function ThinkingAnimation() {
   return (
@@ -107,7 +102,7 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
             <EllipsisVerticalIcon
-              className="text-foreground/80 h-5 w-5"
+              className="text-foreground/80"
               aria-hidden={true}
             />
           </Button>
@@ -121,68 +116,46 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
             <CircleHelpIcon className="mr-2 h-4 w-4" aria-hidden={true} />
             <span>What is it?</span>
           </DropdownMenuItem>
-          {status === "authenticated" ? (
-            <Link href="/settings">
+
+          {status === "unauthenticated" && (
+            <Link href="/people">
               <DropdownMenuItem className="h-9 cursor-pointer">
-                <SettingsIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-                <span>Settings</span>
-              </DropdownMenuItem>
-            </Link>
-          ) : (
-            <Link href="/sign-in">
-              <DropdownMenuItem className="h-9 cursor-pointer">
-                <SparklesIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-                <span>Make My AI</span>
+                <UsersIcon className="mr-2 h-4 w-4" aria-hidden={true} />
+                <span>People</span>
               </DropdownMenuItem>
             </Link>
           )}
+
           {status === "authenticated" && (
-            <Link href="/chats">
-              <DropdownMenuItem className="h-9 cursor-pointer">
-                <MessageCircleIcon
-                  className="mr-2 h-4 w-4"
+            <>
+              <DropdownMenuItem
+                role="button"
+                onClick={() => {
+                  setOpenDeleteChat(true)
+                  setAction("reset")
+                }}
+                className="h-9 cursor-pointer"
+              >
+                <RotateCcwIcon className="mr-2 h-4 w-4" aria-hidden={true} />
+                <span>Reset Chat</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                role="button"
+                onClick={() => {
+                  setOpenDeleteChat(true)
+                  setAction("delete")
+                }}
+                className="h-9 cursor-pointer"
+              >
+                <TrashIcon
+                  className="text-destructive hover:text-destructive mr-2 h-4 w-4"
                   aria-hidden={true}
                 />
-                <span>Chats</span>
+                <span className="text-destructive hover:text-destructive">
+                  Delete Chat
+                </span>
               </DropdownMenuItem>
-            </Link>
-          )}
-          <Link href="/people">
-            <DropdownMenuItem className="h-9 cursor-pointer">
-              <UsersIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-              <span>People</span>
-            </DropdownMenuItem>
-          </Link>
-          {status === "authenticated" && (
-            <DropdownMenuItem
-              role="button"
-              onClick={() => {
-                setOpenDeleteChat(true)
-                setAction("reset")
-              }}
-              className="h-9 cursor-pointer"
-            >
-              <RotateCcwIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-              <span>Reset Chat</span>
-            </DropdownMenuItem>
-          )}
-          {status === "authenticated" && (
-            <DropdownMenuItem
-              role="button"
-              onClick={() => {
-                setOpenDeleteChat(true)
-                setAction("delete")
-              }}
-              className="h-9 cursor-pointer"
-            >
-              <TrashIcon
-                className="text-destructive hover:text-destructive mr-2 h-4 w-4"
-                aria-hidden={true}
-              />
-              <span className="text-destructive hover:text-destructive">
-                Delete Chat
-              </span>
-            </DropdownMenuItem>
+            </>
           )}
           <DropdownMenuItem className="h-9 cursor-pointer">
             <FlagIcon className="mr-2 h-4 w-4" aria-hidden={true} />
@@ -294,42 +267,6 @@ export function ChatListSidebarSkeleton({ count = 5 }: { count?: number }) {
   )
 }
 
-export const ChatList = memo(function ChatList({
-  chats,
-}: {
-  chats: ChatSession[]
-}) {
-  const { username } = useParams()
-  return (
-    <>
-      {chats.map((chat) => (
-        <Link
-          key={chat.chatId}
-          href={`/m/${chat.persona.username}`}
-          style={{
-            backgroundColor:
-              username === chat.persona.username ? "var(--accent)" : "none",
-          }}
-          className="hover:bg-accent flex h-14 items-center gap-3 rounded-full p-2 md:w-72 md:rounded-lg"
-        >
-          <Avatar>
-            <AvatarImage src={chat.persona.avatar} alt={chat.persona.name} />
-            <AvatarFallback>
-              {chat.persona.name.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col text-left max-md:hidden">
-            <span className="font-medium">{chat.persona.name}</span>
-            <span className="text-muted-foreground line-clamp-1 text-sm">
-              {chat.lastMessageContent}
-            </span>
-          </div>
-        </Link>
-      ))}
-    </>
-  )
-})
-
 export function ChatBoxSkeleton() {
   const { status: authStatus } = useSession()
   const token = authStatus === "authenticated"
@@ -403,8 +340,8 @@ export const WhatIsItDialog = memo(function WhatIsItDialog({
           <DialogTitle className="mb-4">What is this chatbot?</DialogTitle>
           <DialogDescription></DialogDescription>
           <Card>
-            <ScrollArea className="h-full overflow-auto max-md:h-[calc(100dvh-8rem)]">
-              <CardContent className="space-y-4 p-4">
+            <ScrollArea className="h-full max-h-[calc(100dvh-8rem)] overflow-auto">
+              <CardContent className="space-y-4 p-4 text-left text-sm">
                 <p>
                   This chatbot is customized based on @{username}&#39;s defined
                   instructions. Its responses are influenced by system prompts
@@ -437,7 +374,7 @@ export const WhatIsItDialog = memo(function WhatIsItDialog({
                   <Button
                     onClick={() => {
                       setOpen(false)
-                      router.push("/settings")
+                      router.push("/about/how-to-use")
                     }}
                   >
                     Create Your Own

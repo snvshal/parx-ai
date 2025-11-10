@@ -119,3 +119,40 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile keyboard handling */
+@layer utilities {
+  @media (max-width: 768px) {
+    .h-screen {
+      height: var(--app-height) !important;
+    }
+
+    /* Prevent zoom on input focus */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+      font-size: 16px !important;
+    }
+
+    /* Ensure proper viewport handling on mobile */
+    html {
+      height: var(--app-height);
+    }
+
+    body {
+      min-height: var(--app-height);
+    }
+
+    /* Force fixed height for chat containers on mobile */
+    .chat-container {
+      height: var(--app-height) !important;
+      max-height: var(--app-height) !important;
+    }
+
+    /* Ensure flex containers maintain height */
+    .flex.h-screen {
+      height: var(--app-height) !important;
+    }
+  }
+}

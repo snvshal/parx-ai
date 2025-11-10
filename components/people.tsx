@@ -14,7 +14,7 @@ import { Card, CardHeader } from "@/components/ui/card"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "./ui/input"
-import { Skeleton } from "./co"
+import { Skeleton } from "./ui/skeleton"
 import { ScrollArea } from "./ui/scroll-area"
 
 export type SearchResult = {
@@ -66,7 +66,7 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
         />
       </div>
 
-      <ScrollArea className="h-[calc(100dvh-10rem)]">
+      <ScrollArea className="h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)]">
         {loading && <PeopleListSkeleton count={4} />}
 
         {!loading && results.length === 0 && (

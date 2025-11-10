@@ -1,6 +1,8 @@
 import { getInstructions } from "@/app/actions/settings/instruction"
 import { getProfile } from "@/app/actions/settings/profile"
 import Loading from "@/app/loading"
+import AccountSettings from "@/components/settings/account"
+import GeneralSettings from "@/components/settings/general"
 import { InstructionSettings } from "@/components/settings/instruction"
 import { ProfileSettings } from "@/components/settings/profile"
 import { notFound } from "next/navigation"
@@ -22,6 +24,9 @@ export default async function SettingsCategory({
   const category = (await params).category
 
   switch (category) {
+    case "general":
+      return <GeneralSettings />
+
     case "profile":
       return (
         <Suspense fallback={<Loading />}>
@@ -35,6 +40,9 @@ export default async function SettingsCategory({
           <Instructions />
         </Suspense>
       )
+
+    case "account":
+      return <AccountSettings />
 
     default:
       return notFound()

@@ -1,11 +1,8 @@
-import { getChats, getUserByUsername } from "@/app/actions/chat"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { ChatList } from "@/components/chat/components"
+import { getUserByUsername } from "@/app/actions/chat"
 import { Metadata } from "next"
-import { getServerSession } from "next-auth"
-import { cn } from "@/lib/utils"
-// import { User } from "@/models/user.model"
-// import connectToDatabase from "@/lib/db"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { getSessionUser } from "@/app/actions/session-user"
 
 export async function generateMetadata({
   params,
@@ -23,55 +20,27 @@ export async function generateMetadata({
   }
 }
 
-// export async function generateStaticParams() {
-//   await connectToDatabase()
-//   const users = await User.find({}, "username").lean()
-
-//   return users.map((user) => ({
-//     username: user.username,
-//   }))
-// }
-
 export default async function ChatLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession()
-  const user = session?.user
-  return (
-    <main className="chat-container relative flex h-dvh items-center justify-center">
-      <div className="flex w-full max-w-full">
-        {/* <Suspense fallback={<ChatListSidebarSkeleton />}> */}
-        {user && <ChatListSidebar />}
-        {/* </Suspense> */}
-        <div
-          className={cn(
-            "mx-auto flex flex-1 items-center lg:px-4",
-            !user && "sm:px-4",
-          )}
-        >
-          {children}
-        </div>
-      </div>
-    </main>
-  )
-}
+  const sessionUser = await getSessionUser()
 
-async function ChatListSidebar() {
-  const chats = await getChats()
+  if (!sessionUser) {
+    return (
+      <main className="chat-container relative flex h-dvh w-full items-center justify-center">
+        {children}
+      </main>
+    )
+  }
+
   return (
-    <aside className="bg-background w-80 border-r p-4 max-md:w-auto max-sm:hidden">
-      <h2 className="mb-4 h-8 text-lg font-semibold">Chats</h2>
-      <ScrollArea className="h-[calc(100dvh-5rem)]">
-        {chats.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No chats found</p>
-        ) : (
-          <div className="space-y-2">
-            <ChatList chats={chats} />
-          </div>
-        )}
-      </ScrollArea>
-    </aside>
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="chat-container relative flex h-dvh w-full items-center justify-center">
+        {children}
+      </main>
+    </SidebarProvider>
   )
 }

@@ -5,7 +5,7 @@ import { memo, useEffect, useState, useTransition } from "react"
 import { updateProfile } from "@/app/actions/settings/profile"
 import { UserZodSchema } from "@/schemas/user.schema"
 import Image from "next/image"
-import { HeaderComponent } from "@/components/header"
+import { SettingsHeader } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
 import { Input } from "@/components/ui/input"
@@ -92,7 +92,7 @@ export const ProfileSettings = memo(function ProfileSettings({
   }
 
   return (
-    <HeaderComponent page="Profile">
+    <SettingsHeader page="Profile">
       <div className="space-y-8">
         {message && (
           <AlertMessage
@@ -216,6 +216,6 @@ export const ProfileSettings = memo(function ProfileSettings({
           </form>
         </Form>
       </div>
-    </HeaderComponent>
+    </SettingsHeader>
   )
 })

@@ -13,7 +13,7 @@ import {
   updateInstruction,
   deleteInstruction,
 } from "@/app/actions/settings/instruction"
-import { HeaderComponent } from "@/components/header"
+import { SettingsHeader } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import {
   Accordion,
@@ -39,10 +39,9 @@ import {
   InstructionZodSchema,
   TInstruction,
 } from "@/schemas/instruction.schema"
-import { AlertDialogComponent } from "./settings-list"
+import { AlertDialogComponent } from "../co"
 import { AlertMessage } from "../co"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useSessionUser } from "@/hooks/use-session-user"
 import { Badge } from "../ui/badge"
 import { toast } from "sonner"
 
@@ -88,8 +87,6 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [isEditingId, setIsEditingId] = useState<string | null>(null)
-
-  const { user } = useSessionUser()
 
   const setAddNewInst = (value: boolean) => {
     setAddNewInstruction(value)
@@ -167,16 +164,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
   }
 
   return (
-    <HeaderComponent
-      page={`Instructions${addNewInstruction ? " / New" : ""}`}
-      actionItem={
-        addNewInstruction ? undefined : (
-          <Button>
-            <Link href={`/m/${user?.username}`}>Test</Link>
-          </Button>
-        )
-      }
-    >
+    <SettingsHeader page={`Instructions${addNewInstruction ? " / New" : ""}`}>
       {addNewInstruction ? (
         <div className="mb-10">
           <WarningComponent />
@@ -233,7 +221,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
           )}
         </Accordion>
       )}
-    </HeaderComponent>
+    </SettingsHeader>
   )
 }
 

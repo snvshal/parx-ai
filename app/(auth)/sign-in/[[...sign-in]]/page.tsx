@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from "next/navigation"
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -18,7 +17,7 @@ export default function SignUpPage() {
 
   const handleSignIn = () => {
     const width = 500
-    const height = 400
+    const height = 300
     const left = window.screen.width / 2 - width / 2
     const top = window.screen.height / 2 - height / 2
 
@@ -42,8 +41,8 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col items-center justify-center md:flex-row">
-      <div className="relative flex h-1/2 w-full items-center justify-center bg-muted/10 max-md:hidden md:h-full md:w-1/2">
+    <div className="flex h-dvh flex-col items-center justify-center md:flex-row">
+      <div className="bg-muted/10 relative flex h-1/2 w-full items-center justify-center max-md:hidden md:h-full md:w-1/2">
         <Image
           src="/login.gif"
           alt="gif"
@@ -54,16 +53,14 @@ export default function SignUpPage() {
           unoptimized
         />
       </div>
-
       <div className="relative flex h-auto w-full items-center justify-center p-8 md:h-full md:w-1/2">
-        <Card className="max-w-sm border-0 shadow-none">
+        <div className="max-w-sm border-0 shadow-none">
           <CardHeader className="flex flex-col items-center space-y-2 p-0">
             <CardTitle className="text-3xl font-semibold">Parx AI</CardTitle>
             <CardDescription className="text-center text-base">
               Customize AI with Your Own Instructions
             </CardDescription>
           </CardHeader>
-
           <CardContent className="mt-6 space-y-6 p-0">
             <div className="flex w-full justify-center">
               <Button
@@ -80,8 +77,7 @@ export default function SignUpPage() {
                 <span>Continue with Google</span>
               </Button>
             </div>
-
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-center text-sm">
               By continuing, you agree to StatsDaily&#39;s{" "}
               <Link
                 href="/about/terms-of-use"
@@ -101,7 +97,7 @@ export default function SignUpPage() {
               .
             </p>
           </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   )

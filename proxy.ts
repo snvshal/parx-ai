@@ -22,6 +22,10 @@ export async function proxy(req: NextRequest) {
     )
   }
 
+  if (pathname === "/about") {
+    return NextResponse.redirect(new URL("/about/how-to-use", req.url))
+  }
+
   // Check if the current path matches any public route
   const isPublicRoute = publicRoutes.some((route) => {
     const pattern = route.replace(/:\w+\*/g, ".*").replace(/:\w+/g, "[^/]+")
