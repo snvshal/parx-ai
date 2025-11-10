@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MemoChatMessage } from "@/components/chat/message"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { BotIcon, LogInIcon, SendHorizontalIcon } from "lucide-react"
+import { BotIcon, SendHorizontalIcon } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, type UIMessage } from "ai"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -44,7 +44,10 @@ export default function Chat({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || status !== "ready") return
-    sendMessage({ text: input, metadata: { username: persona.username } })
+    sendMessage({
+      text: input,
+      metadata: { username: persona.username, createdAt: new Date() },
+    })
     setInput("")
   }
 

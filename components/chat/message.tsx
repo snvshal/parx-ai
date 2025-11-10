@@ -10,9 +10,8 @@ import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css"
 import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
-// import { format } from "date-fns"
+import { format } from "date-fns"
 import { Tweet } from "react-tweet"
-import Image from "next/image"
 
 export const MemoChatMessage = memo(function ChatMessage({
   message,
@@ -32,19 +31,15 @@ export const MemoChatMessage = memo(function ChatMessage({
             components={{
               pre: CodeBlock as Components["pre"],
               code: InlineCode,
-              img: ({ src, width, height, ...props }) => {
-                if (!src || typeof src !== "string") return null
-                if (typeof width === "number" && typeof height === "number")
-                  return null
-                return (
-                  <Image
-                    src={src}
-                    alt="image"
-                    className="my-2 h-auto max-h-80 max-w-full rounded-lg"
-                    {...props}
-                  />
-                )
-              },
+              /* eslint-disable @next/next/no-img-element */
+              img: (props) => (
+                <img
+                  {...props}
+                  alt="image"
+                  className="my-2 h-auto max-h-80 max-w-full rounded-lg"
+                />
+              ),
+              /* eslint-enable @next/next/no-img-element */
               video: (props) => (
                 <video
                   {...props}
@@ -136,10 +131,10 @@ export const MemoChatMessage = memo(function ChatMessage({
               isAssistant ? "text-foreground/50" : "text-white/50",
             )}
           >
-            {/* {format(
+            {format(
               (message.metadata as { createdAt?: Date }).createdAt as Date,
               "h:mm a",
-            )} */}
+            )}
           </div>
         </div>
       </div>

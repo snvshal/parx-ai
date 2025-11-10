@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
     }
 
     const systemInstruction = await getInstructionsByUserId(String(persona._id))
-    // const modelMessages = convertToModelMessages(messages)
 
     let assistantMessageId: string | null = null
     if (sessionUser && chat) {
@@ -94,8 +93,13 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // new v5 response format
-    return result.toUIMessageStreamResponse()
+    return result.toUIMessageStreamResponse({
+      messageMetadata: ({ part }) => {
+        if (part.type === "start") {
+          return { createdAt: new Date() }
+        }
+      },
+    })
   } catch (error) {
     console.error("Error processing request:", error)
     return new Response(JSON.stringify({ error: "Error processing request" }), {
