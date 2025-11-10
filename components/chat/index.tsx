@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MemoChatMessage } from "@/components/chat/message"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { BotIcon, SendHorizontalIcon } from "lucide-react"
+import { BotIcon, LogInIcon, SendHorizontalIcon } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, type UIMessage } from "ai"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -14,9 +14,9 @@ import Link from "next/link"
 import { AlertMessage } from "../co"
 import { useMobileKeyboard } from "@/hooks/use-mobile-keyboard"
 import { ChatDropdownMenu, ThinkingAnimation } from "./components"
-import InstallPWA from "../install-pwa"
 import { useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
+import { SidebarTrigger } from "../ui/sidebar"
 
 export default function Chat({
   persona,
@@ -104,13 +104,24 @@ export default function Chat({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <InstallPWA />
+          <div className="flex items-center">
+            {token ? (
+              <SidebarTrigger
+                variant="ghost"
+                size="icon"
+                className="text-foreground/80 size-9 rounded-full"
+              />
+            ) : (
+              <Link href="/sign-in">
+                <Button variant="outline" size="sm" className="rounded-full">
+                  Sign In
+                </Button>
+              </Link>
+            )}
             <ChatDropdownMenu setMessages={setMessages} />
           </div>
         </div>
       </div>
-
       <ScrollArea ref={scrollAreaRef} className="min-h-0 flex-1 px-4">
         <div>
           {messages.map((message) => (

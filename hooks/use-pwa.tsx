@@ -1,24 +1,22 @@
 "use client"
 
-import { Button } from "./ui/button"
 import { useEffect, useState } from "react"
-import { DownloadIcon } from "lucide-react"
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
 }
 
-export default function InstallPWA() {
+export function usePWA() {
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null)
-  const [isVisible, setIsVisible] = useState<boolean>(false)
+  const [isAppInstalled, setIsAppInstalled] = useState<boolean>(false)
 
   useEffect(() => {
     const handler = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
       setInstallPrompt(e)
-      setIsVisible(true)
+      setIsAppInstalled(true)
     }
 
     window.addEventListener("beforeinstallprompt", handler as EventListener)
@@ -30,7 +28,7 @@ export default function InstallPWA() {
       )
   }, [])
 
-  const handleInstallClick = async () => {
+  const handleAppInstall = async () => {
     if (!installPrompt) return
 
     await installPrompt.prompt()
@@ -38,21 +36,7 @@ export default function InstallPWA() {
     console.log(`User response to install prompt: ${outcome}`)
 
     setInstallPrompt(null)
-    setIsVisible(false)
+    setIsAppInstalled(false)
   }
-
-  return (
-    <>
-      {isVisible && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={handleInstallClick}
-        >
-          <DownloadIcon className="h-5 w-5 text-foreground/80" />
-        </Button>
-      )}
-    </>
-  )
+  return { isAppInstalled, handleAppInstall }
 }

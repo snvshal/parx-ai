@@ -49,8 +49,14 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({
   children,
+  settingsmodal,
+  peoplemodal,
+  chatsmodal,
 }: {
   children: React.ReactNode
+  settingsmodal: React.ReactNode
+  peoplemodal: React.ReactNode
+  chatsmodal: React.ReactNode
 }) {
   return (
     <html lang="en">
@@ -61,7 +67,10 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionWrapper>{children}</SessionWrapper>
+          <SessionWrapper>
+            {children} {settingsmodal} {peoplemodal}
+            {chatsmodal}
+          </SessionWrapper>
           <Toaster />
         </ThemeProvider>
       </body>

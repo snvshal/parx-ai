@@ -8,6 +8,8 @@ export const setAppHeight = () => {
   // Use visualViewport.height for mobile, fallback to window.innerHeight
   const vh = window.visualViewport?.height || window.innerHeight
 
+  document.documentElement.style.setProperty("--app-height", `${vh}px`)
+
   // Also set a CSS custom property for the keyboard height difference
   const keyboardHeight = window.innerHeight - vh
   document.documentElement.style.setProperty(

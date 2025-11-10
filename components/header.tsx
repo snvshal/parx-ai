@@ -18,10 +18,10 @@ export function HeaderComponent({
   const router = useRouter()
   return (
     <div className="h-dvh w-full">
-      <header className="sticky top-0 z-20 box-border h-16 border-b bg-background">
+      <header className="bg-background sticky top-0 z-20 box-border h-16 border-b">
         <div className="mx-auto flex h-full max-w-3xl items-center justify-between px-4">
           <div className="flex gap-4">
-            <button onClick={() => router.back()}>
+            <button onClick={() => router.back()} className="cursor-pointer">
               <ArrowLeftIcon className="h-7 w-7" aria-hidden={true} />
             </button>
             <p className="text-xl font-bold">{page}</p>
@@ -37,6 +37,23 @@ export function HeaderComponent({
       >
         <div className="mx-auto max-w-2xl">{children}</div>
       </main>
+    </div>
+  )
+}
+
+export function SettingsHeader({
+  page,
+  children,
+}: {
+  page: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex h-full w-full flex-col">
+      <p className="flex p-6 pb-0 text-xl font-bold">
+        <span className="w-full border-b pb-4">{page}</span>
+      </p>
+      <div className="flex-1 overflow-y-auto p-6">{children}</div>
     </div>
   )
 }

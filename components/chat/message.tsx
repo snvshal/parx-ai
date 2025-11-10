@@ -12,6 +12,7 @@ import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
 // import { format } from "date-fns"
 import { Tweet } from "react-tweet"
+import Image from "next/image"
 
 export const MemoChatMessage = memo(function ChatMessage({
   message,
@@ -31,13 +32,19 @@ export const MemoChatMessage = memo(function ChatMessage({
             components={{
               pre: CodeBlock as Components["pre"],
               code: InlineCode,
-              img: (props) => (
-                <img
-                  {...props}
-                  alt="image"
-                  className="my-2 h-auto max-h-80 max-w-full rounded-lg"
-                />
-              ),
+              img: ({ src, width, height, ...props }) => {
+                if (!src || typeof src !== "string") return null
+                if (typeof width === "number" && typeof height === "number")
+                  return null
+                return (
+                  <Image
+                    src={src}
+                    alt="image"
+                    className="my-2 h-auto max-h-80 max-w-full rounded-lg"
+                    {...props}
+                  />
+                )
+              },
               video: (props) => (
                 <video
                   {...props}

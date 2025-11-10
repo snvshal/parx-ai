@@ -5,6 +5,7 @@ import { Information } from "@/components/about/information"
 import { PrivacyPolicy } from "@/components/about/privacy-policy"
 import { TermsOfUse } from "@/components/about/terms-of-use"
 import FooterComponent from "@/components/footer"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 const CATEGORY_COMPONENTS = {
   "how-to-use": HowToUse,
@@ -31,7 +32,10 @@ export default async function AboutCategory({
   if (!Component) return notFound()
 
   return (
-    <HeaderComponent page="About /">
+    <HeaderComponent
+      page="About /"
+      actionItem={<SidebarTrigger className="z-50" />}
+    >
       <Component />
       <FooterComponent />
     </HeaderComponent>
