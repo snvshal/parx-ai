@@ -1,9 +1,8 @@
 import { Suspense } from "react"
 import { ChatSession, getChats } from "@/app/actions/chat"
 import { HeaderComponent } from "@/components/header"
-import { ChatListSkeleton } from "@/components/co"
 import { Badge } from "@/components/ui/badge"
-import ChatList from "@/components/chat-list"
+import ChatList, { ChatListSkeleton } from "@/components/chat-list"
 import { Skeleton } from "@/components/ui/skeleton"
 
 async function Chats({
@@ -29,8 +28,8 @@ export default async function ChatListPage() {
             </Badge>
           }
         >
-          <Badge variant="outline" className="px-4 py-1">
-            {(await chatsPromise).length}
+          <Badge variant="outline" className="px-4 py-2">
+            {(await chatsPromise).length} Chats
           </Badge>
         </Suspense>
       }

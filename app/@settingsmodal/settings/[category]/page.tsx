@@ -1,10 +1,12 @@
 import { getInstructions } from "@/app/actions/settings/instruction"
 import { getProfile } from "@/app/actions/settings/profile"
-import Loading from "@/app/loading"
 import AccountSettings from "@/components/settings/account"
 import GeneralSettings from "@/components/settings/general"
-import { InstructionSettings } from "@/components/settings/instruction"
-import { ProfileSettings } from "@/components/settings/profile"
+import {
+  InstructionSettings,
+  InstructionSkeleton,
+} from "@/components/settings/instruction"
+import { ProfileSettings, ProfileSkeleton } from "@/components/settings/profile"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
@@ -29,14 +31,14 @@ export default async function SettingsCategory({
 
     case "profile":
       return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<ProfileSkeleton />}>
           <Profile />
         </Suspense>
       )
 
     case "instructions":
       return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<InstructionSkeleton />}>
           <Instructions />
         </Suspense>
       )

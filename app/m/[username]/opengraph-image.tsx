@@ -21,7 +21,7 @@ const CONFIG = {
     position: "absolute",
   },
   personaStyles: {
-    backgroundColor: "#cecffd",
+    backgroundColor: "#a5b4fc88",
     borderRadius: "54px",
     display: "flex",
     alignItems: "center",
@@ -39,9 +39,10 @@ const CONFIG = {
     width: "100%",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     position: "absolute",
     bottom: "40px",
+    paddingRight: "40px",
   },
 } as const
 

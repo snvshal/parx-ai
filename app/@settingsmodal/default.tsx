@@ -1,3 +1,3 @@
-export default function SettingsModal() {
+export default function Default() {
   return <></>
 }

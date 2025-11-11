@@ -4,7 +4,6 @@ import {
   startTransition,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react"
@@ -28,7 +27,6 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
   const [loading, setLoading] = useState(false)
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
-  const placeholder = useMemo(() => "Search people by name or username...", [])
 
   const doSearch = useCallback(
     (q: string) => {
@@ -61,7 +59,7 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
+          placeholder="Search people by name or username..."
           className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
         />
       </div>
@@ -161,34 +159,38 @@ function InstructionBadge({
 export function PeopleListSkeleton({ count }: { count?: number }) {
   return (
     <div className="container mx-auto">
-      <div className="flex flex-col sm:gap-4">
+      <div className="bg-background sticky top-0 z-20 py-4">
+        <Input
+          placeholder="Search people by name or username..."
+          className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
+          disabled
+        />
+      </div>
+      <div className="flex flex-col">
         {[...Array(count)].map((_, i) => (
-          <Link key={i} href="#" className="block">
-            <Card className="group relative rounded-none border-0 border-b transition-all">
-              <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
-              <CardHeader>
-                <div className="flex gap-4">
-                  <Avatar>
-                    <AvatarFallback>
-                      <Skeleton className="h-full w-full rounded-full" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-24" />
-                  </div>
+          <Card
+            key={i}
+            className="group relative rounded-none border-0 border-b transition-all"
+          >
+            <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
+            <CardHeader>
+              <div className="flex gap-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
                 </div>
-                <div className="space-y-2 py-3">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-                <div className="flex items-center gap-4">
-                  <Skeleton className="h-8 w-32 rounded-full" />
-                  <Skeleton className="h-8 w-20 rounded-full" />
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
+              </div>
+              <div className="space-y-2 py-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-8 w-32 rounded-full" />
+                <Skeleton className="h-8 w-20 rounded-full" />
+              </div>
+            </CardHeader>
+          </Card>
         ))}
       </div>
     </div>

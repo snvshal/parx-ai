@@ -44,6 +44,7 @@ import { AlertMessage } from "../co"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "../ui/badge"
 import { toast } from "sonner"
+import { Skeleton } from "../ui/skeleton"
 
 const instructionFormSchema = InstructionZodSchema.pick({
   type: true,
@@ -482,5 +483,24 @@ export function WarningComponent() {
         <XIcon className="h-4 w-4" aria-hidden={true} />
       </button>
     </Alert>
+  )
+}
+
+export function InstructionSkeleton() {
+  return (
+    <SettingsHeader page={"Instructions"}>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-bold">Added</h2>
+          <Skeleton className="h-6 w-6" />
+        </div>
+        <Skeleton className="h-9 w-20" />
+      </div>
+      <div className="space-y-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full" />
+        ))}
+      </div>
+    </SettingsHeader>
   )
 }

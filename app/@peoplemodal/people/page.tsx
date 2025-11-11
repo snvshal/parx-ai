@@ -13,8 +13,8 @@ async function People() {
 async function PeopleCount() {
   const count = await getAvailablePersonaCount()
   return (
-    <Badge variant="outline" className="px-4 py-1">
-      {count} Available
+    <Badge variant="outline" className="px-4 py-2">
+      {count} People
     </Badge>
   )
 }
@@ -36,7 +36,7 @@ export default async function PeoplePage() {
       }
       className="pt-0"
     >
-      <Suspense fallback={<PeopleListSkeleton count={2} />}>
+      <Suspense fallback={<PeopleListSkeleton count={4} />}>
         <People />
       </Suspense>
     </HeaderComponent>

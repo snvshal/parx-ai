@@ -1,3 +1,3 @@
-export default function ChatsModal() {
+export default function Default() {
   return <></>
 }

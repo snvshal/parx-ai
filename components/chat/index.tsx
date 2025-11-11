@@ -131,7 +131,7 @@ export default function Chat({
             <MemoChatMessage key={message.id} message={message} />
           ))}
           {status === "submitted" && <ThinkingAnimation />}
-          {error && (
+          {(error || status === "error") && (
             <AlertMessage
               message="Something went wrong. Please try again."
               className="mb-4"

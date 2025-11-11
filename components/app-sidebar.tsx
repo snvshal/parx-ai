@@ -74,9 +74,7 @@ export async function AppSidebar() {
                               {chat.persona.name.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="truncate font-medium">
-                            {chat.persona.name}
-                          </span>
+                          <span className="truncate">{chat.persona.name}</span>
                           <LinkLoadingIndicator />
                         </Link>
                       </SidebarMenuButton>
