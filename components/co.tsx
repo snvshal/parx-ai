@@ -9,7 +9,6 @@ import {
 } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { LucideProps, TriangleAlertIcon } from "lucide-react"
-import { Card } from "./ui/card"
 import { cn } from "@/lib/utils"
 import {
   AlertDialog,
@@ -30,7 +29,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar"
-import { Skeleton } from "./ui/skeleton"
 import {
   Dialog,
   DialogContent,
@@ -91,32 +89,6 @@ export function AlertMessage({
         <AlertDescription className="flex-1">{message}</AlertDescription>
       </div>
     </Alert>
-  )
-}
-
-export function ChatListSkeleton({ count = 3 }: { count?: number }) {
-  return (
-    <div className="container mx-auto">
-      <div className="flex flex-col sm:gap-4 sm:p-4">
-        {Array.from({ length: count }).map((_, i) => (
-          <Card
-            key={i}
-            className="p-4 max-sm:rounded-none max-sm:border-0 max-sm:border-b"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-48" />
-                </div>
-              </div>
-              <Skeleton className="h-6 w-8 rounded-md" />
-            </div>
-          </Card>
-        ))}
-      </div>
-    </div>
   )
 }
 
@@ -195,7 +167,11 @@ export function SlotDialog({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [open] = useState(pathname.startsWith(page))
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    setOpen(pathname.startsWith(page))
+  }, [pathname, page])
 
   return (
     <Dialog open={open} onOpenChange={() => router.back()}>

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { ScrollArea } from "./ui/scroll-area"
 import { Button } from "./ui/button"
+import { Skeleton } from "./ui/skeleton"
 
 export default function ChatList({ chats }: { chats: ChatSession[] }) {
   const [query, setQuery] = useState("")
@@ -26,7 +27,7 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
 
   return (
     <div className="relative">
-      {!(filtered.length === 0) && (
+      {!(chats.length === 0) && (
         <div className="bg-background sticky top-0 z-20 py-4">
           <Input
             value={query}
@@ -36,7 +37,6 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
           />
         </div>
       )}
-
       <ScrollArea className="h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)]">
         {filtered.map((chat) => (
           <Link key={chat.chatId} href={`/m/${chat.persona.username}`}>
@@ -76,8 +76,12 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
             </Card>
           </Link>
         ))}
-
         {filtered.length === 0 && (
+          <div className="text-muted-foreground space-y-4 py-24 text-center">
+            <p>No chats found.</p>
+          </div>
+        )}
+        {chats.length === 0 && (
           <div className="text-muted-foreground space-y-4 py-24 text-center">
             <p>No chats found.</p>
             <Button>
@@ -86,6 +90,36 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
           </div>
         )}
       </ScrollArea>
+    </div>
+  )
+}
+
+export function ChatListSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="container mx-auto">
+      <div className="bg-background sticky top-0 z-20 py-4">
+        <Input
+          placeholder="Search chats..."
+          className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
+          disabled
+        />
+      </div>
+      <div className="flex flex-col">
+        {[...Array(count)].map((_, i) => (
+          <Card key={i} className="rounded-none border-0 border-b p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+              </div>
+              <Skeleton className="h-6 w-8 rounded-md" />
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 }

@@ -80,7 +80,16 @@ export const MemoChatMessage = memo(function ChatMessage({
                   </a>
                 )
               },
-              ol: ({ children }) => <ol className="ml-3">{children}</ol>,
+              ol: ({ children }) => (
+                <ol className="list-outside list-decimal space-y-1 pl-4">
+                  {children}
+                </ol>
+              ),
+              ul: ({ children }) => (
+                <ul className="list-outside list-disc space-y-1 pl-4">
+                  {children}
+                </ul>
+              ),
             }}
           >
             {part.text}
@@ -105,19 +114,19 @@ export const MemoChatMessage = memo(function ChatMessage({
       >
         <div
           className={cn(
-            "w-full rounded-2xl px-4 py-2 text-sm wrap-break-word",
+            "w-full rounded-2xl px-4 py-2 text-sm leading-relaxed tracking-normal wrap-break-word break-all",
             isAssistant
               ? "bg-accent"
               : "bg-blue-700 text-white dark:bg-blue-800",
           )}
         >
           {isAssistant ? (
-            <div className="w-full overflow-x-auto overflow-y-hidden leading-relaxed tracking-normal wrap-break-word whitespace-pre-wrap">
+            <div className="w-full overflow-x-auto overflow-y-hidden whitespace-pre-wrap">
               {renderParts()}
             </div>
           ) : (
             <div className="w-full">
-              <p className="overflow-hidden leading-relaxed wrap-break-word whitespace-pre-wrap">
+              <p className="overflow-hidden">
                 {message.parts
                   .filter((p) => p.type === "text")
                   .map((p) => p.text)

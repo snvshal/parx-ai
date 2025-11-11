@@ -22,6 +22,7 @@ import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { AlertMessage } from "../co"
+import { Skeleton } from "../ui/skeleton"
 
 export type ProfileSettingsProps = {
   username: string
@@ -219,3 +220,16 @@ export const ProfileSettings = memo(function ProfileSettings({
     </SettingsHeader>
   )
 })
+
+export function ProfileSkeleton() {
+  return (
+    <SettingsHeader page={"Profile"}>
+      <div className="space-y-8">
+        <Skeleton className="h-20 w-20" />
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-9 w-full" />
+        ))}
+      </div>
+    </SettingsHeader>
+  )
+}
