@@ -45,6 +45,9 @@ import { ScrollArea } from "../ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { UIMessage } from "ai"
 import Link from "next/link"
+import { useSessionUser } from "@/hooks/use-session-user"
+import { useCurrentPersona } from "@/hooks/use-current-persona"
+import { useChatList } from "@/hooks/use-chat-list"
 
 export function ThinkingAnimation() {
   return (
@@ -67,7 +70,9 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
 }: {
   setMessages: (messages: UIMessage[]) => void
 }) {
+  const user = useSessionUser()
   const { status } = useSession()
+  const { username } = useParams()
   const [openDeleteChat, setOpenDeleteChat] = useState(false)
   const [action, setAction] = useState<"delete" | "reset" | undefined>(
     undefined,
@@ -139,22 +144,24 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
                 <RotateCcwIcon className="mr-2 h-4 w-4" aria-hidden={true} />
                 <span>Reset Chat</span>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                role="button"
-                onClick={() => {
-                  setOpenDeleteChat(true)
-                  setAction("delete")
-                }}
-                className="h-9 cursor-pointer"
-              >
-                <TrashIcon
-                  className="text-destructive hover:text-destructive mr-2 h-4 w-4"
-                  aria-hidden={true}
-                />
-                <span className="text-destructive hover:text-destructive">
-                  Delete Chat
-                </span>
-              </DropdownMenuItem>
+              {!(user?.username === username) && (
+                <DropdownMenuItem
+                  role="button"
+                  onClick={() => {
+                    setOpenDeleteChat(true)
+                    setAction("delete")
+                  }}
+                  className="h-9 cursor-pointer"
+                >
+                  <TrashIcon
+                    className="text-destructive hover:text-destructive mr-2 h-4 w-4"
+                    aria-hidden={true}
+                  />
+                  <span className="text-destructive hover:text-destructive">
+                    Delete Chat
+                  </span>
+                </DropdownMenuItem>
+              )}
             </>
           )}
           <DropdownMenuItem className="h-9 cursor-pointer">
@@ -193,24 +200,28 @@ function DeleteChatAlert({
   action: "delete" | "reset"
   setMessages: (messages: UIMessage[]) => void
 }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const { username } = useParams()
   const router = useRouter()
+  const user = useSessionUser()
+  const persona = useCurrentPersona()
+  const { setList } = useChatList()
+  const [isLoading, setIsLoading] = useState(false)
+
   const deleteChatFunc = async () => {
     setIsLoading(true)
     try {
       if (action === "delete") {
-        router.replace("/chats")
+        router.replace(`/m/${user.username}`)
 
-        const { success } = await deleteChat(username as string)
+        const { success } = await deleteChat(persona.id)
         if (success) {
+          setList((prev) =>
+            prev.filter((chat) => chat.personaId.username !== persona.username),
+          )
           setIsLoading(false)
           toast.success("Chat deleted successfully!")
         }
       } else if (action === "reset") {
-        const { success, firstMessage } = await deleteMessages(
-          username as string,
-        )
+        const { success, firstMessage } = await deleteMessages(persona.id)
         if (success && firstMessage) {
           setMessages([firstMessage])
           setIsLoading(false)
@@ -232,7 +243,7 @@ function DeleteChatAlert({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. It will reset and permanently delete
-            your previous messages with @{username}.
+            your previous messages with @{persona.username}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

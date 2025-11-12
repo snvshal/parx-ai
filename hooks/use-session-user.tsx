@@ -10,11 +10,7 @@ export type ContextUser = {
   avatar: string
 }
 
-type UserContextType = {
-  user: ContextUser | null
-}
-
-const UserContext = createContext<UserContextType | null>(null)
+const UserContext = createContext<ContextUser | null>(null)
 
 type SessionUserProviderProps = {
   children: React.ReactNode
@@ -25,7 +21,7 @@ export function SessionUserProvider({
   children,
   initialUser,
 }: SessionUserProviderProps) {
-  const value = useMemo(() => ({ user: initialUser }), [initialUser])
+  const value = useMemo(() => initialUser, [initialUser])
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }

@@ -8,6 +8,8 @@ import NotificationSetup from "@/components/notification-setup"
 import { SessionUserProvider } from "@/hooks/use-session-user"
 import { getContextUser } from "./actions/session-user"
 import { Toaster } from "@/components/ui/sonner"
+import { ChatListProvider } from "@/hooks/use-chat-list"
+import { getChats } from "./actions/chat"
 
 const fira = Fira_Code({ subsets: ["latin"] })
 
@@ -80,13 +82,14 @@ export default async function RootLayout({
 
 async function SessionWrapper({ children }: { children: React.ReactNode }) {
   // "use cache: private"
-  const session: Session | null = await getServerSession()
+  const chats = await getChats()
   const contextUser = await getContextUser()
+  const session: Session | null = await getServerSession()
 
   return (
     <SessionProviderComponent session={session}>
       <SessionUserProvider initialUser={contextUser}>
-        {children}
+        <ChatListProvider chatList={chats}>{children}</ChatListProvider>
         <NotificationSetup />
       </SessionUserProvider>
     </SessionProviderComponent>
