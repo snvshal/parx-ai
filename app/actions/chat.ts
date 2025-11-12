@@ -10,7 +10,7 @@ import { TUser } from "@/schemas/user.schema"
 import { UIMessage } from "ai"
 import { getSessionUser } from "@/app/actions/session-user"
 import { revalidatePath } from "next/cache"
-import { Types } from "mongoose"
+import { HydratedDocument, Types } from "mongoose"
 import { ps } from "@/lib/utils"
 
 export const getUserByUsername = async (
@@ -26,53 +26,51 @@ export const getUserByUsername = async (
   }
 }
 
-export type ChatSession = TChat & {
-  chatId: string
-  persona: TUser
-  lastMessageContent: string
+export type PopulatedChat = HydratedDocument<TChat> & {
+  userId: TUser
+  personaId: TUser
+  lastMessage?: TMessage
 }
 
-export const getChats = async (): Promise<ChatSession[]> => {
+export const getChats = async (): Promise<PopulatedChat[]> => {
   try {
     await connectToDatabase()
     const sessionUser = await getSessionUser()
     if (!sessionUser) return []
 
-    const chats = await Chat.find({ userId: sessionUser._id }).sort({
-      updatedAt: -1,
-    })
+    const chats = await Chat.find({ userId: sessionUser?._id })
+      .populate("userId")
+      .populate("personaId")
+      .populate("lastMessage")
+      .sort({ updatedAt: -1 })
 
-    const chatSessions: ChatSession[] = await Promise.all(
-      chats.map(async (chat) => {
-        const persona = await User.findById(chat.personaId)
-        const lastMessage = await Message.findById(chat.lastMessage)
-        return {
-          ...chat,
-          chatId: String(chat._id),
-          persona: persona as TUser,
-          lastMessageContent: lastMessage?.content as string,
-        }
-      }),
-    )
-
-    return ps(chatSessions)
+    return ps(chats) as unknown as PopulatedChat[]
   } catch (error) {
     console.error(`Error fetching chats for user`, error)
     return []
   }
 }
 
-export const getChat = async (personaId: string): Promise<TChat | null> => {
+export const getChat = async (
+  personaId: string,
+): Promise<PopulatedChat | null> => {
   try {
     await connectToDatabase()
     const sessionUser = await getSessionUser()
     if (!sessionUser) return null
 
+    const persona = await User.findById(personaId)
+    if (!persona) return null
+
     const chat = await Chat.findOne({
       userId: sessionUser._id,
-      personaId,
+      personaId: persona._id,
     })
-    return chat || null
+      .populate("userId")
+      .populate("personaId")
+      .populate("lastMessage")
+
+    return chat as unknown as PopulatedChat
   } catch (error) {
     console.error(`Error fetching chats for user "${personaId}":`, error)
     return null
@@ -80,7 +78,7 @@ export const getChat = async (personaId: string): Promise<TChat | null> => {
 }
 
 export const deleteChat = async (
-  username: string,
+  personaId: string,
 ): Promise<{ success: boolean; message?: string }> => {
   try {
     await connectToDatabase()
@@ -88,7 +86,7 @@ export const deleteChat = async (
     if (!sessionUser)
       return { success: false, message: "User not authenticated." }
 
-    const persona = await User.findOne({ username })
+    const persona = await User.findById(personaId)
     if (!persona) {
       return { success: false, message: "Persona not found." }
     }
@@ -211,7 +209,7 @@ export const saveMessage = async (
 }
 
 export const deleteMessages = async (
-  username: string,
+  personaId: string,
 ): Promise<{
   success: boolean
   message?: string
@@ -225,7 +223,7 @@ export const deleteMessages = async (
       return { success: false, message: "User not authenticated." }
     }
 
-    const persona = await User.findOne({ username })
+    const persona = await User.findById(personaId)
     if (!persona) {
       return { success: false, message: "Persona not found." }
     }

@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ChatSession } from "@/app/actions/chat"
 import { Card, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -10,8 +9,18 @@ import Link from "next/link"
 import { ScrollArea } from "./ui/scroll-area"
 import { Button } from "./ui/button"
 import { Skeleton } from "./ui/skeleton"
+import { useChatList } from "@/hooks/use-chat-list"
+import {
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "./ui/sidebar"
+import LinkLoadingIndicator from "./ui/link-loading-indicator"
+import { useSessionUser } from "@/hooks/use-session-user"
+import { useParams } from "next/navigation"
 
-export default function ChatList({ chats }: { chats: ChatSession[] }) {
+export default function ChatList() {
+  const { list: chats } = useChatList()
   const [query, setQuery] = useState("")
 
   const filtered = useMemo(() => {
@@ -19,9 +28,9 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
     if (!lower) return chats
     return chats.filter(
       (chat) =>
-        chat.persona.name.toLowerCase().includes(lower) ||
-        chat.persona.username.toLowerCase().includes(lower) ||
-        chat.lastMessageContent?.toLowerCase().includes(lower),
+        chat.personaId.name.toLowerCase().includes(lower) ||
+        chat.personaId.username.toLowerCase().includes(lower) ||
+        chat.lastMessage?.content?.toLowerCase().includes(lower),
     )
   }, [query, chats])
 
@@ -38,28 +47,28 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
         </div>
       )}
       <ScrollArea className="h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)]">
-        {filtered.map((chat) => (
-          <Link key={chat.chatId} href={`/m/${chat.persona.username}`}>
+        {filtered.map((chat, index) => (
+          <Link key={index} href={`/m/${chat.personaId.username}`}>
             <Card className="group relative rounded-none border-0 border-b transition-all">
               <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
               <CardHeader className="flex flex-row items-center justify-between gap-4">
                 <div className="flex gap-4">
                   <Avatar>
                     <AvatarImage
-                      src={chat.persona.avatar}
-                      alt={chat.persona.name}
+                      src={chat.personaId.avatar}
+                      alt={chat.personaId.name}
                     />
                     <AvatarFallback>
-                      {chat.persona.name.charAt(0).toUpperCase()}
+                      {chat.personaId.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold">{chat.persona.name}</p>
+                    <p className="font-semibold">{chat.personaId.name}</p>
                     <p className="text-muted-foreground text-sm">
-                      {chat.lastMessageContent
-                        ? chat.lastMessageContent.length > 40
-                          ? chat.lastMessageContent.substring(0, 40) + "..."
-                          : chat.lastMessageContent
+                      {chat.lastMessage?.content
+                        ? chat.lastMessage?.content.length > 40
+                          ? chat.lastMessage?.content.substring(0, 40) + "..."
+                          : chat.lastMessage?.content
                         : "No messages yet"}
                     </p>
                   </div>
@@ -94,6 +103,16 @@ export default function ChatList({ chats }: { chats: ChatSession[] }) {
   )
 }
 
+export function ChatListCount() {
+  const { list: chats } = useChatList()
+
+  return (
+    <Badge variant="outline" className="px-4 py-2">
+      {chats.length} Chats
+    </Badge>
+  )
+}
+
 export function ChatListSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="container mx-auto">
@@ -121,5 +140,48 @@ export function ChatListSkeleton({ count = 4 }: { count?: number }) {
         ))}
       </div>
     </div>
+  )
+}
+
+export function SidebarChatList() {
+  const user = useSessionUser()
+  const { username } = useParams()
+  const { list: chats } = useChatList()
+
+  if (chats.length === 0) {
+    return <p className="text-muted-foreground p-2 text-sm">No chats found</p>
+  }
+
+  return (
+    <>
+      {chats.map((chat, index) => (
+        <SidebarMenuItem key={index}>
+          <SidebarMenuButton
+            asChild
+            isActive={username === chat.personaId.username}
+          >
+            <Link href={`/m/${chat.personaId.username}`} className="h-10">
+              <Avatar className="h-6 w-6">
+                <AvatarImage
+                  src={chat.personaId.avatar}
+                  alt={chat.personaId.name}
+                />
+                <AvatarFallback>
+                  {chat.personaId.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="truncate">{chat.personaId.name}</span>
+              <span className="text-muted-foreground">
+                {user?.username === chat.personaId.username ? "(You)" : null}
+              </span>
+              <LinkLoadingIndicator />
+            </Link>
+          </SidebarMenuButton>
+          <SidebarMenuBadge className="h-[calc(100%-12px)]">
+            {chat.unreadCount ? chat.unreadCount : null}
+          </SidebarMenuBadge>
+        </SidebarMenuItem>
+      ))}
+    </>
   )
 }

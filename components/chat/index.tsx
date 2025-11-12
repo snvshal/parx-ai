@@ -9,7 +9,6 @@ import { BotIcon, SendHorizontalIcon } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, type UIMessage } from "ai"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { TUser } from "@/schemas/user.schema"
 import Link from "next/link"
 import { AlertMessage } from "../co"
 import { useMobileKeyboard } from "@/hooks/use-mobile-keyboard"
@@ -17,14 +16,10 @@ import { ChatDropdownMenu, ThinkingAnimation } from "./components"
 import { useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
 import { SidebarTrigger } from "../ui/sidebar"
+import { useCurrentPersona } from "@/hooks/use-current-persona"
 
-export default function Chat({
-  persona,
-  msgs,
-}: {
-  persona: TUser
-  msgs: UIMessage[]
-}) {
+export default function Chat({ msgs }: { msgs: UIMessage[] }) {
+  const persona = useCurrentPersona()
   const [input, setInput] = useState("")
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)

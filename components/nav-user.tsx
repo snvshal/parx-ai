@@ -24,8 +24,8 @@ import Link from "next/link"
 import { usePWA } from "@/hooks/use-pwa"
 
 export function NavUser() {
+  const user = useSessionUser()
   const { isMobile } = useSidebar()
-  const { user } = useSessionUser()
   const { isAppInstalled, handleAppInstall } = usePWA()
 
   return (
