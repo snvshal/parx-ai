@@ -29,8 +29,15 @@ export const MemoChatMessage = memo(function ChatMessage({
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight, rehypeRaw]}
             components={{
-              pre: CodeBlock as Components["pre"],
-              code: InlineCode,
+              pre: CodeBlock,
+              code: ({ children, ...props }) => (
+                <span
+                  className="bg-foreground/10 rounded px-1 py-0.5 text-sm"
+                  {...props}
+                >
+                  {children}
+                </span>
+              ),
               /* eslint-disable @next/next/no-img-element */
               img: (props) => (
                 <img
@@ -81,14 +88,10 @@ export const MemoChatMessage = memo(function ChatMessage({
                 )
               },
               ol: ({ children }) => (
-                <ol className="list-outside list-decimal space-y-1 pl-4">
-                  {children}
-                </ol>
+                <ol className="list-outside list-decimal pl-4">{children}</ol>
               ),
               ul: ({ children }) => (
-                <ul className="list-outside list-disc space-y-1 pl-4">
-                  {children}
-                </ul>
+                <ul className="list-outside list-disc pl-4">{children}</ul>
               ),
             }}
           >
@@ -114,14 +117,14 @@ export const MemoChatMessage = memo(function ChatMessage({
       >
         <div
           className={cn(
-            "w-full rounded-2xl px-4 py-2 text-sm leading-relaxed tracking-normal wrap-break-word break-all",
+            "w-full max-w-full overflow-x-auto overflow-y-hidden rounded-2xl px-4 py-2 text-sm leading-relaxed tracking-normal wrap-break-word break-all",
             isAssistant
               ? "bg-accent"
               : "bg-blue-700 text-white dark:bg-blue-800",
           )}
         >
           {isAssistant ? (
-            <div className="w-full overflow-x-auto overflow-y-hidden whitespace-pre-wrap">
+            <div className="w-full max-w-full whitespace-pre-wrap">
               {renderParts()}
             </div>
           ) : (
@@ -171,7 +174,7 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
   }
 
   return (
-    <div className="relative my-2 w-full overflow-hidden rounded-lg bg-black/90">
+    <div className="relative my-2 w-full max-w-full overflow-hidden rounded-lg bg-black/90">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
         <span className="text-xs font-medium text-white/70">{language}</span>
         <button
@@ -193,20 +196,5 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
         {(codeElement.props as { children?: React.ReactNode }).children}
       </pre>
     </div>
-  )
-}
-
-function InlineCode({
-  className,
-  children,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
-  return (
-    <span
-      className={cn("bg-foreground/10 rounded px-1 py-0.5 text-sm", className)}
-      {...props}
-    >
-      {children}
-    </span>
   )
 }

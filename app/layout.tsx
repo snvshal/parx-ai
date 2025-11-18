@@ -81,7 +81,7 @@ export default async function RootLayout({
 }
 
 async function SessionWrapper({ children }: { children: React.ReactNode }) {
-  // "use cache: private"
+  "use cache: private"
   const chats = await getChats()
   const contextUser = await getContextUser()
   const session: Session | null = await getServerSession()

@@ -35,6 +35,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useSessionUser } from "@/hooks/use-session-user"
 
 export type AlertMessageProps = {
   message: React.ReactNode | string | null | undefined
@@ -168,9 +169,28 @@ export function SlotDialog({
   const router = useRouter()
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const user = useSessionUser()
+
+  const adjustedRef = useRef(false)
 
   useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") return
+
+    const origin = window.location.origin
+    const ref = document.referrer ?? ""
+    const isExternalRef = ref === "" || !ref.startsWith(origin)
+
     setOpen(pathname.startsWith(page))
+
+    if (!adjustedRef.current && pathname.startsWith(page) && isExternalRef) {
+      adjustedRef.current = true
+      window.history.pushState(
+        null,
+        "",
+        user ? `/m/${user.username}` : "/m/snvshal",
+      )
+      window.history.pushState(null, "", pathname)
+    }
   }, [pathname, page])
 
   return (
