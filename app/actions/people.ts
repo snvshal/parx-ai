@@ -69,6 +69,7 @@ export const getPeople = async (
     greatTokens: 20000,
   },
 ): Promise<TPersonaResponse> => {
+  "use cache"
   try {
     await connectToDatabase()
 
@@ -159,6 +160,7 @@ export const searchPeople = async (
   limit: number = 10,
   documentCount: number = 100,
 ): Promise<SearchResult> => {
+  "use cache"
   try {
     const res = await getPeople(documentCount)
     if (!res.success) return { success: false, data: [] }
@@ -181,6 +183,7 @@ export const searchPeople = async (
 }
 
 export const getAvailablePersonaCount = async (): Promise<number> => {
+  "use cache"
   try {
     await connectToDatabase()
     const count = await User.countDocuments()

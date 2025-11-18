@@ -33,6 +33,7 @@ export type PopulatedChat = HydratedDocument<TChat> & {
 }
 
 export const getChats = async (): Promise<PopulatedChat[]> => {
+  "use cache: private"
   try {
     await connectToDatabase()
     const sessionUser = await getSessionUser()

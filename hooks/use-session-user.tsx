@@ -27,8 +27,5 @@ export function SessionUserProvider({
 }
 
 export function useSessionUser() {
-  const ctx = useContext(UserContext)
-  if (!ctx)
-    throw new Error("useSessionUser must be used within a SessionUserProvider")
-  return ctx
+  return useContext(UserContext)
 }
