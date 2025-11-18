@@ -210,7 +210,7 @@ function DeleteChatAlert({
     setIsLoading(true)
     try {
       if (action === "delete") {
-        router.replace(`/m/${user.username}`)
+        router.replace(`/m/${user?.username}`)
 
         const { success } = await deleteChat(persona.id)
         if (success) {
