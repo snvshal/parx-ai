@@ -84,6 +84,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
               <AvatarImage
                 src={persona.avatar}
                 alt={persona.name || "Avatar"}
+                className="object-cover"
               />
               <AvatarFallback>
                 <BotIcon className="h-4 w-4" aria-hidden />

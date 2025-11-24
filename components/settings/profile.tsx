@@ -23,6 +23,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { AlertMessage } from "../co"
 import { Skeleton } from "../ui/skeleton"
+import { toast } from "sonner"
+import { CameraIcon, LoaderCircleIcon } from "lucide-react"
 
 export type ProfileSettingsProps = {
   username: string
@@ -43,6 +45,7 @@ export const ProfileSettings = memo(function ProfileSettings({
     type: "success" | "error"
     text: string
   } | null>(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
 
   const profileSchema = UserZodSchema.pick({
     username: true,
@@ -51,6 +54,37 @@ export const ProfileSettings = memo(function ProfileSettings({
     socialLink: true,
     firstMessage: true,
   })
+
+  // Avatar upload handler
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append("file", file)
+      fd.append("isAvatar", "true")
+      if (session?.user?.id) {
+        fd.append("userId", session.user.id)
+      }
+      const res = await fetch("/api/upload/image", { method: "POST", body: fd })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data?.error || "Avatar upload failed")
+        return
+      }
+      form.setValue("avatar", data.url, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+      toast.success("Avatar updated!")
+    } catch (err) {
+      console.error(err)
+      toast.error("Avatar upload failed")
+    } finally {
+      setAvatarUploading(false)
+    }
+  }
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -80,14 +114,16 @@ export const ProfileSettings = memo(function ProfileSettings({
         form.clearErrors()
 
         setMessage({ type: "success", text: result.message })
+        toast.success("Profile updated successfully!")
       } else {
         form.setError("root", {
-          message: result.message || "Failed to update profile.",
+          message: result.message || "Failed to update profile!",
         })
         setMessage({
           type: "error",
-          text: result.message || "Failed to update profile.",
+          text: result.message || "Failed to update profile!",
         })
+        toast.error("Failed to update profile!")
       }
     })
   }
@@ -103,15 +139,36 @@ export const ProfileSettings = memo(function ProfileSettings({
           />
         )}
 
-        <div>
-          <Image
-            src={profile.avatar}
-            alt={profile.name}
-            height={80}
-            width={80}
-            priority
-            className="rounded-md"
-          />
+        <div className="group relative h-20 w-20">
+          <label className="block h-full w-full cursor-pointer">
+            <Image
+              src={form.watch("avatar") || ""}
+              alt={profile.name}
+              fill
+              className="rounded-md border object-cover"
+            />
+            {!avatarUploading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                <CameraIcon />
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              disabled={avatarUploading || isPending}
+              className="hidden"
+            />
+          </label>
+
+          {avatarUploading && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/40">
+              <LoaderCircleIcon
+                className="h-8 w-8 animate-spin"
+                strokeWidth={1}
+              />
+            </div>
+          )}
         </div>
 
         <Form {...form}>

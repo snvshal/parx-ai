@@ -19,6 +19,7 @@ import { TNewInstruction } from "@/components/settings/instruction"
 import { revalidatePath } from "next/cache"
 
 export const getInstructions = async (): Promise<TInstruction[]> => {
+  "use cache: private"
   try {
     await connectToDatabase()
 
@@ -101,6 +102,8 @@ export const updateInstruction = async (
   id: string,
   type?: string,
   content?: string,
+  links?: { url: string; alt: string }[],
+  mediaUrls?: { url: string; alt: string }[],
 ): Promise<{ success: boolean; message: string }> => {
   try {
     await connectToDatabase()
@@ -118,8 +121,23 @@ export const updateInstruction = async (
 
     if (!instruction) throw new Error("Instruction not found")
 
+    const candidate = {
+      userId: user._id?.toString(),
+      type: type ?? instruction.type,
+      content: content ?? instruction.content,
+      mediaUrls: mediaUrls ?? instruction.mediaUrls ?? [],
+      links: links ?? instruction.links ?? [],
+    }
+
+    const validationResult = InstructionZodSchema.safeParse(candidate)
+    if (!validationResult.success) {
+      return { success: false, message: formatZodError(validationResult.error) }
+    }
+
     if (type) instruction.type = type
     if (content) instruction.content = content
+    if (links) instruction.links = links
+    if (mediaUrls) instruction.mediaUrls = mediaUrls
 
     await instruction.save()
 

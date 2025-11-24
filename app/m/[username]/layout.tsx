@@ -3,10 +3,12 @@
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { getSessionUser } from "@/app/actions/session-user"
+// import { connection } from "next/server"
 
 // export async function generateMetadata({
 //   params,
 // }: PageProps<"/m/[username]">): Promise<Metadata> {
+//   await connection()
 //   const username = (await params).username
 //   const user = await getUserByUsername(username)
 //   if (!user) return { title: "Persona not found" }
