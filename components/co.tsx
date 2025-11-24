@@ -5,7 +5,6 @@ import {
   useRef,
   ForwardRefExoticComponent,
   RefAttributes,
-  useState,
 } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { LucideProps, TriangleAlertIcon } from "lucide-react"
@@ -168,9 +167,7 @@ export function SlotDialog({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [open, setOpen] = useState(false)
   const user = useSessionUser()
-
   const adjustedRef = useRef(false)
 
   useEffect(() => {
@@ -179,8 +176,6 @@ export function SlotDialog({
     const origin = window.location.origin
     const ref = document.referrer ?? ""
     const isExternalRef = ref === "" || !ref.startsWith(origin)
-
-    setOpen(pathname.startsWith(page))
 
     if (!adjustedRef.current && pathname.startsWith(page) && isExternalRef) {
       adjustedRef.current = true
@@ -191,16 +186,13 @@ export function SlotDialog({
       )
       window.history.pushState(null, "", pathname)
     }
-  }, [pathname, page])
+  }, [pathname, page, user])
 
   return (
-    <Dialog open={open} onOpenChange={() => router.back()}>
-      <DialogContent
-        className="h-[calc(100dvh-2rem)] gap-0 overflow-hidden p-0 max-sm:h-dvh sm:max-w-3xl xl:max-h-160"
-        closeIcon={false}
-      >
-        <DialogTitle></DialogTitle>
-        <DialogDescription></DialogDescription>
+    <Dialog open={pathname.startsWith(page)} onOpenChange={() => router.back()}>
+      <DialogContent className="box-border h-[calc(100dvh-4rem)] gap-0 overflow-hidden p-0 max-sm:h-dvh sm:max-w-3xl xl:max-h-140">
+        <DialogTitle className="hidden"></DialogTitle>
+        <DialogDescription className="hidden"></DialogDescription>
         {children}
       </DialogContent>
     </Dialog>

@@ -42,8 +42,16 @@ export function HowToUse() {
         <li>
           <b>Content:</b> This is where you write details related to the type.
           Keep it clear and relevant.
+          <br />
+          You can also attach <b>public links to resources</b> — for example:
+          <ul className="mt-1 list-disc space-y-1 pl-6">
+            <li>Images (public URLs)</li>
+            <li>YouTube videos</li>
+            <li>X (Twitter) posts</li>
+          </ul>
         </li>
       </ul>
+
       <p className="mb-4">
         <b>Note:</b> Avoid adding any <b>sensitive</b> or <b>inappropriate</b>{" "}
         content. Share only what you&#39;re comfortable with.

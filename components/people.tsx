@@ -55,7 +55,7 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
 
   return (
     <div className="relative">
-      <div className="bg-background sticky top-0 z-20 py-4">
+      <div className="bg-background sticky top-0 z-20 pb-6">
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -64,7 +64,7 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
         />
       </div>
 
-      <ScrollArea className="h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)]">
+      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)]">
         {loading && <PeopleListSkeleton count={4} />}
 
         {!loading && results.length === 0 && (

@@ -1,9 +1,7 @@
 "use client"
 
 import React from "react"
-import { Button } from "@/components/ui/button"
 import {
-  ArrowLeftIcon,
   SettingsIcon,
   User2Icon,
   UserCircle2Icon,
@@ -11,8 +9,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { ScrollArea } from "../ui/scroll-area"
 import LinkLoadingIndicator from "../ui/link-loading-indicator"
 
@@ -57,16 +54,15 @@ export function SettingsHeader({
 }
 
 export function SettingsSidebar({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
   const pathname = usePathname()
 
   return (
-    <div className="flex h-[calc(100dvh-2rem)] w-full max-sm:h-dvh max-sm:flex-col">
+    <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col">
       <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
-        <div className="mb-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeftIcon className="h-6 w-6" aria-hidden="true" />
-          </Button>
+        <div className="mb-8">
+          <p className="text-muted-foreground text-xl font-semibold">
+            Settings
+          </p>
         </div>
         <nav className="flex gap-2 max-sm:flex-wrap sm:flex-col">
           {items.map((item) => {

@@ -1,14 +1,10 @@
-import { HeaderComponent } from "@/components/header"
-import ChatList, { ChatListCount } from "@/components/chat-list"
+import ChatList from "@/components/chat-list"
+import { SettingsHeader } from "@/components/header"
 
 export default async function ChatListPage() {
   return (
-    <HeaderComponent
-      page="Chats"
-      actionItem={<ChatListCount />}
-      className="pt-0"
-    >
+    <SettingsHeader page="Chats">
       <ChatList />
-    </HeaderComponent>
+    </SettingsHeader>
   )
 }

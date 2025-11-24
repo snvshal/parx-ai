@@ -18,8 +18,9 @@ export const getUserByUsername = async (
 ): Promise<TUser | null> => {
   try {
     await connectToDatabase()
-    const userData = await User.findOne({ username })
-    return userData || null
+    const user = await User.findOne({ username })
+    if (!user) return null
+    return ps(user)
   } catch (error) {
     console.error(`Error fetching user by username "${username}":`, error)
     return null

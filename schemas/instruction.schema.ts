@@ -15,6 +15,7 @@ export const InstructionZodSchema = z.object({
         url: z
           .string()
           .trim()
+          .url({ message: "Image must be a valid URL." })
           .min(8, { message: "Image URL must be at least 8 characters long." }),
         alt: z.string().trim().min(20, {
           message: "Image ALT text must be at least 20 characters long.",
@@ -28,6 +29,7 @@ export const InstructionZodSchema = z.object({
         url: z
           .string()
           .trim()
+          .url({ message: "Link must be a valid URL." })
           .min(8, { message: "Link URL must be at least 8 characters long." }),
         alt: z.string().trim().min(20, {
           message: "Link ALT text must be at least 20 characters long.",

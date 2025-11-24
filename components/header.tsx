@@ -50,7 +50,7 @@ export function SettingsHeader({
 }) {
   return (
     <div className="flex h-full w-full flex-col">
-      <p className="flex p-6 pb-0 text-xl font-bold">
+      <p className="flex p-6 pb-0 text-xl font-semibold">
         <span className="w-full border-b pb-4">{page}</span>
       </p>
       <div className="flex-1 overflow-y-auto p-6">{children}</div>

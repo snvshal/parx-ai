@@ -37,7 +37,7 @@ export default function ChatList() {
   return (
     <div className="relative">
       {!(chats.length === 0) && (
-        <div className="bg-background sticky top-0 z-20 py-4">
+        <div className="bg-background sticky top-0 z-20 pb-6">
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -46,7 +46,7 @@ export default function ChatList() {
           />
         </div>
       )}
-      <ScrollArea className="h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)]">
+      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)]">
         {filtered.map((chat, index) => (
           <Link key={index} href={`/m/${chat.personaId.username}`}>
             <Card className="group relative rounded-none border-0 border-b transition-all">

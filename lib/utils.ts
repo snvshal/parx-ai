@@ -16,7 +16,21 @@ export const buildSystemInstruction = (
   instructions: TInstruction[],
 ): string => {
   const context = instructions
-    .map(({ type, content }) => `"${type}": "${content}"`)
+    .map(({ type, content, links, mediaUrls }) => {
+      let instructionStr = `"${type}": "${content}"`
+
+      if (links && links.length > 0) {
+        const linksStr = links.map((l) => `${l.alt} (${l.url})`).join(", ")
+        instructionStr += ` [Links: ${linksStr}]`
+      }
+
+      if (mediaUrls && mediaUrls.length > 0) {
+        const imagesStr = mediaUrls.map((m) => `${m.alt} (${m.url})`).join(", ")
+        instructionStr += ` [Images: ${imagesStr}]`
+      }
+
+      return instructionStr
+    })
     .join("\n")
 
   const customInstructions = `Always stay on point, answer only what's asked, and maintain a chatty yet straightforward tone. Your main role is to behave like a person based on the given context: ${context}.`
