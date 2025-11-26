@@ -118,6 +118,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  b {
+    @apply font-semibold;
+  }
 }
 
 /* Mobile keyboard handling */
