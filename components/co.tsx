@@ -177,16 +177,18 @@ export function SlotDialog({
     const ref = document.referrer ?? ""
     const isExternalRef = ref === "" || !ref.startsWith(origin)
 
-    if (!adjustedRef.current && pathname.startsWith(page) && isExternalRef) {
+    if (!adjustedRef.current && isExternalRef) {
       adjustedRef.current = true
+
       window.history.pushState(
         null,
         "",
         user ? `/m/${user.username}` : "/m/snvshal",
       )
+
       window.history.pushState(null, "", pathname)
     }
-  }, [pathname, page, user])
+  }, [pathname, user])
 
   return (
     <Dialog open={pathname.startsWith(page)} onOpenChange={() => router.back()}>

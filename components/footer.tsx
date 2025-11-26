@@ -18,10 +18,26 @@ export default function FooterComponent() {
         </p>
         <Link
           href={x}
-          className="flex h-6 w-6 items-center justify-center rounded bg-black"
           target="_blank"
+          rel="noopener noreferrer"
+          className="hover:bg-accent flex h-6 w-6 items-center justify-center rounded transition"
         >
-          <Image src="/x.png" width={16} height={16} alt="X handle" priority />
+          <Image
+            src="/x-logo-white.png"
+            width={16}
+            height={16}
+            alt="X handle"
+            className="hidden dark:block"
+            priority
+          />
+          <Image
+            src="/x-logo-black.png"
+            width={16}
+            height={16}
+            alt="X handle"
+            className="block dark:hidden"
+            priority
+          />
         </Link>
       </div>
     </footer>

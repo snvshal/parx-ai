@@ -1,68 +1,67 @@
+import Link from "next/link"
+
 export function HowToUse() {
   return (
-    <div className="mx-auto max-w-3xl">
-      <h1 className="mb-4 text-2xl font-bold">How to Use This Platform</h1>
-      <p className="mb-4">
-        This platform allows you to <b>customize AI responses</b> by adding your
-        own <b>instructions</b>. These instructions help shape how the chatbot
-        interacts with you and others.
+    <div className="mx-auto max-w-3xl text-justify leading-relaxed tracking-wide">
+      <h1 className="text-foreground/95 mb-4 text-2xl font-bold">How to Use</h1>
+
+      <p className="text-foreground/85 mb-6">
+        This platform lets you fully customize how the AI responds by adding
+        your own instructions. These instructions shape the chatbot’s
+        personality, tone, and the way it interacts with you and others.
       </p>
 
-      <h2 className="mb-2 text-lg font-semibold">Adding Instructions</h2>
-      <p className="mb-4">
-        To personalize your chatbot&#39;s responses, go to <b>Settings</b> →{" "}
-        <b>Instructions</b>. Here, you can view all your existing instructions
-        and add new ones.
+      <h2 className="text-foreground/95 mb-2 text-lg font-semibold">
+        Adding Instructions
+      </h2>
+      <p className="text-foreground/85 mb-6">
+        To personalize your chatbot, go to{" "}
+        <Link href="/settings/instructions" className="hover:underline">
+          <b>Settings → Instructions</b>
+        </Link>
+        . This is where you can see all of your existing instructions and create
+        new ones whenever you like.
       </p>
 
-      <h2 className="mb-2 text-lg font-semibold">How Instructions Work</h2>
-      <p className="mb-2">Each instruction has two parts:</p>
-      <ul className="mb-4 list-disc space-y-1 pl-6">
-        <li>
-          <b>Type:</b> This defines what kind of information you&#39;re adding.
-          For example:
-          <ul className="mt-1 list-disc space-y-1 pl-6">
-            <li>
-              <i>&#34;How I introduce myself&#34;</i>
-            </li>
-            <li>
-              <i>&#34;What I like to talk about&#34;</i>
-            </li>
-            <li>
-              <i>&#34;My interests and hobbies&#34;</i>
-            </li>
-            <li>
-              <i>&#34;A little about my background&#34;</i>
-            </li>
-            <li>
-              <i>&#34;How I usually respond&#34;</i>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <b>Content:</b> This is where you write details related to the type.
-          Keep it clear and relevant.
-          <br />
-          You can also attach <b>public links to resources</b> — for example:
-          <ul className="mt-1 list-disc space-y-1 pl-6">
-            <li>Images (public URLs)</li>
-            <li>YouTube videos</li>
-            <li>X (Twitter) posts</li>
-          </ul>
-        </li>
-      </ul>
-
-      <p className="mb-4">
-        <b>Note:</b> Avoid adding any <b>sensitive</b> or <b>inappropriate</b>{" "}
-        content. Share only what you&#39;re comfortable with.
+      <h2 className="text-foreground/95 mb-2 text-lg font-semibold">
+        How Instructions Work
+      </h2>
+      <p className="text-foreground/85 mb-4">
+        Every instruction consists of two simple parts: a <b>type</b> and the{" "}
+        <b>content</b>.
+      </p>
+      <p className="text-foreground/85 mb-4">
+        The type tells the AI what kind of information you’re providing. Common
+        examples include “How I introduce myself,” “What I like to talk about,”
+        “My interests and hobbies,” “A little about my background,” or “How I
+        usually respond.” Choose the one that best fits what you want to share.
+      </p>
+      <p className="text-foreground/85 mb-6">
+        In the content section, write the actual details you want the AI to
+        know. Keep it clear and relevant. You’re also welcome to include public
+        links to resources such as images, YouTube videos, or X (Twitter)
+        posts—the AI can reference them when needed.
       </p>
 
-      <h2 className="mb-2 text-lg font-semibold">Setting Your First Message</h2>
-      <p className="mb-4">
-        You can customize your chatbot&#39;s first message by going to{" "}
-        <b>Settings</b> → <b>Profile</b> and editing the <b>First Message</b>{" "}
-        field. This message is what others see when they start a chat with your
-        AI. Keep it <b>clear and respectful</b> to set the right tone.
+      <p className="text-foreground/85 mb-6">
+        <b>Important:</b>
+        <span className="bg-amber-300 px-2 dark:bg-amber-800">
+          Please avoid adding sensitive, private, or inappropriate information.
+          Only share what you’re comfortable making public.
+        </span>
+      </p>
+
+      <h2 className="text-foreground/95 mb-2 text-lg font-semibold">
+        Setting Your First Message
+      </h2>
+      <p className="text-foreground/85">
+        You can decide exactly what your chatbot says when someone starts a new
+        conversation. Just go to{" "}
+        <Link href="/settings/profile" className="hover:underline">
+          <b>Settings → Profile</b>
+        </Link>{" "}
+        and edit the <b>First Message</b> field. A friendly, clear, and
+        respectful greeting helps set the right tone from the very beginning.
       </p>
     </div>
   )

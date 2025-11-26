@@ -1,4 +1,5 @@
 import { streamText, convertToModelMessages, type UIMessage } from "ai"
+import { withSupermemory } from "@supermemory/tools/ai-sdk"
 import { google } from "@ai-sdk/google"
 import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
@@ -44,6 +45,15 @@ export async function POST(req: NextRequest) {
 
     const systemInstruction = await getInstructionsByUserId(String(persona._id))
 
+    const containerTag = sessionUser
+      ? `user-${sessionUser._id}-persona-${persona._id}`
+      : `guest-persona-${persona._id}`
+
+    const modelWithMemory = withSupermemory(
+      google("gemini-2.5-flash"),
+      containerTag,
+    )
+
     let assistantMessageId: string | null = null
     if (sessionUser && chat) {
       const assistantMsg = await Message.create({
@@ -79,7 +89,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: modelWithMemory,
       system: systemInstruction,
       messages: convertToModelMessages(messages),
       onChunk: ({ chunk }) => {
