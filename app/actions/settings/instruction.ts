@@ -85,6 +85,7 @@ export const setNotification = async (
     if (!sessionUser) throw new Error("User not found!")
 
     const userChats = await Chat.find({ personaId: sessionUser._id })
+    if (!userChats.length) return
 
     const { text } = await generateText({
       model: google("gemini-2.5-flash"),
