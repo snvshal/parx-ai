@@ -90,7 +90,7 @@ async function SessionWrapper({ children }: { children: React.ReactNode }) {
     <SessionProviderComponent session={session}>
       <SessionUserProvider initialUser={contextUser}>
         <ChatListProvider chatList={chats}>{children}</ChatListProvider>
-        <NotificationSetup />
+        {/* <NotificationSetup /> */}
       </SessionUserProvider>
     </SessionProviderComponent>
   )

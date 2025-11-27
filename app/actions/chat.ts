@@ -163,6 +163,13 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
       personaId,
     }).sort({ createdAt: 1 })
 
+    if (chat.unreadCount) {
+      await Chat.updateMany(
+        { personaId, userId: sessionUser._id },
+        { $set: { unreadCount: 0 } },
+      )
+    }
+
     return (
       messages.map(
         (msg: TMessage) =>

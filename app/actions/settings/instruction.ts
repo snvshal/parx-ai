@@ -4,19 +4,19 @@ import connectToDatabase from "@/lib/db"
 import { User } from "@/models/user.model"
 import { TUser } from "@/schemas/user.schema"
 import { getServerSession } from "next-auth"
-import { formatZodError, ps } from "@/lib/utils"
+import { buildSystemInstruction, formatZodError, ps } from "@/lib/utils"
 import { Instruction } from "@/models/instruction.model"
 import {
   InstructionZodSchema,
   TInstruction,
 } from "@/schemas/instruction.schema"
-import { sendNotificationToMany } from "@/app/actions/notification"
 import { Chat } from "@/models/chat.model"
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
 import { getSessionUser } from "@/app/actions/session-user"
 import { TNewInstruction } from "@/components/settings/instruction"
 import { revalidatePath } from "next/cache"
+import { Message } from "@/models/message.model"
 
 export const getInstructions = async (): Promise<TInstruction[]> => {
   "use cache: private"
@@ -65,7 +65,7 @@ export const addInstruction = async (
 
     revalidatePath("/settings/instructions")
 
-    setNotification(addedInstruction.content)
+    setNotification(addedInstruction)
 
     return ps(addedInstruction)
   } catch (error) {
@@ -77,25 +77,41 @@ export const addInstruction = async (
   }
 }
 
-export const setNotification = async (content: string) => {
-  const sessionUser: TUser | null = await getSessionUser()
-  if (!sessionUser) throw new Error("User not found")
+export const setNotification = async (
+  instruction: TInstruction,
+): Promise<void> => {
+  try {
+    const sessionUser: TUser | null = await getSessionUser()
+    if (!sessionUser) throw new Error("User not found!")
 
-  const chatUsers = await Chat.find({ personaId: sessionUser._id })
+    const userChats = await Chat.find({ personaId: sessionUser._id })
 
-  const ntUsers = chatUsers
-    .filter((n) => n._id !== sessionUser._id)
-    .map((n) => n.userId.toString())
+    const { text } = await generateText({
+      model: google("gemini-2.5-flash"),
+      prompt: `Generate a clear, concise user-facing message like a chat app message using this instruction: 
+        ${buildSystemInstruction([instruction])}`,
+    })
 
-  const { text } = await generateText({
-    model: google("gemini-2.5-flash"),
-    prompt: `Use this context data and make it as a clickbait notification for a third person, and never explain it give a single text direct answer(in just "{title}::{message}" format always): ${content}`,
-  })
+    const ntUsers = userChats
+      .filter((c) => String(c.userId) !== String(sessionUser._id))
+      .map((chat) => ({
+        chatId: chat._id,
+        userId: chat.userId,
+        personaId: chat.personaId,
+        type: "text",
+        role: "assistant",
+        content: text,
+      }))
 
-  const [title, message] = text.split("::").map((str) => str.trim())
-  console.log(text)
+    await Message.insertMany(ntUsers)
 
-  await sendNotificationToMany(ntUsers, title, message)
+    await Chat.updateMany(
+      { personaId: sessionUser._id, userId: { $ne: sessionUser._id } },
+      { $inc: { unreadCount: 1 } },
+    )
+  } catch (err) {
+    console.error("setNotification error:", err)
+  }
 }
 
 export const updateInstruction = async (

@@ -117,7 +117,7 @@ export const MemoChatMessage = memo(function ChatMessage({
       >
         <div
           className={cn(
-            "w-full max-w-full overflow-x-auto overflow-y-hidden rounded-2xl px-4 py-2 text-sm leading-relaxed tracking-normal wrap-break-word break-all",
+            "w-full max-w-full overflow-x-auto overflow-y-hidden rounded-2xl px-4 py-2 text-sm leading-relaxed tracking-normal wrap-break-word",
             isAssistant
               ? "bg-accent"
               : "bg-blue-700 text-white dark:bg-blue-800",

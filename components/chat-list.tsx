@@ -18,6 +18,7 @@ import {
 import LinkLoadingIndicator from "./ui/link-loading-indicator"
 import { useSessionUser } from "@/hooks/use-session-user"
 import { useParams } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 export default function ChatList() {
   const { list: chats } = useChatList()
@@ -177,7 +178,12 @@ export function SidebarChatList() {
               <LinkLoadingIndicator />
             </Link>
           </SidebarMenuButton>
-          <SidebarMenuBadge className="h-[calc(100%-12px)]">
+          <SidebarMenuBadge
+            className={cn(
+              "right-2 mt-1 rounded-full",
+              chat.unreadCount && "bg-blue-500",
+            )}
+          >
             {chat.unreadCount ? chat.unreadCount : null}
           </SidebarMenuBadge>
         </SidebarMenuItem>
