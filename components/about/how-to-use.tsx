@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export function HowToUse() {
   return (
-    <div className="mx-auto max-w-3xl text-justify leading-relaxed tracking-wide">
+    <div className="mx-auto max-w-3xl leading-relaxed tracking-wide">
       <h1 className="text-foreground/95 mb-4 text-2xl font-bold">How to Use</h1>
 
       <p className="text-foreground/85 mb-6">
