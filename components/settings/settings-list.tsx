@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import {
   SettingsIcon,
   User2Icon,
@@ -8,10 +8,14 @@ import {
   BookAIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { notFound, usePathname } from "next/navigation"
 import { ScrollArea } from "../ui/scroll-area"
-import LinkLoadingIndicator from "../ui/link-loading-indicator"
+import { Button } from "../ui/button"
+import { TInstruction } from "@/schemas/instruction.schema"
+import { ProfileSettings, ProfileSettingsProps } from "./profile"
+import GeneralSettings from "./general"
+import { InstructionSettings } from "./instruction"
+import AccountSettings from "./account"
 
 const items = [
   {
@@ -52,10 +56,23 @@ export function SettingsHeader({
     </div>
   )
 }
-
-export function SettingsSidebar({ children }: { children: React.ReactNode }) {
+export type SettingsPage = "general" | "instructions" | "profile" | "account"
+export function SettingsSidebar({
+  category,
+  profile,
+  instructions,
+}: {
+  category: string
+  profile: ProfileSettingsProps
+  instructions: TInstruction[]
+}) {
   const pathname = usePathname()
+  const [page, setPage] = useState(category)
 
+  const settingsNavs = (page: string) => {
+    setPage(page)
+    window.history.replaceState(null, "", `/settings/${page}`)
+  }
   return (
     <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col">
       <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
@@ -68,27 +85,59 @@ export function SettingsSidebar({ children }: { children: React.ReactNode }) {
           {items.map((item) => {
             const isActive = pathname === item.url
             return (
-              <Link
+              <Button
                 key={item.title}
-                href={item.url}
+                onClick={() => settingsNavs(item.title.toLocaleLowerCase())}
                 className={cn(
-                  "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors",
+                  "flex items-center justify-start gap-2 rounded-md px-2 py-2 text-sm transition-colors",
                   isActive ? "bg-muted text-foreground" : "hover:bg-muted",
                 )}
-                replace
+                variant="ghost"
               >
                 <item.icon className="h-4 w-4" />
                 <span>{item.title}</span>
-                <LinkLoadingIndicator />
-              </Link>
+              </Button>
             )
           })}
         </nav>
       </aside>
 
       <main className="flex-1 max-sm:min-h-0">
-        <ScrollArea className="h-full overflow-y-auto">{children}</ScrollArea>
+        <ScrollArea className="h-full overflow-y-auto">
+          <SettingsComponent
+            category={page}
+            profile={profile}
+            instructions={instructions}
+          />
+        </ScrollArea>
       </main>
     </div>
   )
+}
+
+export function SettingsComponent({
+  category,
+  profile,
+  instructions,
+}: {
+  category: string
+  profile: ProfileSettingsProps
+  instructions: TInstruction[]
+}) {
+  switch (category) {
+    case "general":
+      return <GeneralSettings />
+
+    case "profile":
+      return <ProfileSettings profile={profile} />
+
+    case "instructions":
+      return <InstructionSettings inst={instructions} />
+
+    case "account":
+      return <AccountSettings />
+
+    default:
+      return notFound()
+  }
 }
