@@ -12,10 +12,15 @@ import { notFound, usePathname } from "next/navigation"
 import { ScrollArea } from "../ui/scroll-area"
 import { Button } from "../ui/button"
 import { TInstruction } from "@/schemas/instruction.schema"
-import { ProfileSettings, ProfileSettingsProps } from "./profile"
+import {
+  ProfileSettings,
+  ProfileSettingsProps,
+  ProfileSkeleton,
+} from "./profile"
 import GeneralSettings from "./general"
-import { InstructionSettings } from "./instruction"
+import { InstructionSettings, InstructionSkeleton } from "./instruction"
 import AccountSettings from "./account"
+import { Skeleton } from "../ui/skeleton"
 
 const items = [
   {
@@ -140,4 +145,61 @@ export function SettingsComponent({
     default:
       return notFound()
   }
+}
+
+export function SettingsSkeleton() {
+  const pathname = usePathname()
+  return (
+    <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col">
+      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
+        <div className="mb-8">
+          <p className="text-muted-foreground text-xl font-semibold">
+            Settings
+          </p>
+        </div>
+        <nav className="flex gap-2 max-sm:flex-wrap sm:flex-col">
+          {items.map((item) => {
+            const isActive = pathname === item.url
+            return (
+              <Button
+                key={item.title}
+                className={cn(
+                  "flex items-center justify-start gap-2 rounded-md px-2 py-2 text-sm transition-colors",
+                  isActive ? "bg-muted text-foreground" : "hover:bg-muted",
+                )}
+                variant="ghost"
+                disabled
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.title}</span>
+              </Button>
+            )
+          })}
+        </nav>
+      </aside>
+      <main className="flex-1 max-sm:min-h-0">
+        {pathname === "/settings/instructions" ? (
+          <InstructionSkeleton />
+        ) : pathname === "/settings/profile" ? (
+          <ProfileSkeleton />
+        ) : (
+          <SettingsHeader
+            page={
+              pathname === "/settings/general"
+                ? "General"
+                : pathname === "/settings/general"
+                  ? "Account"
+                  : ""
+            }
+          >
+            <div className="space-y-8">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-9 w-full" />
+              ))}
+            </div>
+          </SettingsHeader>
+        )}
+      </main>
+    </div>
+  )
 }
