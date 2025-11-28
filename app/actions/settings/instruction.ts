@@ -76,16 +76,18 @@ export const addInstruction = async (
     }
   }
 }
-
 export const setNotification = async (
   instruction: TInstruction,
 ): Promise<void> => {
   try {
-    const sessionUser: TUser | null = await getSessionUser()
-    if (!sessionUser) throw new Error("User not found!")
+    const sessionUser = await getSessionUser()
+    if (!sessionUser) throw new Error("User not found")
 
-    const userChats = await Chat.find({ personaId: sessionUser._id })
-    if (!userChats.length) return
+    const chats = await Chat.find({ personaId: sessionUser._id })
+    const targetChats = chats.filter(
+      (c) => String(c.userId) !== String(sessionUser._id),
+    )
+    if (!targetChats.length) return
 
     const { text } = await generateText({
       model: google("gemini-2.5-flash"),
@@ -93,18 +95,18 @@ export const setNotification = async (
         ${buildSystemInstruction([instruction])}`,
     })
 
-    const ntUsers = userChats
-      .filter((c) => String(c.userId) !== String(sessionUser._id))
-      .map((chat) => ({
-        chatId: chat._id,
-        userId: chat.userId,
-        personaId: chat.personaId,
-        type: "text",
-        role: "assistant",
-        content: text,
-      }))
+    if (!text) return
 
-    await Message.insertMany(ntUsers)
+    const messages = targetChats.map((chat) => ({
+      chatId: chat._id,
+      userId: chat.userId,
+      personaId: chat.personaId,
+      type: "text",
+      role: "assistant",
+      content: text,
+    }))
+
+    await Message.insertMany(messages)
 
     await Chat.updateMany(
       { personaId: sessionUser._id, userId: { $ne: sessionUser._id } },
