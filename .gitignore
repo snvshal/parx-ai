@@ -40,7 +40,7 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
-/local-exp
+
 app/gifs
-app/api/gif
+/local-exp
 app/api/users
