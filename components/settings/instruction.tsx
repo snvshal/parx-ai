@@ -8,6 +8,7 @@ import {
   TriangleAlertIcon,
   XIcon,
   ExternalLinkIcon,
+  LoaderCircleIcon,
 } from "lucide-react"
 import {
   addInstruction,
@@ -54,6 +55,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useSessionUser } from "@/hooks/use-session-user"
+import { Label } from "../ui/label"
+import { cn } from "@/lib/utils"
 
 const instructionFormSchema = InstructionZodSchema.pick({
   type: true,
@@ -61,6 +64,17 @@ const instructionFormSchema = InstructionZodSchema.pick({
   links: true,
   mediaUrls: true,
 })
+
+type GifDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSelect: (gif: {
+    id: string
+    title?: string
+    url: string
+    thumbnail?: string
+  }) => void
+}
 
 type InstructionFormProps = {
   defaultValues?: z.infer<typeof instructionFormSchema>
@@ -349,23 +363,30 @@ export const InstructionForm = memo(function InstructionForm({
 
   const values = useWatch({ control: form.control })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, remove, insert } = useFieldArray({
     control: form.control,
     name: "links",
   })
 
   const {
     fields: mediaFields,
-    append: appendMedia,
+    insert: insertMedia,
     remove: removeMedia,
   } = useFieldArray({
     control: form.control,
     name: "mediaUrls",
   })
 
+  // track whether a given media index is uploading and any preview object URLs
   const [uploadingMedia, setUploadingMedia] = useState<Record<number, boolean>>(
     {},
   )
+  const [previewObjectUrls, setPreviewObjectUrls] = useState<
+    Record<number, string>
+  >({})
+  // GIF selector state (dialog open + index) — refined to a single reusable component
+  const [gifDialogOpen, setGifDialogOpen] = useState(false)
+  const [gifDialogIndex, setGifDialogIndex] = useState<number | null>(null)
 
   useEffect(() => {
     const se = () => setError(null)
@@ -380,6 +401,17 @@ export const InstructionForm = memo(function InstructionForm({
 
   const handleFileUpload = async (index: number, file?: File | null) => {
     if (!file) return
+    // create a local preview immediately so user sees the image before upload
+    const localObjectUrl = URL.createObjectURL(file)
+    // set preview value into the form (shows image immediately)
+    form.setValue(`mediaUrls.${index}.url`, localObjectUrl, {
+      shouldDirty: true,
+      shouldValidate: false,
+    })
+
+    // remember this object url so we can revoke it later when replaced
+    setPreviewObjectUrls((s) => ({ ...s, [index]: localObjectUrl }))
+
     try {
       setUploadingMedia((s) => ({ ...s, [index]: true }))
       const fd = new FormData()
@@ -396,11 +428,24 @@ export const InstructionForm = memo(function InstructionForm({
       const data = await res.json()
 
       if (!res.ok) {
+        // on failure keep local preview but notify and stop uploading
         toast.error(data?.error || "Image upload failed")
         return
       }
 
-      // set uploaded url into form
+      // set uploaded cloud url into form (replace the local preview)
+      // revoke local object url for this index (if any) to avoid leaks
+      if (previewObjectUrls[index]) {
+        try {
+          URL.revokeObjectURL(previewObjectUrls[index])
+        } catch {}
+        setPreviewObjectUrls((s) => {
+          const t = { ...s }
+          delete t[index]
+          return t
+        })
+      }
+
       form.setValue(`mediaUrls.${index}.url`, data.url, {
         shouldDirty: true,
         shouldValidate: true,
@@ -412,6 +457,55 @@ export const InstructionForm = memo(function InstructionForm({
     } finally {
       setUploadingMedia((s) => ({ ...s, [index]: false }))
     }
+  }
+
+  // revoke any leftover object URLs on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(previewObjectUrls).forEach((url) => {
+        try {
+          URL.revokeObjectURL(url)
+        } catch {}
+      })
+    }
+  }, [previewObjectUrls])
+
+  // whether any media uploads are currently in progress
+  const hasUploading = Object.values(uploadingMedia).some(Boolean)
+
+  // handle selecting a GIF from dialog for a given index
+  const handleGifSelect = (gif: {
+    id: string
+    title?: string
+    url: string
+  }) => {
+    const index = gifDialogIndex
+    if (index === null) return
+
+    // revoke object url if any for this index
+    if (previewObjectUrls[index]) {
+      try {
+        URL.revokeObjectURL(previewObjectUrls[index])
+      } catch {}
+      setPreviewObjectUrls((s) => {
+        const t = { ...s }
+        delete t[index]
+        return t
+      })
+    }
+
+    form.setValue(`mediaUrls.${index}.url`, gif.url, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
+    form.setValue(`mediaUrls.${index}.alt`, gif.title || "GIF", {
+      shouldDirty: true,
+    })
+
+    setGifDialogOpen(false)
+    setGifDialogIndex(null)
+    toast.success("GIF selected")
   }
 
   return (
@@ -463,7 +557,7 @@ export const InstructionForm = memo(function InstructionForm({
                   size="sm"
                   type="button"
                   variant="outline"
-                  onClick={() => append({ url: "", alt: "" })}
+                  onClick={() => insert(0, { url: "", alt: "" })}
                 >
                   <PlusIcon className="h-4 w-4" /> Add Link
                 </Button>
@@ -471,58 +565,77 @@ export const InstructionForm = memo(function InstructionForm({
             </div>
 
             <div className="space-y-2">
-              {fields.map((field, index) => (
-                <div key={field.id} className="space-y-2 rounded-md border p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Link {index + 1}</p>
-                    {!isSubmitting && (
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="destructive"
-                        onClick={() => remove(index)}
-                      >
-                        Remove
-                      </Button>
-                    )}
+              {fields.length ? (
+                fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="space-y-2 rounded-md border p-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium">
+                        Link {fields.length - index}
+                      </p>
+                      {!isSubmitting && (
+                        <Button
+                          size="sm"
+                          type="button"
+                          variant="destructive"
+                          onClick={() => remove(index)}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name={`links.${index}.url` as const}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="URL"
+                              {...field}
+                              disabled={isSubmitting}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`links.${index}.alt` as const}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="ALT text"
+                              {...field}
+                              disabled={isSubmitting}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name={`links.${index}.url` as const}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="URL"
-                            {...field}
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`links.${index}.alt` as const}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="ALT text"
-                            {...field}
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-muted-foreground italic">
+                  <em>No links added yet</em>
+                </p>
+              )}
+              {/* GIF dialog rendered once */}
+              <GifDialog
+                open={gifDialogOpen}
+                onOpenChange={setGifDialogOpen}
+                onSelect={handleGifSelect}
+              />
             </div>
+
+            {/* GIF dialog will be rendered once, after media list */}
           </div>
         ) : null}
         {showMedia ? (
@@ -534,7 +647,7 @@ export const InstructionForm = memo(function InstructionForm({
                   size="sm"
                   type="button"
                   variant="outline"
-                  onClick={() => appendMedia({ url: "", alt: "" })}
+                  onClick={() => insertMedia(0, { url: "", alt: "" })}
                 >
                   <PlusIcon className="h-4 w-4" /> Add Image
                 </Button>
@@ -542,90 +655,131 @@ export const InstructionForm = memo(function InstructionForm({
             </div>
 
             <div className="space-y-2">
-              {mediaFields.map((mfield, mindex) => (
-                <div
-                  key={mfield.id}
-                  className="space-y-2 rounded-md border p-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Image {mindex + 1}</p>
-                    {!isSubmitting && (
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="destructive"
-                        onClick={() => removeMedia(mindex)}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
+              {mediaFields.length ? (
+                mediaFields.map((mfield, mindex) => (
+                  <div
+                    key={mfield.id}
+                    className="space-y-2 rounded-md border p-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium">
+                        Image {mediaFields.length - mindex}
+                      </p>
+                      {!isSubmitting && (
+                        <Button
+                          size="sm"
+                          type="button"
+                          variant="destructive"
+                          onClick={() => removeMedia(mindex)}
+                          disabled={uploadingMedia[mindex]}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) =>
-                        handleFileUpload(mindex, e.target.files?.[0])
-                      }
-                      disabled={isSubmitting || !!uploadingMedia[mindex]}
-                      className="inline-block py-2"
+                    <div className="flex items-center gap-2">
+                      <Label
+                        htmlFor={`upload-i-image-${mindex}`}
+                        className={cn(
+                          "bg-secondary text-secondary-foreground hover:bg-secondary/80 flex h-9 flex-1 cursor-pointer items-center justify-center rounded-md border p-2 px-4 py-2 shadow-sm",
+                          (isSubmitting || !!uploadingMedia[mindex]) &&
+                            "cursor-not-allowed opacity-50",
+                        )}
+                      >
+                        {uploadingMedia[mindex]
+                          ? "Uploading..."
+                          : "Upload Image"}
+                      </Label>
+                      <Input
+                        id={`upload-i-image-${mindex}`}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          handleFileUpload(mindex, e.target.files?.[0])
+                        }
+                        disabled={isSubmitting || !!uploadingMedia[mindex]}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          setGifDialogIndex(mindex)
+                          setGifDialogOpen(true)
+                        }}
+                        disabled={isSubmitting}
+                        className="border"
+                      >
+                        GIF
+                      </Button>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name={`mediaUrls.${mindex}.url` as const}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Image URL (uploaded)"
+                              {...field}
+                              className="hidden"
+                              disabled
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                    {uploadingMedia[mindex] ? (
-                      <span className="text-sm">Uploading...</span>
+
+                    <FormField
+                      control={form.control}
+                      name={`mediaUrls.${mindex}.alt` as const}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Image ALT text"
+                              {...field}
+                              disabled={isSubmitting}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {form.getValues(`mediaUrls.${mindex}.url`) ? (
+                      <div className="relative mt-2 inline-block h-28 w-auto">
+                        <Image
+                          src={
+                            form.getValues(`mediaUrls.${mindex}.url`) ??
+                            form.watch(`mediaUrls.${mindex}.url`)
+                          }
+                          alt={form.getValues(`mediaUrls.${mindex}.alt`)}
+                          width={200}
+                          height={200}
+                          className="h-28 w-auto rounded-md border object-cover"
+                          loading="lazy"
+                        />
+                        {uploadingMedia[mindex] && (
+                          <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/40">
+                            <LoaderCircleIcon
+                              className="h-10 w-10 animate-spin text-white/90"
+                              strokeWidth={1}
+                            />
+                          </div>
+                        )}
+                      </div>
                     ) : null}
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name={`mediaUrls.${mindex}.url` as const}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Image URL (uploaded)"
-                            {...field}
-                            className="hidden"
-                            disabled
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`mediaUrls.${mindex}.alt` as const}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Image ALT text"
-                            {...field}
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {form.getValues(`mediaUrls.${mindex}.url`) ? (
-                    <div className="mt-2">
-                      <InstructionMediaDisplay
-                        images={[
-                          {
-                            url: form.getValues(`mediaUrls.${mindex}.url`),
-                            alt:
-                              form.getValues(`mediaUrls.${mindex}.alt`) || "",
-                          },
-                        ]}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-muted-foreground italic">
+                  <em>No Images added yet</em>
+                </p>
+              )}
             </div>
           </div>
         ) : null}
@@ -640,7 +794,9 @@ export const InstructionForm = memo(function InstructionForm({
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || !!error || !form.formState.isDirty}
+            disabled={
+              isSubmitting || !!error || !form.formState.isDirty || hasUploading
+            }
           >
             {isSubmitting ? "Processing..." : submitButtonText}
           </Button>
@@ -752,7 +908,7 @@ export const InstructionItem = ({
               {instruction.mediaUrls.map((media, idx) => (
                 <div
                   key={`media-${idx}`}
-                  className="group relative cursor-pointer overflow-hidden rounded-lg"
+                  className="group relative cursor-pointer overflow-hidden rounded-md border"
                   onClick={() =>
                     setSelectedImage({
                       url: media.url,
@@ -765,7 +921,7 @@ export const InstructionItem = ({
                     alt={media.alt}
                     width={200}
                     height={200}
-                    className="h-28 w-full border object-cover transition-transform group-hover:scale-105"
+                    className="h-28 w-full object-cover transition-transform group-hover:scale-105"
                     loading="lazy"
                   />
                 </div>
@@ -838,7 +994,7 @@ export const InstructionItem = ({
                     src={selectedImage.url}
                     alt={selectedImage.alt}
                     fill
-                    className="rounded-xl object-contain drop-shadow-xl"
+                    className="object-contain drop-shadow-xl"
                     priority
                     sizes="(max-width: 768px) 100vw, 70vw"
                   />
@@ -923,81 +1079,118 @@ export function WarningComponent() {
   )
 }
 
-type MediaItem = { url: string; alt: string }
+export function GifDialog({ open, onOpenChange, onSelect }: GifDialogProps) {
+  const [query, setQuery] = useState("")
+  const [searched, setSearched] = useState("")
+  const [results, setResults] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-type InstructionMediaDisplayProps = {
-  links?: MediaItem[]
-  images?: MediaItem[]
-}
+  async function search(q: string) {
+    if (!q.trim()) {
+      setError("Please enter a search term")
+      return
+    }
+    if (searched.trim() === q.trim()) return
 
-export const InstructionMediaDisplay = ({
-  links,
-  images,
-}: InstructionMediaDisplayProps) => {
-  const hasLinks = links && links.length > 0
-  const hasImages = images && images.length > 0
+    setSearched(q)
+    setError(null)
+    setLoading(true)
+    try {
+      const res = await fetch("/api/gif/search", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ q, limit: 16 }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || "Search failed")
+      setResults(data.gifs ?? [])
+    } catch (err) {
+      console.error(err)
+      setError("Search failed")
+      setResults([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  if (!hasLinks && !hasImages) return null
+  // useEffect(() => {
+  //   // when dialog opens, pre-load trending results
+  //   if (open) {
+  //     void search("trending")
+  //   }
+  // }, [open])
 
   return (
-    <div className="mt-4 space-y-4">
-      {hasImages && (
-        <div>
-          {/* <h4 className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
-            Images
-          </h4> */}
-          <div className="flex flex-wrap gap-3">
-            {images.map((img, i) => (
-              <div
-                key={i}
-                className="group hover:border-primary/50 relative overflow-hidden rounded-lg border"
-              >
-                <Image
-                  src={img.url}
-                  alt={img.alt}
-                  width={200}
-                  height={200}
-                  className="h-28 w-full object-cover transition-transform group-hover:scale-105"
-                  loading="lazy"
-                />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-sm:h-dvh max-sm:w-screen max-sm:max-w-none sm:max-h-[calc(100dvh-4rem)] xl:max-h-140">
+        <DialogTitle className="hidden"></DialogTitle>
+        <DialogDescription className="hidden"></DialogDescription>
+        <div className="flex h-full flex-col gap-4">
+          <h2 className="text-lg leading-none font-semibold tracking-tight max-sm:text-center">
+            Add GIF
+          </h2>
+          <div className="flex gap-2">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search GIFs"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  void search(query)
+                }
+              }}
+            />
+            <Button
+              type="button"
+              onClick={async () => {
+                await search(query)
+              }}
+              className="h-10"
+              disabled={loading}
+            >
+              {loading ? "Searching..." : "Search"}
+            </Button>
+          </div>
 
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/50">
-                  <span className="p-4 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
-                    {img.alt.length > 100
-                      ? img.alt.slice(0, 100) + "..."
-                      : img.alt}
-                  </span>
-                </div>
+          {error ? <p className="text-destructive text-sm">{error}</p> : null}
+
+          <div className="flex max-h-[calc(100dvh-14rem)] min-h-0 flex-1 flex-wrap gap-2 overflow-auto xl:max-h-105">
+            {results.length ? (
+              results.map((g) => (
+                <button
+                  className="hover:brightness-90"
+                  key={g.id}
+                  onClick={() =>
+                    onSelect({
+                      id: g.id,
+                      title: g.title,
+                      url: g.url,
+                      thumbnail: g.thumbnail,
+                    })
+                  }
+                >
+                  <Image
+                    src={g.thumbnail || g.url}
+                    alt={g.title}
+                    height={200}
+                    width={200}
+                    className="h-28 w-full object-cover"
+                  />
+                </button>
+              ))
+            ) : (
+              <div className="text-muted-foreground col-span-full py-8 text-center text-sm">
+                {loading
+                  ? "Searching..."
+                  : "No gifs yet — search to load results"}
               </div>
-            ))}
+            )}
           </div>
         </div>
-      )}
-
-      {hasLinks && (
-        <div>
-          {/* <h4 className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
-            Links
-          </h4> */}
-          <div className="flex flex-col gap-2">
-            {links.map((link, i) => (
-              <a
-                key={i}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group hover:border-primary hover:bg-primary/5 flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-all"
-              >
-                <ExternalLinkIcon className="text-primary/60 group-hover:text-primary h-4 w-4 transition-colors" />
-                <span className="text-primary group-hover:decoration-primary flex-1 underline decoration-transparent transition-all">
-                  {link.alt || link.url}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
