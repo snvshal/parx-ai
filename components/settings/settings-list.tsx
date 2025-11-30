@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { JSX, useState } from "react"
 import {
   SettingsIcon,
   User2Icon,
@@ -79,7 +79,7 @@ export function SettingsSidebar({
     window.history.replaceState(null, "", `/settings/${page}`)
   }
   return (
-    <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col">
+    <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col xl:max-h-140">
       <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
         <div className="mb-8">
           <p className="text-muted-foreground text-xl font-semibold">
@@ -149,6 +149,29 @@ export function SettingsComponent({
 
 export function SettingsSkeleton() {
   const pathname = usePathname()
+
+  const renderTitle = (page: string) => (
+    <SettingsHeader page={page}>
+      <div className="space-y-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex h-9 w-full gap-8">
+            <Skeleton className="flex-1" />
+            <Skeleton className="w-20" />
+          </div>
+        ))}
+      </div>
+    </SettingsHeader>
+  )
+
+  const pageMap: Record<string, () => JSX.Element> = {
+    "/settings/instructions": () => <InstructionSkeleton />,
+    "/settings/profile": () => <ProfileSkeleton />,
+    "/settings/general": () => renderTitle("General"),
+    "/settings/account": () => renderTitle("Account"),
+  }
+
+  const Page = pageMap[pathname]
+
   return (
     <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col">
       <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
@@ -177,29 +200,7 @@ export function SettingsSkeleton() {
           })}
         </nav>
       </aside>
-      <main className="flex-1 max-sm:min-h-0">
-        {pathname === "/settings/instructions" ? (
-          <InstructionSkeleton />
-        ) : pathname === "/settings/profile" ? (
-          <ProfileSkeleton />
-        ) : (
-          <SettingsHeader
-            page={
-              pathname === "/settings/general"
-                ? "General"
-                : pathname === "/settings/general"
-                  ? "Account"
-                  : ""
-            }
-          >
-            <div className="space-y-8">
-              {[...Array(4)].map((_, i) => (
-                <Skeleton key={i} className="h-9 w-full" />
-              ))}
-            </div>
-          </SettingsHeader>
-        )}
-      </main>
+      <main className="flex-1 max-sm:min-h-0">{<Page />}</main>
     </div>
   )
 }
