@@ -64,7 +64,7 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
         />
       </div>
 
-      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)]">
+      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)] xl:max-h-94">
         {loading && <PeopleListSkeleton count={4} />}
 
         {!loading && results.length === 0 && (

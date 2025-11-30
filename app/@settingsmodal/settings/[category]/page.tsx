@@ -5,6 +5,7 @@ import {
   SettingsSidebar,
   SettingsSkeleton,
 } from "@/components/settings/settings-list"
+import { notFound } from "next/navigation"
 
 async function SettingsSidebarAs({ category }: { category: string }) {
   const profile = await getProfile()
@@ -21,7 +22,11 @@ async function SettingsSidebarAs({ category }: { category: string }) {
 export default async function SettingsCategory({
   params,
 }: PageProps<"/settings/[category]">) {
-  const category = (await params).category
+  const { category } = await params
+  const settingsList = ["general", "profile", "instructions", "account"]
+
+  if (!settingsList.includes(category)) notFound()
+
   return (
     <Suspense fallback={<SettingsSkeleton />}>
       <SettingsSidebarAs category={category} />

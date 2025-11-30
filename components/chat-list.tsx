@@ -47,7 +47,7 @@ export default function ChatList() {
           />
         </div>
       )}
-      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)]">
+      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)] xl:max-h-94">
         {filtered.map((chat, index) => (
           <Link key={index} href={`/m/${chat.personaId.username}`}>
             <Card className="group relative rounded-none border-0 border-b transition-all">
