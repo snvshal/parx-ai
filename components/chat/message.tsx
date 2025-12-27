@@ -144,7 +144,8 @@ export const MemoChatMessage = memo(function ChatMessage({
             )}
           >
             {format(
-              (message.metadata as { createdAt?: Date }).createdAt as Date,
+              (message.metadata as { createdAt?: Date })?.createdAt ??
+                new Date(),
               "h:mm a",
             )}
           </div>
