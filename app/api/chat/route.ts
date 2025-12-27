@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     return result.toUIMessageStreamResponse({
       messageMetadata: ({ part }) => {
-        if (part.type === "start") {
+        if (part.type === "finish") {
           return { createdAt: new Date() }
         }
       },

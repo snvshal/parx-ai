@@ -94,7 +94,7 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
       }
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
-        console.log("User canceled sharing")
+        console.error("Sharing canceled")
       } else {
         console.error("Error sharing:", error)
       }
