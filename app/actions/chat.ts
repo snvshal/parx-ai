@@ -1,6 +1,7 @@
 "use server"
 
 import connectToDatabase from "@/lib/db"
+import { redis } from "@/lib/redis"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
 import { User } from "@/models/user.model"
@@ -13,14 +14,40 @@ import { revalidatePath } from "next/cache"
 import { HydratedDocument, Types } from "mongoose"
 import { ps } from "@/lib/utils"
 
+// Cache TTL constants (in seconds)
+const CACHE_TTL = {
+  USER: 3600, // 1 hour
+  CHATS: 300, // 5 minutes
+  MESSAGES: 300, // 5 minutes
+}
+
+// Cache key generators
+const getCacheKey = {
+  user: (username: string) => `user:${username}`,
+  userById: (userId: string) => `user:id:${userId}`,
+  chats: (userId: string) => `chats:${userId}`,
+  chat: (userId: string, personaId: string) => `chat:${userId}:${personaId}`,
+  messages: (userId: string, personaId: string) =>
+    `messages:${userId}:${personaId}`,
+}
+
 export const getUserByUsername = async (
   username: string,
 ): Promise<TUser | null> => {
   try {
+    const cacheKey = getCacheKey.user(username)
+    const cached = await redis.get(cacheKey)
+    if (cached) return cached as TUser
+
     await connectToDatabase()
     const user = await User.findOne({ username })
     if (!user) return null
-    return ps(user)
+
+    const serializedUser = ps(user)
+
+    await redis.setex(cacheKey, CACHE_TTL.USER, serializedUser)
+
+    return serializedUser
   } catch (error) {
     console.error(`Error fetching user by username "${username}":`, error)
     return null
@@ -34,19 +61,26 @@ export type PopulatedChat = HydratedDocument<TChat> & {
 }
 
 export const getChats = async (): Promise<PopulatedChat[]> => {
-  "use cache: private"
   try {
-    await connectToDatabase()
     const sessionUser = await getSessionUser()
     if (!sessionUser) return []
 
-    const chats = await Chat.find({ userId: sessionUser?._id })
+    const cacheKey = getCacheKey.chats(String(sessionUser._id))
+    const cached = await redis.get(cacheKey)
+    if (cached) return cached as PopulatedChat[]
+
+    await connectToDatabase()
+    const chats = await Chat.find({ userId: sessionUser._id })
       .populate("userId")
       .populate("personaId")
       .populate("lastMessage")
       .sort({ updatedAt: -1 })
 
-    return ps(chats) as unknown as PopulatedChat[]
+    const serializedChats = ps(chats) as PopulatedChat[]
+
+    await redis.setex(cacheKey, CACHE_TTL.CHATS, serializedChats)
+
+    return serializedChats
   } catch (error) {
     console.error(`Error fetching chats for user`, error)
     return []
@@ -57,10 +91,14 @@ export const getChat = async (
   personaId: string,
 ): Promise<PopulatedChat | null> => {
   try {
-    await connectToDatabase()
     const sessionUser = await getSessionUser()
     if (!sessionUser) return null
 
+    const cacheKey = getCacheKey.chat(String(sessionUser._id), personaId)
+    const cached = await redis.get(cacheKey)
+    if (cached) return cached as PopulatedChat
+
+    await connectToDatabase()
     const persona = await User.findById(personaId)
     if (!persona) return null
 
@@ -72,7 +110,11 @@ export const getChat = async (
       .populate("personaId")
       .populate("lastMessage")
 
-    return chat as unknown as PopulatedChat
+    if (!chat) return null
+
+    const serializedChat = ps(chat) as PopulatedChat
+    await redis.setex(cacheKey, CACHE_TTL.CHATS, serializedChat)
+    return serializedChat
   } catch (error) {
     console.error(`Error fetching chats for user "${personaId}":`, error)
     return null
@@ -98,6 +140,13 @@ export const deleteChat = async (
       personaId: persona._id,
     })
     if (!chat) return { success: false, message: "Chat not found." }
+
+    const userIdStr = String(sessionUser._id)
+    await Promise.all([
+      redis.del(getCacheKey.chats(userIdStr)),
+      redis.del(getCacheKey.chat(userIdStr, personaId)),
+      redis.del(getCacheKey.messages(userIdStr, personaId)),
+    ])
 
     revalidatePath("/")
 
@@ -128,6 +177,10 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
       ]
     }
 
+    const cacheKey = getCacheKey.messages(String(sessionUser._id), personaId)
+    const cached = await redis.get(cacheKey)
+    if (cached) return cached as UIMessage[]
+
     const chat = await getChat(personaId)
 
     if (!chat) {
@@ -148,7 +201,7 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
       newChat.lastMessage = firstMessage._id as Types.ObjectId
       await newChat.save()
 
-      return [
+      const messages: UIMessage[] = [
         {
           id: String(firstMessage._id),
           role: firstMessage.role,
@@ -156,6 +209,12 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
           metadata: { createdAt: firstMessage.createdAt },
         },
       ]
+
+      await redis.setex(cacheKey, CACHE_TTL.MESSAGES, messages)
+
+      await redis.del(getCacheKey.chats(String(sessionUser._id)))
+
+      return messages
     }
 
     const messages: TMessage[] = await Message.find({
@@ -168,9 +227,13 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
         { personaId, userId: sessionUser._id },
         { $set: { unreadCount: 0 } },
       )
+      await Promise.all([
+        redis.del(getCacheKey.chats(String(sessionUser._id))),
+        redis.del(getCacheKey.chat(String(sessionUser._id), personaId)),
+      ])
     }
 
-    return (
+    const uiMessages: UIMessage[] =
       messages.map(
         (msg: TMessage) =>
           ({
@@ -180,7 +243,10 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
             metadata: { createdAt: msg.createdAt },
           }) as UIMessage,
       ) || []
-    )
+
+    await redis.setex(cacheKey, CACHE_TTL.MESSAGES, uiMessages)
+
+    return uiMessages
   } catch (error) {
     console.error(`Error fetching messages for chat "${personaId}":`, error)
     return []
@@ -209,6 +275,13 @@ export const saveMessage = async (
 
     chat.lastMessage = newMessage._id as Types.ObjectId
     await chat.save()
+
+    const userIdStr = String(sessionUser._id)
+    await Promise.all([
+      redis.del(getCacheKey.messages(userIdStr, personaId)),
+      redis.del(getCacheKey.chats(userIdStr)),
+      redis.del(getCacheKey.chat(userIdStr, personaId)),
+    ])
 
     return ps({ success: true, message: newMessage })
   } catch (error) {
@@ -263,12 +336,19 @@ export const deleteMessages = async (
       content: persona.firstMessage,
     })
 
-    const firstMessage = {
+    const firstMessage: UIMessage = {
       id: String(fm._id),
       role: fm.role,
       parts: [{ type: "text", text: fm.content }],
       metadata: { createdAt: fm.createdAt },
-    } as UIMessage
+    }
+
+    const userIdStr = String(sessionUser._id)
+    await Promise.all([
+      redis.del(getCacheKey.messages(userIdStr, personaId)),
+      redis.del(getCacheKey.chats(userIdStr)),
+      redis.del(getCacheKey.chat(userIdStr, personaId)),
+    ])
 
     revalidatePath(`/m/${persona.username}`)
 
