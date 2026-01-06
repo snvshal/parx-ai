@@ -12,6 +12,7 @@ import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
 import { format } from "date-fns"
 import { Tweet } from "react-tweet"
+import { ImageDialog } from "../settings/instruction"
 
 export const MemoChatMessage = memo(function ChatMessage({
   message,
@@ -19,6 +20,13 @@ export const MemoChatMessage = memo(function ChatMessage({
   message: UIMessage
 }) {
   const isAssistant = message.role === "assistant"
+
+  const [selectedImage, setSelectedImage] = useState<{
+    url: string
+    alt: string
+  } | null>(null)
+  const getTextOnly = (text: string) =>
+    text.replace(/!\[.*?\]\(.*?\)/g, "").trim()
 
   const renderParts = () =>
     message.parts.map((part, i) => {
@@ -42,8 +50,16 @@ export const MemoChatMessage = memo(function ChatMessage({
               img: (props) => (
                 <img
                   {...props}
-                  alt="image"
-                  className="my-2 h-auto max-h-80 max-w-full rounded-lg"
+                  alt="Image"
+                  role="button"
+                  title={props.alt || "Image"}
+                  className="my-2 h-auto max-h-80 max-w-full cursor-pointer rounded-lg"
+                  onClick={() =>
+                    setSelectedImage({
+                      url: props.src as string,
+                      alt: getTextOnly(part.text),
+                    })
+                  }
                 />
               ),
               /* eslint-enable @next/next/no-img-element */
@@ -65,8 +81,9 @@ export const MemoChatMessage = memo(function ChatMessage({
               ),
               a: ({ href, children, ...props }) => {
                 if (
-                  href?.startsWith("https://x.com/") &&
-                  href.includes("/status/")
+                  (href?.startsWith("https://x.com/") ||
+                    href?.startsWith("https://www.x.com/")) &&
+                  href?.includes("/status/")
                 ) {
                   const tweetId = href.split("/status/")[1]?.split("?")[0]
                   return (
@@ -75,6 +92,7 @@ export const MemoChatMessage = memo(function ChatMessage({
                     </div>
                   )
                 }
+
                 return (
                   <a
                     href={href}
@@ -151,6 +169,10 @@ export const MemoChatMessage = memo(function ChatMessage({
           </div>
         </div>
       </div>
+      <ImageDialog
+        selectedImage={selectedImage}
+        setSelectedImage={setSelectedImage}
+      />
     </div>
   )
 })

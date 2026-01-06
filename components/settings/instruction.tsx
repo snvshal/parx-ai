@@ -892,136 +892,155 @@ export const InstructionItem = ({
   }
 
   return (
-    <>
-      <AccordionItem value={id} className="mb-2 rounded-lg border px-4">
-        <AccordionTrigger className="cursor-pointer">
-          <span className="text-base wrap-break-word">{instruction.type}</span>
-        </AccordionTrigger>
-        <AccordionContent>
-          <p className="wrap-break-word whitespace-pre-wrap">
-            {instruction.content}
-          </p>
+    <AccordionItem value={id} className="mb-2 rounded-lg border px-4">
+      <AccordionTrigger className="cursor-pointer">
+        <span className="text-base wrap-break-word">{instruction.type}</span>
+      </AccordionTrigger>
+      <AccordionContent>
+        <p className="wrap-break-word whitespace-pre-wrap">
+          {instruction.content}
+        </p>
 
-          {/* Display Media */}
-          {instruction.mediaUrls && instruction.mediaUrls.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-              {instruction.mediaUrls.map((media, idx) => (
-                <div
-                  key={`media-${idx}`}
-                  className="group relative cursor-pointer overflow-hidden rounded-md border"
-                  onClick={() =>
-                    setSelectedImage({
-                      url: media.url,
-                      alt: media.alt || `Image ${idx + 1}`,
-                    })
-                  }
-                >
-                  <Image
-                    src={media.url}
-                    alt={media.alt}
-                    width={200}
-                    height={200}
-                    className="h-28 w-full object-cover transition-transform group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Display Links */}
-          {instruction.links && instruction.links.length > 0 && (
-            <div className="mt-4 flex flex-col gap-2">
-              {instruction.links.map((link, i) => (
-                <a
-                  key={i}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group hover:border-primary hover:bg-primary/5 flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-all"
-                >
-                  <ExternalLinkIcon className="text-muted-foreground group-hover:text-primary h-4 w-4 transition-colors" />
-                  <span className="text-muted-foreground group-hover:decoration-primary group-hover:text-primary flex-1 underline decoration-transparent transition-all">
-                    {link.alt || link.url}
-                  </span>
-                </a>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-4 flex justify-between max-sm:flex-col max-sm:gap-4">
-            <p className="text-muted-foreground flex items-center text-xs">
-              Last update: {format(instruction.updatedAt, "d MMM, yyyy")}
-            </p>
-            <div className="flex gap-2 max-sm:justify-end">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setIsEditing(true)}
-              >
-                <PencilIcon className="h-4 w-4" /> Edit
-              </Button>
-              <AlertDialogComponent
-                open={isDeleteDialogOpen}
-                setOpen={setIsDeleteDialogOpen}
-                action={handleDelete}
-                trigger={
-                  <Button size="sm" variant="destructive">
-                    <TrashIcon className="h-4 w-4" /> Delete
-                  </Button>
+        {/* Display Media */}
+        {instruction.mediaUrls && instruction.mediaUrls.length > 0 && (
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            {instruction.mediaUrls.map((media, idx) => (
+              <div
+                key={`media-${idx}`}
+                className="group relative cursor-pointer overflow-hidden rounded-md border"
+                onClick={() =>
+                  setSelectedImage({
+                    url: media.url,
+                    alt: media.alt || `Image ${idx + 1}`,
+                  })
                 }
-                actionName="Delete"
-                title="Delete Instruction?"
-                description={`Are you sure you want to delete the '${instruction.type}' instruction? This action cannot be undone.`}
-              />
+              >
+                <Image
+                  src={media.url}
+                  alt={media.alt}
+                  width={200}
+                  height={200}
+                  className="h-28 w-full object-cover transition-transform group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Display Links */}
+        {instruction.links && instruction.links.length > 0 && (
+          <div className="mt-4 flex flex-col gap-2">
+            {instruction.links.map((link, i) => (
+              <a
+                key={i}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group hover:border-primary hover:bg-primary/5 flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-all"
+              >
+                <ExternalLinkIcon className="text-muted-foreground group-hover:text-primary h-4 w-4 transition-colors" />
+                <span className="text-muted-foreground group-hover:decoration-primary group-hover:text-primary flex-1 underline decoration-transparent transition-all">
+                  {link.alt || link.url}
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-4 flex justify-between max-sm:flex-col max-sm:gap-4">
+          <p className="text-muted-foreground flex items-center text-xs">
+            Last update: {format(instruction.updatedAt, "d MMM, yyyy")}
+          </p>
+          <div className="flex gap-2 max-sm:justify-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsEditing(true)}
+            >
+              <PencilIcon className="h-4 w-4" /> Edit
+            </Button>
+            <AlertDialogComponent
+              open={isDeleteDialogOpen}
+              setOpen={setIsDeleteDialogOpen}
+              action={handleDelete}
+              trigger={
+                <Button size="sm" variant="destructive">
+                  <TrashIcon className="h-4 w-4" /> Delete
+                </Button>
+              }
+              actionName="Delete"
+              title="Delete Instruction?"
+              description={`Are you sure you want to delete the '${instruction.type}' instruction? This action cannot be undone.`}
+            />
+          </div>
+        </div>
+      </AccordionContent>
+      <ImageDialog
+        selectedImage={selectedImage}
+        setSelectedImage={setSelectedImage}
+      />
+    </AccordionItem>
+  )
+}
+
+export type ImageDialogProps = {
+  selectedImage: {
+    url: string
+    alt: string
+  } | null
+  setSelectedImage: React.Dispatch<
+    React.SetStateAction<{
+      url: string
+      alt: string
+    } | null>
+  >
+}
+
+export function ImageDialog({
+  selectedImage,
+  setSelectedImage,
+}: ImageDialogProps) {
+  return (
+    <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+      <DialogTitle className="hidden"></DialogTitle>
+      <DialogDescription className="hidden"></DialogDescription>
+      <DialogContent className="max-h-[95vh] w-[95vw] max-w-6xl overflow-hidden rounded-2xl p-0">
+        <div className="grid h-[95vh] grid-cols-1 md:grid-cols-4">
+          <div className="bg-muted/30 col-span-3 flex items-center justify-center p-4 md:p-6">
+            <div className="relative h-full max-h-80 min-h-48 w-full sm:max-h-[calc(95vh-4rem)]">
+              {selectedImage && (
+                <Image
+                  src={selectedImage.url}
+                  alt={selectedImage.alt}
+                  fill
+                  className="object-contain drop-shadow-xl"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 70vw"
+                />
+              )}
             </div>
           </div>
-        </AccordionContent>
-      </AccordionItem>
 
-      <Dialog
-        open={!!selectedImage}
-        onOpenChange={() => setSelectedImage(null)}
-      >
-        <DialogTitle className="hidden"></DialogTitle>
-        <DialogDescription className="hidden"></DialogDescription>
-        <DialogContent className="max-h-[95vh] w-[95vw] max-w-6xl overflow-hidden rounded-2xl p-0">
-          <div className="grid h-[95vh] grid-cols-1 md:grid-cols-4">
-            <div className="bg-muted/30 col-span-3 flex items-center justify-center p-4 md:p-6">
-              <div className="relative h-full max-h-80 min-h-48 w-full sm:max-h-[calc(95vh-4rem)]">
-                {selectedImage && (
-                  <Image
-                    src={selectedImage.url}
-                    alt={selectedImage.alt}
-                    fill
-                    className="object-contain drop-shadow-xl"
-                    priority
-                    sizes="(max-width: 768px) 100vw, 70vw"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="bg-background col-span-1 overflow-y-auto border-l p-4 md:p-6">
-              <h2 className="text-foreground mb-4 text-sm font-medium">
-                Alt text
-              </h2>
-              <div>
-                {selectedImage?.alt ? (
-                  <p className="text-muted-foreground text-sm whitespace-pre-wrap">
-                    {selectedImage.alt}
-                  </p>
-                ) : (
-                  <p className="text-muted-foreground/70 italic">
-                    No description available
-                  </p>
-                )}
-              </div>
+          <div className="bg-background col-span-1 overflow-y-auto border-l p-4 md:p-6">
+            <h2 className="text-foreground mb-4 text-sm font-medium">
+              Alt text
+            </h2>
+            <div>
+              {selectedImage?.alt ? (
+                <p className="text-muted-foreground text-sm whitespace-pre-wrap">
+                  {selectedImage.alt}
+                </p>
+              ) : (
+                <p className="text-muted-foreground/70 italic">
+                  No description available
+                </p>
+              )}
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
