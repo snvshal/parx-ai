@@ -31,10 +31,10 @@ export function HowToUse() {
         <b>content</b>.
       </p>
       <p className="text-foreground/85 mb-4">
-        The type tells the AI what kind of information you’re providing. Common
-        examples include “How I introduce myself,” “What I like to talk about,”
-        “My interests and hobbies,” “A little about my background,” or “How I
-        usually respond.” Choose the one that best fits what you want to share.
+        The type tells the AI how to prioritize the information. Instructions marked
+        as <b>Identity</b>, <b>Core</b>, or <b>Global</b> are always used to maintain
+        your chatbot's personality. Other types are retrieved dynamically only when
+        they are relevant to the conversation, keeping the chat efficient.
       </p>
       <p className="text-foreground/85 mb-6">
         In the content section, write the actual details you want the AI to
