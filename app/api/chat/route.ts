@@ -43,7 +43,10 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const systemInstruction = await getInstructionsByUserId(String(persona._id))
+    const systemInstruction = await getInstructionsByUserId(
+      String(persona._id),
+      lastText,
+    )
 
     const containerTag = sessionUser
       ? `user-${sessionUser._id}-persona-${persona._id}`

@@ -20,6 +20,12 @@ Instead of relying on a single generic AI behavior, ParxAI allows users to creat
 - Reuse community-created instructions
 - Keep instructions private unless explicitly shared
 
+### Efficient RAG-Based Retrieval
+
+- Efficiently retrieves only relevant context based on user prompts
+- Uses Vector Search (RAG) to reduce input tokens and improve response speed
+- Distinguishes between "Core" identity instructions and situational context
+
 ### Privacy-First Design
 
 - Instructions are private by default
@@ -99,9 +105,10 @@ Instead of relying on a single generic AI behavior, ParxAI allows users to creat
 - NextAuth.js
 - Secure session-based authentication
 
-### Database
+### Database & Vector Storage
 
 - MongoDB with Mongoose
+- **Atlas Vector Search** for RAG-based instruction retrieval
 - User, instruction, and metadata storage
 
 ### Caching
