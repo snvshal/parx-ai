@@ -73,9 +73,7 @@ export const getInstructionsByUserId = async (
     console.error("Error fetching instructions with optimized search:", error)
     // Fallback to normal fetch on error
     try {
-      const instructions = await Instruction.find({ userId })
-        .limit(10)
-        .lean()
+      const instructions = await Instruction.find({ userId }).limit(10).lean()
       return buildSystemInstruction(instructions as any)
     } catch (innerError) {
       console.error("Critical error fetching instructions:", innerError)

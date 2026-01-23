@@ -26,8 +26,9 @@ export function Information() {
       </p>
       <p className="text-foreground/85 mb-4">
         Once your chatbot is set up, you can <b>share it with your friends</b>{" "}
-        so they can interact with it. Our system uses advanced <b>Vector Search (RAG)</b> to
-        identify and use only the <b>most relevant instructions</b> for each message, ensuring
+        so they can interact with it. Our system uses advanced{" "}
+        <b>Vector Search (RAG)</b> to identify and use only the{" "}
+        <b>most relevant instructions</b> for each message, ensuring
         lightning-fast and contextually accurate responses.
       </p>
       <p className="text-foreground/85 mb-4">
