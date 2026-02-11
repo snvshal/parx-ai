@@ -4,10 +4,11 @@ import { google } from "@ai-sdk/google"
 import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
-import { getInstructionsByUserId } from "@/app/actions/so"
+import { classifyIntent, getInstructionsByUserId } from "@/app/actions/so"
 import { getSessionUser } from "@/app/actions/session-user"
 import { getUserByUsername, saveMessage } from "@/app/actions/chat"
 import { Types } from "mongoose"
+import { SYSTEM_INSTRUCTIONS } from "@/lib/constants/system-instructions"
 
 export const maxDuration = 30
 
@@ -43,10 +44,11 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const systemInstruction = await getInstructionsByUserId(
-      String(persona._id),
-      lastText,
-    )
+    const needsContext = await classifyIntent(lastText)
+
+    const systemInstruction = needsContext
+      ? await getInstructionsByUserId(String(persona._id), lastText)
+      : SYSTEM_INSTRUCTIONS.style
 
     const containerTag = sessionUser
       ? `user-${sessionUser._id}-persona-${persona._id}`
