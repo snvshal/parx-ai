@@ -1,9 +1,8 @@
 import { Metadata } from "next"
-import { getChats, getUserByUsername } from "@/app/actions/chat"
+import { getUserByUsername } from "@/app/actions/chat"
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
+import { ChatSidebar } from "@/components/app-sidebar"
 import { getSessionUser } from "@/app/actions/session-user"
-import { ChatListProvider } from "@/hooks/use-chat-list"
 
 export async function generateMetadata({
   params,
@@ -34,16 +33,12 @@ export default async function ChatLayout({
     )
   }
 
-  const chats = await getChats()
-
   return (
-    <ChatListProvider chatList={chats}>
-      <SidebarProvider>
-        <AppSidebar />
-        <main className="chat-container relative flex h-dvh w-full items-center justify-center">
-          {children}
-        </main>
-      </SidebarProvider>
-    </ChatListProvider>
+    <SidebarProvider>
+      <ChatSidebar />
+      <main className="chat-container relative flex h-dvh w-full items-center justify-center">
+        {children}
+      </main>
+    </SidebarProvider>
   )
 }
