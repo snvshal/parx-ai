@@ -8,8 +8,6 @@ import SessionProviderComponent from "@/components/session-provider"
 import { SessionUserProvider } from "@/hooks/use-session-user"
 import { getContextUser } from "./actions/session-user"
 import { Toaster } from "@/components/ui/sonner"
-import { ChatListProvider } from "@/hooks/use-chat-list"
-import { getChats } from "./actions/chat"
 
 const fira = Fira_Code({ subsets: ["latin"] })
 
@@ -51,17 +49,14 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({
   children,
-  settingsmodal,
-  peoplemodal,
-  chatsmodal,
 }: {
   children: React.ReactNode
-  settingsmodal: React.ReactNode
-  peoplemodal: React.ReactNode
-  chatsmodal: React.ReactNode
 }) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
+      </head>
       <body className={fira.className}>
         <ThemeProvider
           attribute="class"
@@ -69,28 +64,10 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionWrapper>
-            {children} {settingsmodal} {peoplemodal}
-            {chatsmodal}
-          </SessionWrapper>
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>
     </html>
-  )
-}
-
-async function SessionWrapper({ children }: { children: React.ReactNode }) {
-  const chats = await getChats()
-  const contextUser = await getContextUser()
-  const session: Session | null = await getServerSession()
-
-  return (
-    <SessionProviderComponent session={session}>
-      <SessionUserProvider initialUser={contextUser}>
-        <ChatListProvider chatList={chats}>{children}</ChatListProvider>
-        {/* <NotificationSetup /> */}
-      </SessionUserProvider>
-    </SessionProviderComponent>
   )
 }

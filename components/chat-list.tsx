@@ -9,7 +9,6 @@ import Link from "next/link"
 import { ScrollArea } from "./ui/scroll-area"
 import { Button } from "./ui/button"
 import { Skeleton } from "./ui/skeleton"
-import { useChatList } from "@/hooks/use-chat-list"
 import {
   SidebarMenuBadge,
   SidebarMenuButton,
@@ -19,9 +18,9 @@ import LinkLoadingIndicator from "./ui/link-loading-indicator"
 import { useSessionUser } from "@/hooks/use-session-user"
 import { useParams } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { PopulatedChat } from "@/app/actions/chat"
 
-export default function ChatList() {
-  const { list: chats } = useChatList()
+export default function ChatList({ chats }: { chats: PopulatedChat[] }) {
   const [query, setQuery] = useState("")
 
   const filtered = useMemo(() => {
@@ -104,9 +103,7 @@ export default function ChatList() {
   )
 }
 
-export function ChatListCount() {
-  const { list: chats } = useChatList()
-
+export function ChatListCount({ chats }: { chats: PopulatedChat[] }) {
   return (
     <Badge variant="outline" className="px-4 py-2">
       {chats.length} Chats
@@ -144,10 +141,9 @@ export function ChatListSkeleton({ count = 4 }: { count?: number }) {
   )
 }
 
-export function SidebarChatList() {
+export function SidebarChatList({ chats }: { chats: PopulatedChat[] }) {
   const user = useSessionUser()
   const { username } = useParams()
-  const { list: chats } = useChatList()
 
   if (chats.length === 0) {
     return <p className="text-muted-foreground p-2 text-sm">No chats found</p>

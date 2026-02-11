@@ -21,7 +21,9 @@ async function SettingsSidebarAs({ category }: { category: string }) {
 
 export default async function SettingsCategory({
   params,
-}: PageProps<"/settings/[category]">) {
+}: {
+  params: Promise<{ category: string }>
+}) {
   const { category } = await params
   const settingsList = ["general", "profile", "instructions", "account"]
 

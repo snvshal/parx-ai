@@ -161,11 +161,14 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
   try {
     await connectToDatabase()
 
-    const persona = await User.findById(personaId).lean()
+    const [persona, sessionUser] = await Promise.all([
+      User.findById(personaId).lean(),
+      getSessionUser(),
+    ])
+
     if (!persona) throw new Error("Persona not found")
 
-    const sessionUser = await getSessionUser()
-
+    // If the viewer is not authenticated, just return the persona's first message
     if (!sessionUser) {
       return [
         {
@@ -177,11 +180,17 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
       ]
     }
 
-    const cacheKey = getCacheKey.messages(String(sessionUser._id), personaId)
+    const userIdStr = String(sessionUser._id)
+    const cacheKey = getCacheKey.messages(userIdStr, personaId)
     const cached = await redis.get(cacheKey)
     if (cached) return cached as UIMessage[]
 
-    const chat = await getChat(personaId)
+    // Look up (or lazily create) the chat for this user/persona pair.
+    // This avoids the heavier populated query in getChat.
+    let chat = await Chat.findOne({
+      userId: sessionUser._id,
+      personaId,
+    }).lean()
 
     if (!chat) {
       const newChat = await Chat.create({
@@ -212,12 +221,13 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
 
       await redis.setex(cacheKey, CACHE_TTL.MESSAGES, messages)
 
-      await redis.del(getCacheKey.chats(String(sessionUser._id)))
+      // Refresh chats cache so sidebar and other consumers see the new chat.
+      await redis.del(getCacheKey.chats(userIdStr))
 
       return messages
     }
 
-    const messages: TMessage[] = await Message.find({
+    const messagesDocs: TMessage[] = await Message.find({
       chatId: chat._id,
       personaId,
     }).sort({ createdAt: 1 })
@@ -228,13 +238,13 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
         { $set: { unreadCount: 0 } },
       )
       await Promise.all([
-        redis.del(getCacheKey.chats(String(sessionUser._id))),
-        redis.del(getCacheKey.chat(String(sessionUser._id), personaId)),
+        redis.del(getCacheKey.chats(userIdStr)),
+        redis.del(getCacheKey.chat(userIdStr, personaId)),
       ])
     }
 
     const uiMessages: UIMessage[] =
-      messages.map(
+      messagesDocs.map(
         (msg: TMessage) =>
           ({
             id: String(msg._id),

@@ -1,3 +1,6 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { SearchIcon, UsersIcon } from "lucide-react"
 import {
   Sidebar,
@@ -14,8 +17,16 @@ import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { AboutNavItems } from "./about/nav-items"
 import { SidebarChatList } from "./chat-list"
+import { getChats } from "@/app/actions/chat"
+import type { PopulatedChat } from "@/app/actions/chat"
 
-export async function AppSidebar() {
+export function AppSidebar() {
+  const [chats, setChats] = useState<PopulatedChat[]>([])
+
+  useEffect(() => {
+    getChats().then(setChats).catch(console.error)
+  }, [])
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -48,7 +59,7 @@ export async function AppSidebar() {
           <SidebarGroupLabel>Chats</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarChatList />
+              <SidebarChatList chats={chats} />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
