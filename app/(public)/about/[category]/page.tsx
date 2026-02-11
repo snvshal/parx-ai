@@ -14,6 +14,8 @@ const CATEGORY_COMPONENTS = {
   "terms-of-use": TermsOfUse,
 } as const
 
+export const dynamic = "force-static"
+
 export async function generateStaticParams() {
   return Object.keys(CATEGORY_COMPONENTS).map((category) => ({
     category,

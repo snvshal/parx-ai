@@ -1016,6 +1016,7 @@ export function ImageDialog({
                   fill
                   className="object-contain drop-shadow-xl"
                   priority
+                  unoptimized
                   sizes="(max-width: 768px) 100vw, 70vw"
                 />
               )}

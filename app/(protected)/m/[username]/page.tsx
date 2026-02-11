@@ -8,7 +8,6 @@ import { ps } from "@/lib/utils"
 import { ContextPersona, PersonaProvider } from "@/hooks/use-current-persona"
 
 async function ChatBox({ params }: { params: Promise<{ username: string }> }) {
-  "use cache: private"
   const username = (await params).username
   const persona: TUser | null = await getUserByUsername(username)
   if (!persona) notFound()

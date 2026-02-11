@@ -11,7 +11,6 @@ import { ps } from "@/lib/utils"
 import { ContextPersona, PersonaProvider } from "@/hooks/use-current-persona"
 
 async function ChatBox({ username }: { username: string }) {
-  "use cache: private"
   const persona: TUser | null = await getUserByUsername(username)
   if (!persona) notFound()
   const msgs = await getMessages(String(persona._id))
@@ -31,7 +30,6 @@ async function ChatBox({ username }: { username: string }) {
 }
 
 export default async function ChatLayout() {
-  "use cache: private"
   const sessionUser = await getSessionUser()
 
   if (!sessionUser) {
