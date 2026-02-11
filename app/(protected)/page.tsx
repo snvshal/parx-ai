@@ -1,5 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
+import { ChatSidebar } from "@/components/app-sidebar"
 import { getSessionUser } from "@/app/actions/session-user"
 import { Suspense } from "react"
 import Chat from "@/components/chat"
@@ -44,7 +44,7 @@ export default async function ChatLayout() {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <ChatSidebar />
       <main className="chat-container relative flex h-dvh w-full items-center justify-center">
         <Suspense fallback={<ChatBoxSkeleton />}>
           <ChatBox username={sessionUser.username} />
