@@ -1,5 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
 
+type GiphyImageVariant = {
+  url?: string
+  width?: string
+  height?: string
+}
+
+type GiphyGif = {
+  id: string
+  title?: string
+  url: string
+  images?: {
+    original?: GiphyImageVariant
+    fixed_width_small?: GiphyImageVariant
+    preview_gif?: GiphyImageVariant
+  }
+}
+
+type GiphySearchResponse = {
+  data?: GiphyGif[]
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -28,8 +49,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: txt }, { status: res.status })
     }
 
-    const json = await res.json()
-    const gifs = (json.data || []).map((g: any) => ({
+    const json = (await res.json()) as GiphySearchResponse
+    const gifs = (json.data ?? []).map((g) => ({
       id: g.id,
       title: g.title || "",
       url: g.images?.original?.url || g.url,

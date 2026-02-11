@@ -7,9 +7,7 @@ export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname
 
   // Route types
-
   const authRoutes = ["/sign-in", "/auth/google"]
-
   const publicRoutes = [
     "/m/:username*",
     "/about",

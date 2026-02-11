@@ -33,7 +33,7 @@ export function HowToUse() {
       <p className="text-foreground/85 mb-4">
         The type tells the AI how to prioritize the information. Instructions
         marked as <b>Identity</b>, <b>Core</b>, or <b>Global</b> are always used
-        to maintain your chatbot's personality. Other types are retrieved
+        to maintain your chatbot&apos;s personality. Other types are retrieved
         dynamically only when they are relevant to the conversation, keeping the
         chat efficient.
       </p>

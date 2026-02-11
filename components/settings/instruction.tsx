@@ -65,15 +65,17 @@ const instructionFormSchema = InstructionZodSchema.pick({
   mediaUrls: true,
 })
 
+type GifResult = {
+  id: string
+  title?: string
+  url: string
+  thumbnail?: string
+}
+
 type GifDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSelect: (gif: {
-    id: string
-    title?: string
-    url: string
-    thumbnail?: string
-  }) => void
+  onSelect: (gif: GifResult) => void
 }
 
 type InstructionFormProps = {
@@ -1102,7 +1104,7 @@ export function WarningComponent() {
 export function GifDialog({ open, onOpenChange, onSelect }: GifDialogProps) {
   const [query, setQuery] = useState("")
   const [searched, setSearched] = useState("")
-  const [results, setResults] = useState<any[]>([])
+  const [results, setResults] = useState<GifResult[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -1122,8 +1124,8 @@ export function GifDialog({ open, onOpenChange, onSelect }: GifDialogProps) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ q, limit: 16 }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || "Search failed")
+      const data: { gifs?: GifResult[]; error?: string } = await res.json()
+      if (!res.ok) throw new Error(data.error || "Search failed")
       setResults(data.gifs ?? [])
     } catch (err) {
       console.error(err)
@@ -1193,7 +1195,7 @@ export function GifDialog({ open, onOpenChange, onSelect }: GifDialogProps) {
                 >
                   <Image
                     src={g.thumbnail || g.url}
-                    alt={g.title}
+                    alt={g.title || "GIF"}
                     height={200}
                     width={200}
                     className="h-28 w-full object-cover"
