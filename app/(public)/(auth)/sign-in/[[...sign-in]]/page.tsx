@@ -22,7 +22,7 @@ export default function SignUpPage() {
     const top = window.screen.height / 2 - height / 2
 
     const popup = window.open(
-      `/api/auth/signin/google?callbackUrl=${encodeURIComponent("/auth/success")}`,
+      `/auth/google`,
       "googleSignIn",
       `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,status=no,resizable=yes,scrollbars=yes`,
     )
