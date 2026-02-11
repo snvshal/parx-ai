@@ -2,11 +2,6 @@ import "./globals.css"
 import { Metadata, Viewport } from "next"
 import { Fira_Code } from "next/font/google"
 import { ThemeProvider } from "@/components/ui/theme-provider"
-import { getServerSession, Session } from "next-auth"
-import SessionProviderComponent from "@/components/session-provider"
-// import NotificationSetup from "@/components/notification-setup"
-import { SessionUserProvider } from "@/hooks/use-session-user"
-import { getContextUser } from "./actions/session-user"
 import { Toaster } from "@/components/ui/sonner"
 
 const fira = Fira_Code({ subsets: ["latin"] })
