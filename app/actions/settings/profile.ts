@@ -9,7 +9,6 @@ import { UserZodSchema } from "@/schemas/user.schema"
 import { revalidatePath } from "next/cache"
 
 export const getProfile = async (): Promise<ProfileSettingsProps> => {
-  "use cache: private"
   try {
     await connectToDatabase()
     const sessionUser = await getSessionUser()

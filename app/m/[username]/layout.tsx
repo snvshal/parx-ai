@@ -25,7 +25,6 @@ export default async function ChatLayout({
 }: {
   children: React.ReactNode
 }) {
-  "use cache: private"
   const sessionUser = await getSessionUser()
 
   if (!sessionUser) {

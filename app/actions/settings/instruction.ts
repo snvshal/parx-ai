@@ -20,7 +20,6 @@ import { Message } from "@/models/message.model"
 import { generateEmbedding } from "@/lib/vector"
 
 export const getInstructions = async (): Promise<TInstruction[]> => {
-  "use cache: private"
   try {
     await connectToDatabase()
 
