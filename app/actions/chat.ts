@@ -187,7 +187,7 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
 
     // Look up (or lazily create) the chat for this user/persona pair.
     // This avoids the heavier populated query in getChat.
-    let chat = await Chat.findOne({
+    const chat = await Chat.findOne({
       userId: sessionUser._id,
       personaId,
     }).lean()

@@ -63,7 +63,6 @@ const DefaultView = ({ message }: { message: string }) => (
 
 const View = ({ imageUrl, name }: { imageUrl: string; name: string }) => (
   <div style={CONFIG.baseStyles}>
-    {/* eslint-disable @next/next/no-img-element */}
     <img src={CONFIG.defaultImage} alt="Parx AI" style={CONFIG.ogiStyles} />
     <div style={CONFIG.personaLogoStyles}>
       <div style={CONFIG.personaStyles}>
