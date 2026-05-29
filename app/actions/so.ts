@@ -58,7 +58,7 @@ export const getInstructionsByUserId = async (
             index: "vector_index",
             path: "embedding",
             queryVector: embedding,
-            numCandidates: 50,
+            numCandidates: 200,
             limit: 5,
             filter: {
               userId: userObjectId,
@@ -71,20 +71,15 @@ export const getInstructionsByUserId = async (
             score: { $meta: "vectorSearchScore" },
           },
         },
-        {
-          $match: {
-            score: { $gte: 0.7 },
-          },
-        },
+        { $sort: { score: -1 } },
       ])
       finalInstructions = [...coreInstructions, ...vectorResults]
     }
 
-    if (finalInstructions.length === 0) {
-      finalInstructions = (await Instruction.find({ userId: userObjectId })
-        .sort({ updatedAt: -1 })
-        .limit(10)
-        .lean()) as unknown as TInstruction[]
+    if (finalInstructions.length <= coreInstructions.length && query?.trim()) {
+      console.warn(
+        `Vector search returned no additional results for userId: ${userId}. This may indicate the vector index "vector_index" is missing, misconfigured, or embeddings are empty.`,
+      )
     }
 
     return buildSystemInstruction(finalInstructions)
