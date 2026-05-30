@@ -29,14 +29,18 @@ export async function selectRelevantInstructions(
 
     if (!query?.trim() || query.trim().split(/\s+/).length <= 2) {
       const coreIds = coreTypes.map((t) => t._id)
-      return (await Instruction.find({ _id: { $in: coreIds } }).lean()) as unknown as TInstruction[]
+      return (await Instruction.find({
+        _id: { $in: coreIds },
+      }).lean()) as unknown as TInstruction[]
     }
 
     const nonCoreTypes = allTypes.filter((t) => !CORE_TYPES.includes(t.type))
 
     if (nonCoreTypes.length === 0) {
       const coreIds = coreTypes.map((t) => t._id)
-      return (await Instruction.find({ _id: { $in: coreIds } }).lean()) as unknown as TInstruction[]
+      return (await Instruction.find({
+        _id: { $in: coreIds },
+      }).lean()) as unknown as TInstruction[]
     }
 
     const typeNames = nonCoreTypes.map((t) => t.type)
@@ -60,8 +64,8 @@ Which types are relevant? Return ONLY a JSON array.`,
     try {
       const cleaned = text
         .trim()
-        .replace(/^```(?:json)?\s*/i, '')
-        .replace(/\s*```$/i, '')
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```$/i, "")
         .trim()
       selectedTypes = JSON.parse(cleaned)
       if (!Array.isArray(selectedTypes)) selectedTypes = []

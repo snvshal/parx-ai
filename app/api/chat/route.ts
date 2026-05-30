@@ -20,10 +20,13 @@ export async function POST(req: NextRequest) {
   try {
     const { messages }: { messages: UIMessage[] } = await req.json()
     if (!messages?.length) {
-      return new Response(JSON.stringify({ error: "Messages cannot be empty." }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      })
+      return new Response(
+        JSON.stringify({ error: "Messages cannot be empty." }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      )
     }
 
     const last = messages[messages.length - 1]
@@ -33,10 +36,13 @@ export async function POST(req: NextRequest) {
       last.parts?.find((part) => part.type === "text")?.text ?? ""
 
     if (last.role === "user" && !lastText.trim()) {
-      return new Response(JSON.stringify({ error: "User's last message cannot be empty." }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      })
+      return new Response(
+        JSON.stringify({ error: "User's last message cannot be empty." }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      )
     }
 
     const persona = await getUserByUsername(username)
@@ -96,9 +102,7 @@ export async function POST(req: NextRequest) {
     let flushChain: Promise<void> = Promise.resolve()
 
     const trimmedMessages =
-      messages.length > MAX_MESSAGES
-        ? messages.slice(-MAX_MESSAGES)
-        : messages
+      messages.length > MAX_MESSAGES ? messages.slice(-MAX_MESSAGES) : messages
 
     const result = streamText({
       model: openrouter.chat(CHAT_MODEL),
@@ -110,7 +114,12 @@ export async function POST(req: NextRequest) {
           if (buffer.length >= FLUSH_CHUNK_SIZE) {
             const content = buffer
             flushChain = flushChain
-              .then(() => void Message.findByIdAndUpdate(assistantMessageId, { content }))
+              .then(
+                () =>
+                  void Message.findByIdAndUpdate(assistantMessageId, {
+                    content,
+                  }),
+              )
               .catch(console.error)
           }
         }
@@ -118,7 +127,9 @@ export async function POST(req: NextRequest) {
       onFinish: async () => {
         await flushChain.catch(console.error)
         if (assistantMessageId && buffer.trim()) {
-          await Message.findByIdAndUpdate(assistantMessageId, { content: buffer })
+          await Message.findByIdAndUpdate(assistantMessageId, {
+            content: buffer,
+          })
         }
       },
     })
