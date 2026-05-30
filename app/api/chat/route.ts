@@ -5,6 +5,7 @@ import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
 import { selectRelevantInstructions } from "@/app/actions/so"
+import { CHAT_MODEL } from "@/lib/constants/models"
 import { buildSystemInstruction } from "@/lib/utils"
 import { getSessionUser } from "@/app/actions/session-user"
 import { getUserByUsername, saveMessage } from "@/app/actions/chat"
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
       : `guest-persona-${persona._id}`
 
     const modelWithMemory = withSupermemory(
-      openrouter.chat("google/gemini-2.5-flash"),
+      openrouter.chat(CHAT_MODEL),
       containerTag,
     )
 

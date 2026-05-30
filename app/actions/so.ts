@@ -6,6 +6,7 @@ import { Types } from "mongoose"
 import { TInstruction } from "@/schemas/instruction.schema"
 import { generateText } from "ai"
 import { openrouter } from "@/lib/ai"
+import { CHAT_MODEL } from "@/lib/constants/models"
 
 const CORE_TYPES = ["Identity", "Core", "Global"]
 
@@ -41,7 +42,7 @@ export async function selectRelevantInstructions(
     const typeNames = nonCoreTypes.map((t) => t.type)
 
     const { text } = await generateText({
-      model: openrouter.chat("google/gemini-2.5-flash"),
+      model: openrouter.chat(CHAT_MODEL),
       system:
         "You are a relevance selector. Given a user query and instruction types, select which types contain info relevant to answering. Return ONLY a JSON array of type strings. If none are relevant, return [].",
       prompt: `User query: "${query}"
