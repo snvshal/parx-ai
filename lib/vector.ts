@@ -1,17 +1,10 @@
-import { google } from "@ai-sdk/google"
+import { openrouter } from "@/lib/ai"
 import { embed } from "ai"
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const model = google.textEmbedding("gemini-embedding-001")
-
   const { embedding } = await embed({
-    model,
+    model: openrouter.embedding("openai/text-embedding-3-small"),
     value: text,
-    providerOptions: {
-      google: {
-        outputDimensionality: 768,
-      },
-    },
   })
 
   return embedding

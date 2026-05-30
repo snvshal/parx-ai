@@ -1,6 +1,6 @@
 import { streamText, convertToModelMessages, type UIMessage } from "ai"
 import { withSupermemory } from "@supermemory/tools/ai-sdk"
-import { google } from "@ai-sdk/google"
+import { openrouter } from "@/lib/ai"
 import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       : `guest-persona-${persona._id}`
 
     const modelWithMemory = withSupermemory(
-      google("gemini-2.5-flash"),
+      openrouter.chat("google/gemini-2.5-flash"),
       containerTag,
     )
 
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     const result = streamText({
       model: modelWithMemory,
       system: systemInstruction,
-      messages: convertToModelMessages(messages),
+      messages: await convertToModelMessages(messages),
       onChunk: ({ chunk }) => {
         if (assistantMessageId && chunk.type === "text-delta") {
           buffer += chunk.text

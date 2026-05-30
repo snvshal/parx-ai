@@ -5,7 +5,7 @@ import connectToDatabase from "@/lib/db"
 import { Types } from "mongoose"
 import { TInstruction } from "@/schemas/instruction.schema"
 import { generateText } from "ai"
-import { google } from "@ai-sdk/google"
+import { openrouter } from "@/lib/ai"
 
 const CORE_TYPES = ["Identity", "Core", "Global"]
 
@@ -41,7 +41,7 @@ export async function selectRelevantInstructions(
     const typeNames = nonCoreTypes.map((t) => t.type)
 
     const { text } = await generateText({
-      model: google("gemini-2.5-flash"),
+      model: openrouter.chat("google/gemini-2.5-flash"),
       system:
         "You are a relevance selector. Given a user query and instruction types, select which types contain info relevant to answering. Return ONLY a JSON array of type strings. If none are relevant, return [].",
       prompt: `User query: "${query}"

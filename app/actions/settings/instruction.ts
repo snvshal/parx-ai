@@ -12,7 +12,7 @@ import {
 } from "@/schemas/instruction.schema"
 import { Chat } from "@/models/chat.model"
 import { generateText } from "ai"
-import { google } from "@ai-sdk/google"
+import { openrouter } from "@/lib/ai"
 import { getSessionUser } from "@/app/actions/session-user"
 import { TNewInstruction } from "@/components/settings/instruction"
 import { revalidatePath } from "next/cache"
@@ -95,7 +95,7 @@ export const setNotification = async (
     if (!targetChats.length) return
 
     const { text } = await generateText({
-      model: google("gemini-2.5-flash"),
+      model: openrouter.chat("google/gemini-2.5-flash"),
       prompt: `Generate a clear, concise user-facing message like a chat app message using this instruction: 
         ${buildSystemInstruction([instruction])}`,
     })
