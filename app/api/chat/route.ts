@@ -4,7 +4,8 @@ import { google } from "@ai-sdk/google"
 import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
-import { classifyIntent, getInstructionsByUserId } from "@/app/actions/so"
+import { selectRelevantInstructions } from "@/app/actions/so"
+import { buildSystemInstruction } from "@/lib/utils"
 import { getSessionUser } from "@/app/actions/session-user"
 import { getUserByUsername, saveMessage } from "@/app/actions/chat"
 import { Types } from "mongoose"
@@ -44,11 +45,14 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const needsContext = await classifyIntent(lastText)
-
-    const systemInstruction = needsContext
-      ? await getInstructionsByUserId(String(persona._id), lastText)
-      : SYSTEM_INSTRUCTIONS.style
+    const relevantInstructions = await selectRelevantInstructions(
+      String(persona._id),
+      lastText,
+    )
+    const systemInstruction =
+      relevantInstructions.length > 0
+        ? buildSystemInstruction(relevantInstructions)
+        : SYSTEM_INSTRUCTIONS.style
 
     const containerTag = sessionUser
       ? `user-${sessionUser._id}-persona-${persona._id}`
