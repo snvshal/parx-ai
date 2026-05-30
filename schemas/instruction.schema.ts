@@ -37,7 +37,6 @@ export const InstructionZodSchema = z.object({
       }),
     )
     .default([]),
-  embedding: z.array(z.number()).optional(),
 })
 
 export type TPInstruction = z.infer<typeof InstructionZodSchema>

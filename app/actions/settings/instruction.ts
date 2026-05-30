@@ -12,12 +12,12 @@ import {
 } from "@/schemas/instruction.schema"
 import { Chat } from "@/models/chat.model"
 import { generateText } from "ai"
-import { google } from "@ai-sdk/google"
+import { openrouter } from "@/lib/ai"
+import { CHAT_MODEL } from "@/lib/constants/models"
 import { getSessionUser } from "@/app/actions/session-user"
 import { TNewInstruction } from "@/components/settings/instruction"
 import { revalidatePath } from "next/cache"
 import { Message } from "@/models/message.model"
-import { generateEmbedding } from "@/lib/vector"
 
 export const getInstructions = async (): Promise<TInstruction[]> => {
   try {
@@ -61,12 +61,7 @@ export const addInstruction = async (
       return { error: formatZodError(validationResult.error) }
     }
 
-    const embedding = await generateEmbedding(newInstruction.content)
-
-    const addedInstruction = await Instruction.create({
-      ...validInstruction,
-      embedding,
-    })
+    const addedInstruction = await Instruction.create(validInstruction)
 
     revalidatePath("/settings/instructions")
 
@@ -95,7 +90,7 @@ export const setNotification = async (
     if (!targetChats.length) return
 
     const { text } = await generateText({
-      model: google("gemini-2.5-flash"),
+      model: openrouter.chat(CHAT_MODEL),
       prompt: `Generate a clear, concise user-facing message like a chat app message using this instruction: 
         ${buildSystemInstruction([instruction])}`,
     })
@@ -161,7 +156,6 @@ export const updateInstruction = async (
     if (type) instruction.type = type
     if (content) {
       instruction.content = content
-      instruction.embedding = await generateEmbedding(content)
     }
     if (links) instruction.links = links
     if (mediaUrls) instruction.mediaUrls = mediaUrls
