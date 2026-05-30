@@ -18,7 +18,6 @@ const InstructionSchema = new Schema<TInstruction>(
         alt: { type: String, required: true, minlength: 20, trim: true },
       },
     ],
-    embedding: { type: [Number] },
   },
   { timestamps: true },
 )

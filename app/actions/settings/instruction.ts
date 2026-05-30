@@ -18,7 +18,6 @@ import { getSessionUser } from "@/app/actions/session-user"
 import { TNewInstruction } from "@/components/settings/instruction"
 import { revalidatePath } from "next/cache"
 import { Message } from "@/models/message.model"
-import { generateEmbedding } from "@/lib/vector"
 
 export const getInstructions = async (): Promise<TInstruction[]> => {
   try {
@@ -62,12 +61,7 @@ export const addInstruction = async (
       return { error: formatZodError(validationResult.error) }
     }
 
-    const embedding = await generateEmbedding(newInstruction.content)
-
-    const addedInstruction = await Instruction.create({
-      ...validInstruction,
-      embedding,
-    })
+    const addedInstruction = await Instruction.create(validInstruction)
 
     revalidatePath("/settings/instructions")
 
@@ -162,7 +156,6 @@ export const updateInstruction = async (
     if (type) instruction.type = type
     if (content) {
       instruction.content = content
-      instruction.embedding = await generateEmbedding(content)
     }
     if (links) instruction.links = links
     if (mediaUrls) instruction.mediaUrls = mediaUrls
