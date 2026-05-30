@@ -1,12 +1,42 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { Ratelimit } from "@upstash/ratelimit"
+import { redis } from "@/lib/redis"
+
+const chatLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, "60 s"),
+  analytics: true,
+  prefix: "ratelimit:chat",
+})
 
 export async function proxy(req: NextRequest) {
   const token = await getToken({ req })
   const pathname = req.nextUrl.pathname
 
-  // Route types
+  if (pathname === "/api/chat" && !token) {
+    const ip =
+      req.headers.get("x-forwarded-for") ??
+      req.headers.get("x-real-ip") ??
+      "anonymous"
+    const { success, limit, remaining, reset } = await chatLimiter.limit(ip)
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please slow down." },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          },
+        },
+      )
+    }
+  }
+
   const authRoutes = ["/sign-in", "/auth/google"]
   const publicRoutes = [
     "/m/:username*",
@@ -26,20 +56,16 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/about/how-to-use", req.url))
   }
 
-  // Check if the current path matches any public route
   const isPublicRoute = publicRoutes.some((route) => {
     const pattern = route.replace(/:\w+\*/g, ".*").replace(/:\w+/g, "[^/]+")
     const regex = new RegExp(`^${pattern}$`)
-
     return regex.test(pathname)
   })
 
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
 
-  // Return next for API auth routes
   if (pathname.startsWith("/api/auth")) return NextResponse.next()
 
-  // Redirect unauthenticated users trying to access protected routes
   if (!token && !isPublicRoute && !isAuthRoute) {
     const redirectUrl = new URL(
       `/sign-in?callbackUrl=${encodeURIComponent(pathname)}`,
@@ -48,7 +74,6 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect authenticated users away from auth routes
   if (token && isAuthRoute) {
     return NextResponse.redirect(new URL("/", req.url))
   }

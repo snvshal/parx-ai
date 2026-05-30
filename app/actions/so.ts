@@ -27,7 +27,7 @@ export async function selectRelevantInstructions(
 
     const coreTypes = allTypes.filter((t) => CORE_TYPES.includes(t.type))
 
-    if (!query?.trim()) {
+    if (!query?.trim() || query.trim().split(/\s+/).length <= 2) {
       const coreIds = coreTypes.map((t) => t._id)
       return (await Instruction.find({ _id: { $in: coreIds } }).lean()) as unknown as TInstruction[]
     }
