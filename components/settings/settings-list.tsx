@@ -57,7 +57,9 @@ export function SettingsHeader({
       <p className="flex p-6 pb-0 text-xl font-bold">
         <span className="w-full border-b pb-4">{page}</span>
       </p>
-      <div className="flex-1 overflow-y-auto p-6">{children}</div>
+      <ScrollArea className="flex-1 px-6 pb-6">
+        <div className="pt-6">{children}</div>
+      </ScrollArea>
     </div>
   )
 }
@@ -80,7 +82,7 @@ export function SettingsSidebar({
   }
   return (
     <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col xl:max-h-140">
-      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
+      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-55">
         <div className="mb-8">
           <p className="text-muted-foreground text-xl font-semibold">
             Settings
@@ -107,14 +109,12 @@ export function SettingsSidebar({
         </nav>
       </aside>
 
-      <main className="flex-1 max-sm:min-h-0">
-        <ScrollArea className="h-full overflow-y-auto">
-          <SettingsComponent
-            category={page}
-            profile={profile}
-            instructions={instructions}
-          />
-        </ScrollArea>
+      <main className="flex-1 max-sm:min-h-0 h-full">
+        <SettingsComponent
+          category={page}
+          profile={profile}
+          instructions={instructions}
+        />
       </main>
     </div>
   )
@@ -174,7 +174,7 @@ export function SettingsSkeleton() {
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col">
-      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-[220px]">
+      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-55">
         <div className="mb-8">
           <p className="text-muted-foreground text-xl font-semibold">
             Settings
