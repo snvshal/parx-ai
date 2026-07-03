@@ -134,7 +134,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
         </div>
       </div>
       <ScrollArea ref={scrollAreaRef} className="min-h-0 flex-1 px-4">
-        <div>
+        <div className="flex flex-col gap-4 py-4">
           {messages.map((message) => (
             <MemoChatMessage key={message.id} message={message} />
           ))}

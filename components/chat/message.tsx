@@ -46,23 +46,22 @@ export const MemoChatMessage = memo(function ChatMessage({
                   {children}
                 </span>
               ),
-              /* eslint-disable @next/next/no-img-element */
               img: (props) => (
-                <img
-                  {...props}
-                  alt="Image"
-                  role="button"
-                  title={props.alt || "Image"}
-                  className="my-2 h-auto max-h-80 max-w-full cursor-pointer rounded-lg"
-                  onClick={() =>
-                    setSelectedImage({
-                      url: props.src as string,
-                      alt: getTextOnly(part.text),
-                    })
-                  }
-                />
+                <span className="my-2.5 block max-w-fit overflow-hidden rounded-xl border border-border/40 bg-muted/20 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={props.src as string}
+                    alt={props.alt || "Image"}
+                    className="max-h-65 sm:max-h-80 w-auto max-w-full cursor-pointer object-contain"
+                    onClick={() =>
+                      setSelectedImage({
+                        url: props.src as string,
+                        alt: getTextOnly(part.text),
+                      })
+                    }
+                  />
+                </span>
               ),
-              /* eslint-enable @next/next/no-img-element */
               video: (props) => (
                 <video
                   {...props}
@@ -91,10 +90,13 @@ export const MemoChatMessage = memo(function ChatMessage({
                 </a>
               ),
               ol: ({ children }) => (
-                <ol className="list-outside list-decimal pl-4">{children}</ol>
+                <ol className="m-0 list-outside list-decimal pl-4 [&_p]:my-0">{children}</ol>
               ),
               ul: ({ children }) => (
-                <ul className="list-outside list-disc pl-4">{children}</ul>
+                <ul className="m-0 list-outside list-disc pl-4 [&_p]:my-0">{children}</ul>
+              ),
+              li: ({ children }) => (
+                <li className="m-0 leading-relaxed [&_p]:my-0">{children}</li>
               ),
             }}
           >
@@ -108,51 +110,41 @@ export const MemoChatMessage = memo(function ChatMessage({
   return (
     <div
       className={cn(
-        "group my-4 flex w-full items-start gap-2",
-        !isAssistant && "flex-row-reverse",
+        "group flex w-full items-start gap-3 animate-in fade-in duration-200",
+        isAssistant ? "flex-row" : "flex-row-reverse",
       )}
     >
       <div
         className={cn(
-          "flex max-w-[80%] min-w-0 flex-col gap-2",
-          isAssistant && "items-end",
+          "flex min-w-0 flex-1 flex-col",
+          isAssistant ? "items-start" : "items-end",
         )}
       >
         <div
           className={cn(
-            "w-full max-w-full overflow-x-auto overflow-y-hidden rounded-2xl px-4 py-2 text-sm leading-relaxed tracking-normal wrap-break-word",
+            "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed tracking-normal wrap-break-word",
             isAssistant
-              ? "bg-accent"
-              : "bg-blue-700 text-white dark:bg-blue-800",
+              ? "rounded-2xl rounded-bl-md border border-border/50 bg-card text-card-foreground shadow-sm"
+              :             "rounded-2xl rounded-br-md bg-blue-600 text-white shadow-sm dark:bg-blue-500",
           )}
         >
           {isAssistant ? (
-            <div className="w-full max-w-full whitespace-pre-wrap">
-              {renderParts()}
-            </div>
+            <div className="whitespace-pre-wrap">{renderParts()}</div>
           ) : (
-            <div className="w-full">
-              <p className="overflow-hidden">
-                {message.parts
-                  .filter((p) => p.type === "text")
-                  .map((p) => p.text)
-                  .join("")}
-              </p>
-            </div>
+            <p className="overflow-hidden">
+              {message.parts
+                .filter((p) => p.type === "text")
+                .map((p) => p.text)
+                .join("")}
+            </p>
           )}
-          <div
-            className={cn(
-              "mt-1 text-right text-[10px]",
-              isAssistant ? "text-foreground/50" : "text-white/50",
-            )}
-          >
-            {format(
-              (message.metadata as { createdAt?: Date })?.createdAt ??
-                new Date(),
-              "h:mm a",
-            )}
-          </div>
         </div>
+        <span className="mt-1 px-1 text-[10px] text-muted-foreground">
+          {format(
+            (message.metadata as { createdAt?: Date })?.createdAt ?? new Date(),
+            "h:mm a",
+          )}
+        </span>
       </div>
       <ImageDialog
         selectedImage={selectedImage}
