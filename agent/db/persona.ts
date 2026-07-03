@@ -4,9 +4,7 @@ import { User } from "@/models/user.model"
 import connectToDatabase from "@/lib/db"
 import type { TUser } from "@/schemas/user.schema"
 
-export async function getPersonaById(
-  personaId: string,
-): Promise<TUser | null> {
+export async function getPersonaById(personaId: string): Promise<TUser | null> {
   await connectToDatabase()
 
   try {

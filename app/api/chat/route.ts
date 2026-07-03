@@ -1,4 +1,9 @@
-import { type UIMessage, type UIMessageChunk, toUIMessageStream, createUIMessageStreamResponse } from "ai"
+import {
+  type UIMessage,
+  type UIMessageChunk,
+  toUIMessageStream,
+  createUIMessageStreamResponse,
+} from "ai"
 import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
@@ -88,7 +93,8 @@ export async function POST(req: NextRequest) {
     )
 
     const statusQueue: string[] = []
-    let controllerRef: ReadableStreamDefaultController<UIMessageChunk> | null = null
+    let controllerRef: ReadableStreamDefaultController<UIMessageChunk> | null =
+      null
 
     const enqueueStatus = (status: string) => {
       if (controllerRef) {
@@ -146,18 +152,21 @@ export async function POST(req: NextRequest) {
           } as UIMessageChunk)
         }
         function pump() {
-          reader.read().then(({ done, value }) => {
-            if (done) {
+          reader.read().then(
+            ({ done, value }) => {
+              if (done) {
+                controllerRef = null
+                controller.close()
+                return
+              }
+              controller.enqueue(value)
+              pump()
+            },
+            (err) => {
               controllerRef = null
-              controller.close()
-              return
-            }
-            controller.enqueue(value)
-            pump()
-          }, (err) => {
-            controllerRef = null
-            controller.error(err)
-          })
+              controller.error(err)
+            },
+          )
         }
         pump()
       },

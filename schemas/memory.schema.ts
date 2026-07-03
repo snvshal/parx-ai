@@ -6,10 +6,7 @@ export const MemoryZodSchema = z.object({
   chatId: ZodObjectId,
   personaId: ZodObjectId,
   role: z.enum(["system", "user"]).default("system"),
-  content: z
-    .string()
-    .trim()
-    .min(1, { message: "Memory content is required." }),
+  content: z.string().trim().min(1, { message: "Memory content is required." }),
 })
 
 export type TPMemory = z.infer<typeof MemoryZodSchema>

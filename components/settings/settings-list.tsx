@@ -109,7 +109,7 @@ export function SettingsSidebar({
         </nav>
       </aside>
 
-      <main className="flex-1 max-sm:min-h-0 h-full">
+      <main className="h-full flex-1 max-sm:min-h-0">
         <SettingsComponent
           category={page}
           profile={profile}

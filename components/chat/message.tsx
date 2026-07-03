@@ -47,12 +47,12 @@ export const MemoChatMessage = memo(function ChatMessage({
                 </span>
               ),
               img: (props) => (
-                <span className="my-2.5 block max-w-fit overflow-hidden rounded-xl border border-border/40 bg-muted/20 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
+                <span className="border-border/40 bg-muted/20 my-2.5 block max-w-fit overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={props.src as string}
                     alt={props.alt || "Image"}
-                    className="max-h-65 sm:max-h-80 w-auto max-w-full cursor-pointer object-contain"
+                    className="max-h-65 w-auto max-w-full cursor-pointer object-contain sm:max-h-80"
                     onClick={() =>
                       setSelectedImage({
                         url: props.src as string,
@@ -90,10 +90,14 @@ export const MemoChatMessage = memo(function ChatMessage({
                 </a>
               ),
               ol: ({ children }) => (
-                <ol className="m-0 list-outside list-decimal pl-4 [&_p]:my-0">{children}</ol>
+                <ol className="m-0 list-outside list-decimal pl-4 [&_p]:my-0">
+                  {children}
+                </ol>
               ),
               ul: ({ children }) => (
-                <ul className="m-0 list-outside list-disc pl-4 [&_p]:my-0">{children}</ul>
+                <ul className="m-0 list-outside list-disc pl-4 [&_p]:my-0">
+                  {children}
+                </ul>
               ),
               li: ({ children }) => (
                 <li className="m-0 leading-relaxed [&_p]:my-0">{children}</li>
@@ -110,7 +114,7 @@ export const MemoChatMessage = memo(function ChatMessage({
   return (
     <div
       className={cn(
-        "group flex w-full items-start gap-3 animate-in fade-in duration-200",
+        "group animate-in fade-in flex w-full items-start gap-3 duration-200",
         isAssistant ? "flex-row" : "flex-row-reverse",
       )}
     >
@@ -124,8 +128,8 @@ export const MemoChatMessage = memo(function ChatMessage({
           className={cn(
             "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed tracking-normal wrap-break-word",
             isAssistant
-              ? "rounded-2xl rounded-bl-md border border-border/50 bg-card text-card-foreground shadow-sm"
-              :             "rounded-2xl rounded-br-md bg-blue-600 text-white shadow-sm dark:bg-blue-500",
+              ? "border-border/50 bg-card text-card-foreground rounded-2xl rounded-bl-md border shadow-sm"
+              : "rounded-2xl rounded-br-md bg-blue-600 text-white shadow-sm dark:bg-blue-500",
           )}
         >
           {isAssistant ? (
@@ -139,7 +143,7 @@ export const MemoChatMessage = memo(function ChatMessage({
             </p>
           )}
         </div>
-        <span className="mt-1 px-1 text-[10px] text-muted-foreground">
+        <span className="text-muted-foreground mt-1 px-1 text-[10px]">
           {format(
             (message.metadata as { createdAt?: Date })?.createdAt ?? new Date(),
             "h:mm a",

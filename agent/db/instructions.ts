@@ -35,9 +35,9 @@ export async function getInstructionById(
   await connectToDatabase()
 
   try {
-    const instruction = (await Instruction.findById(instructionId).lean()) as
-      | TInstruction
-      | null
+    const instruction = (await Instruction.findById(
+      instructionId,
+    ).lean()) as TInstruction | null
 
     return instruction
   } catch (error) {

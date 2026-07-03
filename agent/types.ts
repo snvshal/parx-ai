@@ -4,9 +4,7 @@ export type AgentStreamOptions = {
   messages: UIMessage[]
   chatId?: string
   user?: { name: string; avatar?: string }
-  onChunk?: (event: {
-    chunk: { type: string; text?: string }
-  }) => void
+  onChunk?: (event: { chunk: { type: string; text?: string } }) => void
   onEnd?: (event: {
     finishReason: string
     usage: { inputTokens?: number; outputTokens?: number }
