@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { flushSync } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MemoChatMessage } from "@/components/chat/message"
@@ -36,20 +37,16 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
     onError: (err) => console.error("Chat error:", err),
     onData: useCallback((chunk: Record<string, unknown>) => {
       if (chunk.type === "data-agent-status") {
-        setAgentStatus((chunk.data as { status?: string })?.status ?? null)
+        flushSync(() => {
+          setAgentStatus((chunk.data as { status?: string })?.status ?? null)
+        })
       }
     }, []),
   })
 
-  useEffect(() => {
-    if (status === "ready") {
-      setAgentStatus(null)
-    }
-  }, [status])
-
   useMobileKeyboard()
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input.trim() || status !== "ready") return
     sendMessage({

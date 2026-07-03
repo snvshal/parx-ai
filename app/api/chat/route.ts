@@ -1,4 +1,4 @@
-import { type UIMessage, toUIMessageStream, createUIMessageStreamResponse } from "ai"
+import { type UIMessage, type UIMessageChunk, toUIMessageStream, createUIMessageStreamResponse } from "ai"
 import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
@@ -88,16 +88,15 @@ export async function POST(req: NextRequest) {
     )
 
     const statusQueue: string[] = []
-    let controllerRef: ReadableStreamDefaultController<any> | null = null
+    let controllerRef: ReadableStreamDefaultController<UIMessageChunk> | null = null
 
     const enqueueStatus = (status: string) => {
-      const chunk = {
-        type: "data-agent-status",
-        data: { status },
-        transient: true,
-      }
       if (controllerRef) {
-        controllerRef.enqueue(chunk)
+        controllerRef.enqueue({
+          type: "data-agent-status",
+          data: { status },
+          transient: true,
+        } as UIMessageChunk)
       } else {
         statusQueue.push(status)
       }
@@ -144,7 +143,7 @@ export async function POST(req: NextRequest) {
             type: "data-agent-status",
             data: { status },
             transient: true,
-          })
+          } as UIMessageChunk)
         }
         function pump() {
           reader.read().then(({ done, value }) => {
