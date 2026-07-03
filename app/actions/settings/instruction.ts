@@ -4,7 +4,9 @@ import connectToDatabase from "@/lib/db"
 import { User } from "@/models/user.model"
 import { TUser } from "@/schemas/user.schema"
 import { getServerSession } from "next-auth"
-import { buildSystemInstruction, formatZodError, ps } from "@/lib/utils"
+import { formatZodError, ps } from "@/lib/utils"
+import { buildInstructionBlock } from "@/agent/instructions"
+import { openrouter, CHAT_MODEL } from "@/agent/config"
 import { Instruction } from "@/models/instruction.model"
 import {
   InstructionZodSchema,
@@ -12,8 +14,6 @@ import {
 } from "@/schemas/instruction.schema"
 import { Chat } from "@/models/chat.model"
 import { generateText } from "ai"
-import { openrouter } from "@/lib/ai"
-import { CHAT_MODEL } from "@/lib/constants/models"
 import { getSessionUser } from "@/app/actions/session-user"
 import { TNewInstruction } from "@/components/settings/instruction"
 import { revalidatePath } from "next/cache"
@@ -92,7 +92,7 @@ export const setNotification = async (
     const { text } = await generateText({
       model: openrouter.chat(CHAT_MODEL),
       prompt: `Generate a clear, concise user-facing message like a chat app message using this instruction: 
-        ${buildSystemInstruction([instruction])}`,
+        ${buildInstructionBlock(instruction)}`,
     })
 
     if (!text) return

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { getUserByUsername } from "@/app/actions/chat"
 import { ImageResponse } from "next/og"
 

@@ -175,7 +175,7 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
           id: "initial",
           role: "assistant",
           parts: [{ type: "text", text: persona.firstMessage }],
-          metadata: { createdAt: new Date() },
+          metadata: { createdAt: new Date(), isFirstMessage: true },
         },
       ]
     }
@@ -215,7 +215,7 @@ export const getMessages = async (personaId: string): Promise<UIMessage[]> => {
           id: String(firstMessage._id),
           role: firstMessage.role,
           parts: [{ type: "text", text: firstMessage.content }],
-          metadata: { createdAt: firstMessage.createdAt },
+          metadata: { createdAt: firstMessage.createdAt, isFirstMessage: true },
         },
       ]
 
@@ -350,7 +350,7 @@ export const deleteMessages = async (
       id: String(fm._id),
       role: fm.role,
       parts: [{ type: "text", text: fm.content }],
-      metadata: { createdAt: fm.createdAt },
+      metadata: { createdAt: fm.createdAt, isFirstMessage: true },
     }
 
     const userIdStr = String(sessionUser._id)

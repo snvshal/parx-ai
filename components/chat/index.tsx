@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { flushSync } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MemoChatMessage } from "@/components/chat/message"
@@ -26,17 +27,26 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
   const { status: authStatus } = useSession()
   const token = authStatus === "authenticated"
 
+  const [agentStatus, setAgentStatus] = useState<string | null>(null)
+
   const { messages, sendMessage, setMessages, status, error } = useChat({
     messages: msgs,
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
     onError: (err) => console.error("Chat error:", err),
+    onData: useCallback((chunk: Record<string, unknown>) => {
+      if (chunk.type === "data-agent-status") {
+        flushSync(() => {
+          setAgentStatus((chunk.data as { status?: string })?.status ?? null)
+        })
+      }
+    }, []),
   })
 
   useMobileKeyboard()
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input.trim() || status !== "ready") return
     sendMessage({
@@ -99,7 +109,9 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
                 {persona.name}
               </Link>
               <p className="text-muted-foreground text-xs">
-                {status === "streaming" ? "Typing..." : "Online"}
+                {status === "submitted" || status === "streaming"
+                  ? agentStatus || "Thinking..."
+                  : "Online"}
               </p>
             </div>
           </div>
@@ -122,7 +134,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
         </div>
       </div>
       <ScrollArea ref={scrollAreaRef} className="min-h-0 flex-1 px-4">
-        <div>
+        <div className="flex flex-col gap-4 py-4">
           {messages.map((message) => (
             <MemoChatMessage key={message.id} message={message} />
           ))}
