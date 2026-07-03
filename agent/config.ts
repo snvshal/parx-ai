@@ -4,3 +4,5 @@ export const openrouter = createOpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY,
 })
+
+export const CHAT_MODEL = "google/gemini-2.5-flash-lite" as const

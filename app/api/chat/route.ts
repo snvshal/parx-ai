@@ -1,20 +1,15 @@
-import { streamText, convertToModelMessages, type UIMessage } from "ai"
-import { openrouter } from "@/lib/ai"
+import { type UIMessage, toUIMessageStream, createUIMessageStreamResponse } from "ai"
 import { NextRequest } from "next/server"
 import { Chat } from "@/models/chat.model"
 import { Message } from "@/models/message.model"
-import { selectRelevantInstructions } from "@/app/actions/so"
-import { CHAT_MODEL } from "@/lib/constants/models"
-import { buildSystemInstruction } from "@/lib/utils"
+import { Agent } from "@/agent"
 import { getSessionUser } from "@/app/actions/session-user"
 import { getUserByUsername, saveMessage } from "@/app/actions/chat"
 import { Types } from "mongoose"
-import { SYSTEM_INSTRUCTIONS } from "@/lib/constants/system-instructions"
 
 export const maxDuration = 30
 
 const MAX_MESSAGES = 30
-const FLUSH_CHUNK_SIZE = 100
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,10 +17,7 @@ export async function POST(req: NextRequest) {
     if (!messages?.length) {
       return new Response(
         JSON.stringify({ error: "Messages cannot be empty." }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       )
     }
 
@@ -38,10 +30,7 @@ export async function POST(req: NextRequest) {
     if (last.role === "user" && !lastText.trim()) {
       return new Response(
         JSON.stringify({ error: "User's last message cannot be empty." }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       )
     }
 
@@ -74,15 +63,6 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const relevantInstructions = await selectRelevantInstructions(
-      String(persona._id),
-      lastText,
-    )
-    const systemInstruction =
-      relevantInstructions.length > 0
-        ? buildSystemInstruction(relevantInstructions)
-        : SYSTEM_INSTRUCTIONS.style
-
     let assistantMessageId: string | null = null
     if (sessionUser && chat) {
       const assistantMsg = await Message.create({
@@ -98,49 +78,93 @@ export async function POST(req: NextRequest) {
       await chat.save()
     }
 
-    let buffer = ""
-    let flushChain: Promise<void> = Promise.resolve()
+    let fullText = ""
+    let lastSavedLength = 0
 
     const trimmedMessages =
       messages.length > MAX_MESSAGES ? messages.slice(-MAX_MESSAGES) : messages
+    const modelMessages = trimmedMessages.filter(
+      (m) => !(m.metadata as Record<string, unknown>)?.isFirstMessage,
+    )
 
-    const result = streamText({
-      model: openrouter.chat(CHAT_MODEL),
-      system: systemInstruction,
-      messages: await convertToModelMessages(trimmedMessages),
+    const statusQueue: string[] = []
+    let controllerRef: ReadableStreamDefaultController<any> | null = null
+
+    const enqueueStatus = (status: string) => {
+      const chunk = {
+        type: "data-agent-status",
+        data: { status },
+        transient: true,
+      }
+      if (controllerRef) {
+        controllerRef.enqueue(chunk)
+      } else {
+        statusQueue.push(status)
+      }
+    }
+
+    const agent = new Agent(String(persona._id))
+
+    const result = await agent.stream({
+      messages: modelMessages,
+      chatId: chat ? String(chat._id) : undefined,
+      user: sessionUser
+        ? { name: sessionUser.name, avatar: sessionUser.avatar }
+        : undefined,
+      onStatus: enqueueStatus,
       onChunk: ({ chunk }) => {
         if (assistantMessageId && chunk.type === "text-delta") {
-          buffer += chunk.text
-          if (buffer.length >= FLUSH_CHUNK_SIZE) {
-            const content = buffer
-            flushChain = flushChain
-              .then(
-                () =>
-                  void Message.findByIdAndUpdate(assistantMessageId, {
-                    content,
-                  }),
-              )
-              .catch(console.error)
+          fullText += chunk.text
+          if (fullText.length - lastSavedLength >= 100) {
+            Message.findByIdAndUpdate(assistantMessageId, {
+              content: fullText,
+            }).catch(() => {})
+            lastSavedLength = fullText.length
           }
         }
       },
-      onFinish: async () => {
-        await flushChain.catch(console.error)
-        if (assistantMessageId && buffer.trim()) {
+      onEnd: async () => {
+        if (assistantMessageId && fullText.trim()) {
           await Message.findByIdAndUpdate(assistantMessageId, {
-            content: buffer,
+            content: fullText,
           })
         }
       },
     })
 
-    return result.toUIMessageStreamResponse({
-      messageMetadata: ({ part }) => {
-        if (part.type === "finish") {
-          return { createdAt: new Date() }
+    const uiStream = toUIMessageStream({ stream: result.stream })
+    const reader = uiStream.getReader()
+
+    const combined = new ReadableStream({
+      start(controller) {
+        controllerRef = controller
+        while (statusQueue.length > 0) {
+          const status = statusQueue.shift()!
+          controller.enqueue({
+            type: "data-agent-status",
+            data: { status },
+            transient: true,
+          })
         }
+        function pump() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              controllerRef = null
+              controller.close()
+              return
+            }
+            controller.enqueue(value)
+            pump()
+          }, (err) => {
+            controllerRef = null
+            controller.error(err)
+          })
+        }
+        pump()
       },
     })
+
+    return createUIMessageStreamResponse({ stream: combined })
   } catch (error) {
     console.error("Error processing request:", error)
     return new Response(JSON.stringify({ error: "Error processing request" }), {
