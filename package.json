@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "check": "bun run scripts/check.ts"
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.0",
