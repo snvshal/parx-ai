@@ -30,7 +30,7 @@ export function ChatSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="text-normal text-foreground">
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="h-10">
                   <Link href="/people">
                     <UsersIcon />
                     <span>People</span>
@@ -38,7 +38,7 @@ export function ChatSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="h-10">
                   <Link href="/chats">
                     <SearchIcon />
                     <span>Search Chats</span>

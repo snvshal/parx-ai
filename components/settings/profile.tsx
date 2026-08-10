@@ -183,15 +183,13 @@ export const ProfileSettings = memo(function ProfileSettings({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="block font-medium">Username</FormLabel>
-                  <div className="flex w-full items-center rounded-md border">
-                    <span className="flex w-8 items-center justify-center">
-                      @
-                    </span>
+                  <div className="shadow-input flex w-full items-center rounded-md">
+                    <span className="text-muted-foreground pr-1 pl-3">@</span>
                     <FormControl>
                       <Input
                         {...field}
                         disabled={isPending}
-                        className="rounded-r-md border-none"
+                        className="rounded-md px-2 shadow-none"
                       />
                     </FormControl>
                   </div>

@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/accordion"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Separator } from "@/components/ui/separator"
 import {
   Form,
   FormControl,
@@ -785,23 +786,29 @@ export const InstructionForm = memo(function InstructionForm({
             </div>
           </div>
         ) : null}
-        <div className="flex justify-end gap-2 border-t pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting || !!error || !form.formState.isDirty || hasUploading
-            }
-          >
-            {isSubmitting ? "Processing..." : submitButtonText}
-          </Button>
+        <div className="space-y-4">
+          <Separator className="h-[1.5px]" />
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting ||
+                !!error ||
+                !form.formState.isDirty ||
+                hasUploading
+              }
+            >
+              {isSubmitting ? "Processing..." : submitButtonText}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>
