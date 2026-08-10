@@ -128,7 +128,7 @@ export const MemoChatMessage = memo(function ChatMessage({
           className={cn(
             "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed tracking-normal wrap-break-word",
             isAssistant
-              ? "border-border/50 bg-card text-card-foreground rounded-2xl rounded-bl-md border shadow-sm"
+              ? "border-border/50 bg-popover text-card-foreground shadow-surface rounded-2xl rounded-bl-md border"
               : "rounded-2xl rounded-br-md bg-blue-600 text-white shadow-sm dark:bg-blue-500",
           )}
         >

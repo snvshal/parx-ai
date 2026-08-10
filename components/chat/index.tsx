@@ -81,7 +81,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
   return (
     <div
       className={cn(
-        "chat-container mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
+        "chat-container bg-card shadow-card mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
         token
           ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
           : "md:h-[calc(100dvh-2rem)] md:rounded-3xl md:border",
@@ -105,7 +105,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
               <Link
                 target={persona.socialLink ? "_blank" : "_self"}
                 href={persona.socialLink || `/m/${persona.username}`}
-                className="text-sm font-medium hover:underline"
+                className="text-sm font-medium tracking-tight hover:underline"
               >
                 {persona.name}
               </Link>
@@ -153,7 +153,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
         </div>
       </ScrollArea>
 
-      <div className="bg-background z-10 shrink-0 border-t p-4">
+      <div className="border-border/50 z-10 shrink-0 border-t bg-white/2 p-4">
         <form onSubmit={onSubmit} className="flex items-center gap-3">
           <Input
             name="message"
@@ -162,7 +162,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={status !== "ready"}
-            className="border-muted bg-muted/80 flex-1 rounded-full px-4"
+            className="border-muted shadow-surface flex-1 rounded-full bg-white/4 px-4"
             autoComplete="off"
           />
 
