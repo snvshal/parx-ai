@@ -57,8 +57,8 @@ export function SettingsHeader({
       <p className="flex p-6 pb-0 text-xl font-bold">
         <span className="w-full border-b pb-4">{page}</span>
       </p>
-      <ScrollArea className="flex-1 px-6 pb-6">
-        <div className="pt-6">{children}</div>
+      <ScrollArea className="flex-1 pb-6">
+        <div className="px-6 pt-6">{children}</div>
       </ScrollArea>
     </div>
   )
