@@ -84,7 +84,8 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
         "chat-container mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
         token
           ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
-          : "sm:h-[calc(100dvh-2rem)] sm:rounded-3xl sm:border",
+          : "md:h-[calc(100dvh-2rem)] md:rounded-3xl md:border",
+        "sm:border-x",
       )}
     >
       <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">
@@ -124,7 +125,11 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
               />
             ) : (
               <Link href="/sign-in">
-                <Button variant="outline" size="sm" className="rounded-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mr-2 rounded-full"
+                >
                   Sign In
                 </Button>
               </Link>
@@ -151,6 +156,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
       <div className="bg-background z-10 shrink-0 border-t p-4">
         <form onSubmit={onSubmit} className="flex items-center gap-3">
           <Input
+            name="message"
             ref={inputRef}
             placeholder="Message..."
             value={input}
@@ -164,7 +170,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
             type="submit"
             size="icon"
             disabled={status !== "ready" || !input.trim()}
-            className="rounded-full"
+            className="h-10 w-10 rounded-full"
           >
             <SendHorizontalIcon className="h-4 w-4" />
           </Button>
