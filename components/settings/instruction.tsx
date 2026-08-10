@@ -684,7 +684,7 @@ export const InstructionForm = memo(function InstructionForm({
                       <Label
                         htmlFor={`upload-i-image-${mindex}`}
                         className={cn(
-                          "bg-secondary text-secondary-foreground hover:bg-secondary/80 flex h-9 flex-1 cursor-pointer items-center justify-center rounded-md border p-2 px-4 py-2 shadow-sm",
+                          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-button flex h-9 flex-1 cursor-pointer items-center justify-center rounded-md border p-2 px-4 py-2",
                           (isSubmitting || !!uploadingMedia[mindex]) &&
                             "cursor-not-allowed opacity-50",
                         )}
