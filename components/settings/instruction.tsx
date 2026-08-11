@@ -929,6 +929,7 @@ export const InstructionItem = ({
                   alt={media.alt}
                   width={200}
                   height={200}
+                  unoptimized={media.url.toLowerCase().endsWith(".gif")}
                   className="h-28 w-full object-cover transition-transform group-hover:scale-105"
                   loading="lazy"
                 />
@@ -1205,6 +1206,7 @@ export function GifDialog({ open, onOpenChange, onSelect }: GifDialogProps) {
                     alt={g.title || "GIF"}
                     height={200}
                     width={200}
+                    unoptimized
                     className="h-28 w-full object-cover"
                   />
                 </button>
