@@ -9,12 +9,11 @@ import {
 } from "react"
 import { TPersona } from "@/app/actions/people"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardHeader } from "@/components/ui/card"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { SearchIcon } from "lucide-react"
 import { Input } from "./ui/input"
 import { Skeleton } from "./ui/skeleton"
-import { ScrollArea } from "./ui/scroll-area"
 
 export type SearchResult = {
   success: boolean
@@ -55,71 +54,71 @@ export function PeopleSearch({ data }: { data: TPersona[] }) {
 
   return (
     <div className="relative">
-      <div className="bg-background sticky top-0 z-20 pb-6">
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search people by name or username..."
-          className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
-        />
+      <div className="bg-popover sticky top-0 z-20 -mt-6 pt-6 pb-6">
+        <div className="relative">
+          <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search people by name or username..."
+            className="pl-9"
+          />
+        </div>
       </div>
 
-      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)] xl:max-h-94">
-        {loading && <PeopleListSkeleton count={4} />}
+      {loading && <PeopleListSkeleton count={4} />}
 
-        {!loading && results.length === 0 && (
-          <div className="text-muted-foreground py-24 text-center">
-            No people found.
-          </div>
-        )}
+      {!loading && results.length === 0 && (
+        <div className="text-muted-foreground py-24 text-center">
+          No people found.
+        </div>
+      )}
 
-        {!loading && results.length > 0 && <People people={results} />}
-      </ScrollArea>
+      {!loading && results.length > 0 && <People people={results} />}
     </div>
   )
 }
 
 export function People({ people }: { people: TPersona[] }) {
   return (
-    <div className="container mx-auto">
-      <div className="flex flex-col">
-        {people.map((persona: TPersona) => (
-          <Link key={persona.id} href={`/m/${persona.username}`}>
-            <Card className="group relative rounded-none border-0 border-b transition-all">
-              <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
-              <CardHeader>
-                <div className="flex gap-4">
-                  <Avatar>
-                    <AvatarImage src={persona.avatar} alt={persona.name} />
-                    <AvatarFallback>
-                      {persona.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">{persona.name}</p>
-                    <p className="text-muted-foreground text-sm">
-                      @{persona.username}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <p className="my-3 wrap-break-word">{persona.firstMessage}</p>
-                  <div className="flex items-center gap-4">
-                    <InstructionBadge status={persona.instructionStatus} />
-                    <Badge
-                      variant="secondary"
-                      className="rounded-full px-3 py-1.5 font-medium"
-                    >
-                      {persona.chatCount || 0}{" "}
-                      {persona.chatCount === 1 ? "chat" : "chats"}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
+    <div className="divide-border flex flex-col divide-y">
+      {people.map((persona: TPersona) => (
+        <Link
+          key={persona.id}
+          href={`/m/${persona.username}`}
+          className="hover:bg-accent transition-colors"
+        >
+          <div className="px-2 py-4">
+            <div className="flex gap-4">
+              <Avatar>
+                <AvatarImage src={persona.avatar} alt={persona.name} />
+                <AvatarFallback>
+                  {persona.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="truncate font-semibold">{persona.name}</p>
+                <p className="text-muted-foreground text-sm">
+                  @{persona.username}
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm wrap-break-word">
+              {persona.firstMessage}
+            </p>
+            <div className="mt-3 flex items-center gap-4">
+              <InstructionBadge status={persona.instructionStatus} />
+              <Badge
+                variant="secondary"
+                className="rounded-full px-3 py-1.5 font-medium"
+              >
+                {persona.chatCount || 0}{" "}
+                {persona.chatCount === 1 ? "chat" : "chats"}
+              </Badge>
+            </div>
+          </div>
+        </Link>
+      ))}
     </div>
   )
 }
@@ -158,41 +157,26 @@ function InstructionBadge({
 
 export function PeopleListSkeleton({ count }: { count?: number }) {
   return (
-    <div className="container mx-auto">
-      <div className="bg-background sticky top-0 z-20 py-4">
-        <Input
-          placeholder="Search people by name or username..."
-          className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
-          disabled
-        />
-      </div>
-      <div className="flex flex-col">
-        {[...Array(count)].map((_, i) => (
-          <Card
-            key={i}
-            className="group relative rounded-none border-0 border-b transition-all"
-          >
-            <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
-            <CardHeader>
-              <div className="flex gap-4">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-              </div>
-              <div className="space-y-2 py-3">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-8 w-32 rounded-full" />
-                <Skeleton className="h-8 w-20 rounded-full" />
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+    <div className="divide-border flex flex-col divide-y">
+      {[...Array(count)].map((_, i) => (
+        <div key={i} className="px-2 py-4">
+          <div className="flex gap-4">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </div>
+          <div className="space-y-2 py-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-8 w-32 rounded-full" />
+            <Skeleton className="h-8 w-20 rounded-full" />
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

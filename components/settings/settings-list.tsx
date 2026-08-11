@@ -1,6 +1,6 @@
 "use client"
 
-import React, { JSX, useState } from "react"
+import { JSX, useState } from "react"
 import {
   SettingsIcon,
   User2Icon,
@@ -9,9 +9,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { notFound, usePathname } from "next/navigation"
-import { ScrollArea } from "../ui/scroll-area"
 import { Button } from "../ui/button"
 import { TInstruction } from "@/schemas/instruction.schema"
+import { SettingsHeader } from "@/components/header"
 import {
   ProfileSettings,
   ProfileSettingsProps,
@@ -21,6 +21,7 @@ import GeneralSettings from "./general"
 import { InstructionSettings, InstructionSkeleton } from "./instruction"
 import AccountSettings from "./account"
 import { Skeleton } from "../ui/skeleton"
+import { Separator } from "../ui/separator"
 
 const items = [
   {
@@ -45,24 +46,6 @@ const items = [
   },
 ]
 
-export function SettingsHeader({
-  page,
-  children,
-}: {
-  page: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex h-full w-full flex-col">
-      <p className="flex p-6 pb-0 text-xl font-bold">
-        <span className="w-full border-b pb-4">{page}</span>
-      </p>
-      <ScrollArea className="flex-1 px-6 pb-6">
-        <div className="pt-6">{children}</div>
-      </ScrollArea>
-    </div>
-  )
-}
 export type SettingsPage = "general" | "instructions" | "profile" | "account"
 export function SettingsSidebar({
   category,
@@ -82,7 +65,7 @@ export function SettingsSidebar({
   }
   return (
     <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col xl:max-h-140">
-      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-55">
+      <aside className="w-full shrink-0 p-4 sm:h-full sm:max-w-55">
         <div className="mb-8">
           <p className="text-muted-foreground text-xl font-semibold">
             Settings
@@ -97,7 +80,9 @@ export function SettingsSidebar({
                 onClick={() => settingsNavs(item.title.toLocaleLowerCase())}
                 className={cn(
                   "flex items-center justify-start gap-2 rounded-md px-2 py-2 text-sm transition-colors",
-                  isActive ? "bg-muted text-foreground" : "hover:bg-muted",
+                  isActive
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "hover:bg-accent",
                 )}
                 variant="ghost"
               >
@@ -108,6 +93,12 @@ export function SettingsSidebar({
           })}
         </nav>
       </aside>
+
+      <Separator
+        orientation="vertical"
+        className="my-4 hidden h-[calc(100%-2rem)] sm:block"
+      />
+      <Separator orientation="horizontal" className="sm:hidden" />
 
       <main className="h-full flex-1 max-sm:min-h-0">
         <SettingsComponent
@@ -174,7 +165,7 @@ export function SettingsSkeleton() {
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] w-full max-sm:h-dvh max-sm:flex-col">
-      <aside className="bg-muted/30 w-full shrink-0 border-r p-4 sm:h-full sm:max-w-55">
+      <aside className="w-full shrink-0 p-4 sm:h-full sm:max-w-55">
         <div className="mb-8">
           <p className="text-muted-foreground text-xl font-semibold">
             Settings
@@ -188,7 +179,9 @@ export function SettingsSkeleton() {
                 key={item.title}
                 className={cn(
                   "flex items-center justify-start gap-2 rounded-md px-2 py-2 text-sm transition-colors",
-                  isActive ? "bg-muted text-foreground" : "hover:bg-muted",
+                  isActive
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "hover:bg-accent",
                 )}
                 variant="ghost"
                 disabled
@@ -200,6 +193,11 @@ export function SettingsSkeleton() {
           })}
         </nav>
       </aside>
+      <Separator
+        orientation="vertical"
+        className="my-4 hidden h-[calc(100%-2rem)] sm:block"
+      />
+      <Separator orientation="horizontal" className="sm:hidden" />
       <main className="flex-1 max-sm:min-h-0">{<Page />}</main>
     </div>
   )

@@ -1,12 +1,11 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Card, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { SearchIcon } from "lucide-react"
 import Link from "next/link"
-import { ScrollArea } from "./ui/scroll-area"
 import { Button } from "./ui/button"
 import { Skeleton } from "./ui/skeleton"
 import {
@@ -37,52 +36,58 @@ export default function ChatList({ chats }: { chats: PopulatedChat[] }) {
   return (
     <div className="relative">
       {!(chats.length === 0) && (
-        <div className="bg-background sticky top-0 z-20 pb-6">
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search chats..."
-            className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
-          />
+        <div className="bg-popover sticky top-0 z-20 -mt-6 pt-6 pb-6">
+          <div className="relative">
+            <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search chats..."
+              className="pl-9"
+            />
+          </div>
         </div>
       )}
-      <ScrollArea className="h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-16rem)] xl:max-h-94">
+      <div className="divide-border flex flex-col divide-y">
         {filtered.map((chat, index) => (
-          <Link key={index} href={`/m/${chat.personaId.username}`}>
-            <Card className="group relative rounded-none border-0 border-b transition-all">
-              <div className="bg-primary/0 group-hover:bg-primary/10 absolute inset-0 z-10 transition-colors duration-300" />
-              <CardHeader className="flex flex-row items-center justify-between gap-4">
-                <div className="flex gap-4">
-                  <Avatar>
-                    <AvatarImage
-                      src={chat.personaId.avatar}
-                      alt={chat.personaId.name}
-                    />
-                    <AvatarFallback>
-                      {chat.personaId.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">{chat.personaId.name}</p>
-                    <p className="text-muted-foreground text-sm">
-                      {chat.lastMessage?.content
-                        ? chat.lastMessage?.content.length > 40
-                          ? chat.lastMessage?.content.substring(0, 40) + "..."
-                          : chat.lastMessage?.content
-                        : "No messages yet"}
-                    </p>
-                  </div>
+          <Link
+            key={index}
+            href={`/m/${chat.personaId.username}`}
+            className="hover:bg-accent transition-colors"
+          >
+            <div className="flex items-center justify-between gap-4 px-2 py-4">
+              <div className="flex min-w-0 gap-4">
+                <Avatar>
+                  <AvatarImage
+                    src={chat.personaId.avatar}
+                    alt={chat.personaId.name}
+                  />
+                  <AvatarFallback>
+                    {chat.personaId.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">
+                    {chat.personaId.name}
+                  </p>
+                  <p className="text-muted-foreground truncate text-sm">
+                    {chat.lastMessage?.content
+                      ? chat.lastMessage?.content.length > 40
+                        ? chat.lastMessage?.content.substring(0, 40) + "..."
+                        : chat.lastMessage?.content
+                      : "No messages yet"}
+                  </p>
                 </div>
-                {chat.unreadCount ? (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full px-3 py-1.5 font-medium"
-                  >
-                    {chat.unreadCount}
-                  </Badge>
-                ) : null}
-              </CardHeader>
-            </Card>
+              </div>
+              {chat.unreadCount ? (
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 rounded-full px-3 py-1.5 font-medium"
+                >
+                  {chat.unreadCount}
+                </Badge>
+              ) : null}
+            </div>
           </Link>
         ))}
         {filtered.length === 0 && (
@@ -98,7 +103,7 @@ export default function ChatList({ chats }: { chats: PopulatedChat[] }) {
             </Button>
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   )
 }
@@ -113,28 +118,28 @@ export function ChatListCount({ chats }: { chats: PopulatedChat[] }) {
 
 export function ChatListSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="container mx-auto">
-      <div className="bg-background sticky top-0 z-20 py-4">
-        <Input
-          placeholder="Search chats..."
-          className="bg-background w-full rounded-lg border px-4 py-2 text-sm"
-          disabled
-        />
+    <div className="relative">
+      <div className="bg-popover sticky top-0 z-20 -mt-6 pt-6 pb-6">
+        <div className="relative">
+          <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input placeholder="Search chats..." className="pl-9" disabled />
+        </div>
       </div>
-      <div className="flex flex-col">
+      <div className="divide-border flex flex-col divide-y">
         {[...Array(count)].map((_, i) => (
-          <Card key={i} className="rounded-none border-0 border-b p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-48" />
-                </div>
+          <div
+            key={i}
+            className="flex items-center justify-between gap-4 px-2 py-4"
+          >
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-48" />
               </div>
-              <Skeleton className="h-6 w-8 rounded-md" />
             </div>
-          </Card>
+            <Skeleton className="h-6 w-8 rounded-md" />
+          </div>
         ))}
       </div>
     </div>

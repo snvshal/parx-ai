@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { ArrowLeftIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 
 export function HeaderComponent({
   page,
@@ -50,13 +50,16 @@ export function SettingsHeader({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex h-full w-full flex-col">
-      <p className="flex p-6 pb-0 text-xl font-semibold">
-        <span className="w-full border-b pb-4">{page}</span>
+    <div className="flex h-full w-full flex-col overflow-hidden">
+      <p className="flex p-6 pb-4 text-xl font-semibold">
+        <span className="w-full">{page}</span>
       </p>
-      <ScrollArea className="flex-1 px-6 pb-6">
-        <div className="pt-6">{children}</div>
-      </ScrollArea>
+      <div className="px-6">
+        <Separator />
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto pb-6">
+        <div className="px-6 pt-6">{children}</div>
+      </div>
     </div>
   )
 }

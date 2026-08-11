@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/accordion"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Separator } from "@/components/ui/separator"
 import {
   Form,
   FormControl,
@@ -684,7 +685,7 @@ export const InstructionForm = memo(function InstructionForm({
                       <Label
                         htmlFor={`upload-i-image-${mindex}`}
                         className={cn(
-                          "bg-secondary text-secondary-foreground hover:bg-secondary/80 flex h-9 flex-1 cursor-pointer items-center justify-center rounded-md border p-2 px-4 py-2 shadow-sm",
+                          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-button flex h-9 flex-1 cursor-pointer items-center justify-center rounded-md border p-2 px-4 py-2",
                           (isSubmitting || !!uploadingMedia[mindex]) &&
                             "cursor-not-allowed opacity-50",
                         )}
@@ -785,23 +786,29 @@ export const InstructionForm = memo(function InstructionForm({
             </div>
           </div>
         ) : null}
-        <div className="flex justify-end gap-2 border-t pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting || !!error || !form.formState.isDirty || hasUploading
-            }
-          >
-            {isSubmitting ? "Processing..." : submitButtonText}
-          </Button>
+        <div className="space-y-4">
+          <Separator className="h-[1.5px]" />
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting ||
+                !!error ||
+                !form.formState.isDirty ||
+                hasUploading
+              }
+            >
+              {isSubmitting ? "Processing..." : submitButtonText}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>
@@ -922,6 +929,7 @@ export const InstructionItem = ({
                   alt={media.alt}
                   width={200}
                   height={200}
+                  unoptimized={media.url.toLowerCase().endsWith(".gif")}
                   className="h-28 w-full object-cover transition-transform group-hover:scale-105"
                   loading="lazy"
                 />
@@ -1198,6 +1206,7 @@ export function GifDialog({ open, onOpenChange, onSelect }: GifDialogProps) {
                     alt={g.title || "GIF"}
                     height={200}
                     width={200}
+                    unoptimized
                     className="h-28 w-full object-cover"
                   />
                 </button>

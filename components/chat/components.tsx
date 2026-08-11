@@ -284,10 +284,10 @@ export function ChatBoxSkeleton() {
   return (
     <div
       className={cn(
-        "chat-container mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
+        "chat-container bg-card shadow-card mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
         token
           ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
-          : "sm:h-[calc(100dvh-2rem)] sm:rounded-3xl sm:border",
+          : "md:h-[calc(100dvh-2rem)] md:rounded-3xl md:border",
       )}
     >
       <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">
@@ -324,7 +324,7 @@ export function ChatBoxSkeleton() {
           ))}
         </div>
       </div>
-      <div className="bg-background z-10 shrink-0 border-t p-4">
+      <div className="border-border/50 z-10 shrink-0 border-t bg-white/2 p-4">
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 flex-1 rounded-full" />
           <Skeleton className="h-9 w-9 rounded-full" />
