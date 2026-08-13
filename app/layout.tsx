@@ -1,10 +1,14 @@
 import "./globals.css"
 import { Metadata, Viewport } from "next"
-import { Fira_Code } from "next/font/google"
+import { Geist, Geist_Mono } from "next/font/google"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 
-const fira = Fira_Code({ subsets: ["latin"] })
+const geist = Geist({ subsets: ["latin"] })
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.METADATA_BASE_URL!),
@@ -49,7 +53,7 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={fira.className}>
+      <body className={`${geist.className} ${geistMono.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
