@@ -169,6 +169,138 @@
   }
 }
 
+/* Code block syntax highlighting (GitHub light / dark) */
+.code-block {
+  --hl-bg: #ffffff;
+  --hl-text: #24292e;
+  --hl-keyword: #d73a49;
+  --hl-entity: #6f42c1;
+  --hl-constant: #005cc5;
+  --hl-string: #032f62;
+  --hl-variable: #e36209;
+  --hl-comment: #6a737d;
+  --hl-tag: #22863a;
+  --hl-subst: #24292e;
+  --hl-section: #005cc5;
+  --hl-bullet: #735c0f;
+  --hl-emphasis: #24292e;
+  --hl-strong: #24292e;
+  --hl-addition-text: #22863a;
+  --hl-addition-bg: #f0fff4;
+  --hl-deletion-text: #b31d28;
+  --hl-deletion-bg: #ffeef0;
+  background: var(--hl-bg);
+  color: var(--hl-text);
+}
+
+.dark .code-block {
+  --hl-bg: #0d1117;
+  --hl-text: #c9d1d9;
+  --hl-keyword: #ff7b72;
+  --hl-entity: #d2a8ff;
+  --hl-constant: #79c0ff;
+  --hl-string: #a5d6ff;
+  --hl-variable: #ffa657;
+  --hl-comment: #8b949e;
+  --hl-tag: #7ee787;
+  --hl-subst: #c9d1d9;
+  --hl-section: #1f6feb;
+  --hl-bullet: #f2cc60;
+  --hl-emphasis: #c9d1d9;
+  --hl-strong: #c9d1d9;
+  --hl-addition-text: #aff5b4;
+  --hl-addition-bg: #033a16;
+  --hl-deletion-text: #ffdcd7;
+  --hl-deletion-bg: #67060c;
+}
+
+.code-block .hljs-keyword,
+.code-block .hljs-doctag,
+.code-block .hljs-meta .hljs-keyword,
+.code-block .hljs-template-tag,
+.code-block .hljs-template-variable,
+.code-block .hljs-type,
+.code-block .hljs-variable.language_ {
+  color: var(--hl-keyword);
+}
+
+.code-block .hljs-title,
+.code-block .hljs-title.class_,
+.code-block .hljs-title.class_.inherited__,
+.code-block .hljs-title.function_ {
+  color: var(--hl-entity);
+}
+
+.code-block .hljs-attr,
+.code-block .hljs-attribute,
+.code-block .hljs-literal,
+.code-block .hljs-meta,
+.code-block .hljs-number,
+.code-block .hljs-operator,
+.code-block .hljs-variable,
+.code-block .hljs-selector-attr,
+.code-block .hljs-selector-class,
+.code-block .hljs-selector-id {
+  color: var(--hl-constant);
+}
+
+.code-block .hljs-regexp,
+.code-block .hljs-string,
+.code-block .hljs-meta .hljs-string {
+  color: var(--hl-string);
+}
+
+.code-block .hljs-built_in,
+.code-block .hljs-symbol {
+  color: var(--hl-variable);
+}
+
+.code-block .hljs-comment,
+.code-block .hljs-code,
+.code-block .hljs-formula {
+  color: var(--hl-comment);
+}
+
+.code-block .hljs-name,
+.code-block .hljs-quote,
+.code-block .hljs-selector-tag,
+.code-block .hljs-selector-pseudo {
+  color: var(--hl-tag);
+}
+
+.code-block .hljs-subst {
+  color: var(--hl-subst);
+}
+
+.code-block .hljs-section {
+  color: var(--hl-section);
+  font-weight: bold;
+}
+
+.code-block .hljs-bullet {
+  color: var(--hl-bullet);
+}
+
+.code-block .hljs-emphasis {
+  color: var(--hl-emphasis);
+  font-style: italic;
+}
+
+.code-block .hljs-strong {
+  color: var(--hl-strong);
+  font-weight: bold;
+}
+
+.code-block .hljs-addition {
+  color: var(--hl-addition-text);
+  background: var(--hl-addition-bg);
+}
+
+.code-block .hljs-deletion {
+  color: var(--hl-deletion-text);
+  background: var(--hl-deletion-bg);
+}
+
 /* Mobile keyboard handling */
 @layer utilities {
   @media (max-width: 768px) {
