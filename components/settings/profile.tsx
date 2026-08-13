@@ -24,7 +24,7 @@ import { z } from "zod"
 import { AlertMessage } from "../co"
 import { Skeleton } from "../ui/skeleton"
 import { toast } from "sonner"
-import { CameraIcon, LoaderCircleIcon } from "lucide-react"
+import { ImageUpIcon, LoaderCircleIcon } from "lucide-react"
 
 export type ProfileSettingsProps = {
   username: string
@@ -140,16 +140,17 @@ export const ProfileSettings = memo(function ProfileSettings({
         )}
 
         <div className="group relative h-20 w-20">
-          <label className="block h-full w-full cursor-pointer">
+          <label className="relative block h-full w-full cursor-pointer">
             <Image
               src={form.watch("avatar") || ""}
               alt={profile.name}
               fill
+              sizes="80px"
               className="rounded-md border object-cover"
             />
             {!avatarUploading && (
               <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                <CameraIcon />
+                <ImageUpIcon className="h-6 w-6 text-white" />
               </div>
             )}
             <input
@@ -164,7 +165,7 @@ export const ProfileSettings = memo(function ProfileSettings({
           {avatarUploading && (
             <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/40">
               <LoaderCircleIcon
-                className="h-8 w-8 animate-spin"
+                className="h-8 w-8 animate-spin text-white"
                 strokeWidth={1}
               />
             </div>

@@ -7,7 +7,6 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
 import rehypeHighlight from "rehype-highlight"
-import "highlight.js/styles/github-dark.css"
 import type { UIMessage } from "ai"
 import type { Components } from "react-markdown"
 import { format } from "date-fns"
@@ -40,8 +39,8 @@ export const MemoChatMessage = memo(function ChatMessage({
               pre: CodeBlock,
               code: ({ children, ...props }) => (
                 <span
-                  className="bg-foreground/10 rounded px-1 py-0.5 text-sm"
                   {...props}
+                  className="bg-foreground/10 rounded px-1 py-0.5 text-sm"
                 >
                   {children}
                 </span>
@@ -52,6 +51,8 @@ export const MemoChatMessage = memo(function ChatMessage({
                   <img
                     src={props.src as string}
                     alt={props.alt || "Image"}
+                    loading="lazy"
+                    decoding="async"
                     className="max-h-65 w-auto max-w-full cursor-pointer object-contain sm:max-h-80"
                     onClick={() =>
                       setSelectedImage({
@@ -78,30 +79,59 @@ export const MemoChatMessage = memo(function ChatMessage({
                   />
                 </div>
               ),
-              a: ({ href, children, ...props }) => (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="break-all text-blue-500 hover:underline"
-                  {...props}
-                >
-                  {children}
-                </a>
-              ),
+              a: ({ href, children, ...props }) =>
+                href && /^(https?:|mailto:)/i.test(href) ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    {...props}
+                    className="break-all text-blue-500 hover:underline"
+                  >
+                    {children}
+                  </a>
+                ) : (
+                  <span {...props}>{children}</span>
+                ),
               ol: ({ children }) => (
-                <ol className="m-0 list-outside list-decimal pl-4 [&_p]:my-0">
+                <ol className="mt-2 list-outside list-decimal pl-4">
                   {children}
                 </ol>
               ),
               ul: ({ children }) => (
-                <ul className="m-0 list-outside list-disc pl-4 [&_p]:my-0">
+                <ul className="mt-2 list-outside list-disc pl-4">{children}</ul>
+              ),
+              table: ({ children }) => (
+                <div className="border-border/60 my-2 max-w-full overflow-x-auto rounded-lg border">
+                  <table className="w-full border-collapse text-sm">
+                    {children}
+                  </table>
+                </div>
+              ),
+              caption: (props) => (
+                <caption
+                  {...props}
+                  className="border-border/50 bg-muted/20 text-muted-foreground border-b px-3 py-2 text-left text-xs"
+                />
+              ),
+              th: (props) => (
+                <th
+                  {...props}
+                  className="border-border/60 bg-muted/50 border-b px-3 py-2 text-left font-medium"
+                />
+              ),
+              td: (props) => (
+                <td
+                  {...props}
+                  className="border-border/50 border-b px-3 py-2 align-top"
+                />
+              ),
+              blockquote: ({ children }) => (
+                <blockquote className="border-border/60 text-muted-foreground my-2 border-l-4 pl-3">
                   {children}
-                </ul>
+                </blockquote>
               ),
-              li: ({ children }) => (
-                <li className="m-0 leading-relaxed [&_p]:my-0">{children}</li>
-              ),
+              hr: () => <hr className="border-border/60 my-3" />,
             }}
           >
             {part.text}
@@ -129,11 +159,11 @@ export const MemoChatMessage = memo(function ChatMessage({
             "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed tracking-normal wrap-break-word",
             isAssistant
               ? "border-border/50 bg-popover text-card-foreground shadow-surface rounded-2xl rounded-bl-md border"
-              : "rounded-2xl rounded-br-md bg-blue-600 text-white shadow-sm dark:bg-blue-500",
+              : "bg-primary text-primary-foreground rounded-2xl rounded-br-md shadow-sm",
           )}
         >
           {isAssistant ? (
-            <div className="whitespace-pre-wrap">{renderParts()}</div>
+            <div>{renderParts()}</div>
           ) : (
             <p className="overflow-hidden">
               {message.parts
@@ -161,12 +191,17 @@ export const MemoChatMessage = memo(function ChatMessage({
 const CodeBlock: Components["pre"] = ({ children, ...props }) => {
   const codeRef = useRef<HTMLPreElement | null>(null)
   const [copied, setCopied] = useState(false)
-  const codeElement = React.Children.toArray(children)[0] as React.ReactElement
+  const codeElement = React.Children.toArray(children)[0] as
+    | React.ReactElement
+    | undefined
   const language =
     (
-      codeElement.props as { node?: { properties?: { className?: string[] } } }
-    ).node?.properties?.className?.[1]?.replace("language-", "") ||
-    ("text" as string)
+      codeElement?.props as {
+        node?: { properties?: { className?: string[] } }
+      }
+    )?.node?.properties?.className
+      ?.find((c) => c.startsWith("language-"))
+      ?.replace("language-", "") ?? "text"
 
   const handleCopy = () => {
     if (codeRef.current) {
@@ -178,17 +213,19 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
   }
 
   return (
-    <div className="relative my-2 w-full max-w-full overflow-hidden rounded-lg bg-black/90">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
-        <span className="text-xs font-medium text-white/70">{language}</span>
+    <div className="code-block border-border/50 relative my-2 w-full max-w-full overflow-hidden rounded-lg border">
+      <div className="border-border/60 flex items-center justify-between border-b px-4 py-2">
+        <span className="text-muted-foreground text-xs font-medium">
+          {language}
+        </span>
         <button
           onClick={handleCopy}
-          className="ml-auto flex h-6 w-6 items-center justify-center rounded-md hover:bg-white/10"
+          className="text-muted-foreground hover:bg-muted/60 hover:text-foreground ml-auto flex h-6 w-6 items-center justify-center rounded-md"
         >
           {copied ? (
             <CheckIcon className="h-3 w-3 text-green-500" />
           ) : (
-            <CopyIcon className="h-3 w-3 text-white/70" />
+            <CopyIcon className="h-3 w-3" />
           )}
         </button>
       </div>
@@ -197,7 +234,7 @@ const CodeBlock: Components["pre"] = ({ children, ...props }) => {
         className="m-0 overflow-x-auto p-4 text-sm whitespace-pre-wrap"
         {...props}
       >
-        {(codeElement.props as { children?: React.ReactNode }).children}
+        {(codeElement?.props as { children?: React.ReactNode })?.children}
       </pre>
     </div>
   )

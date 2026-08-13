@@ -48,6 +48,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "../ui/badge"
 import { toast } from "sonner"
 import { Skeleton } from "../ui/skeleton"
+import { Checkbox } from "../ui/checkbox"
 import Image from "next/image"
 import {
   Dialog,
@@ -83,6 +84,7 @@ type InstructionFormProps = {
   defaultValues?: z.infer<typeof instructionFormSchema>
   onSubmit: (
     values: z.infer<typeof instructionFormSchema>,
+    notify: boolean,
   ) => Promise<void> | void
   onCancel: () => void
   isSubmitting: boolean
@@ -91,6 +93,7 @@ type InstructionFormProps = {
   submitButtonText: string
   showLinks?: boolean
   showMedia?: boolean
+  showNotify?: boolean
   userId?: string
 }
 
@@ -134,7 +137,10 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
     setEditingInstructionId(id)
   }
 
-  const handleAdd = async (values: z.infer<typeof instructionFormSchema>) => {
+  const handleAdd = async (
+    values: z.infer<typeof instructionFormSchema>,
+    notify = false,
+  ) => {
     setError(null)
 
     try {
@@ -145,7 +151,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
         links: values.links ?? [],
       }
 
-      const result = await addInstruction(newInstruction)
+      const result = await addInstruction(newInstruction, notify)
 
       if (result && "error" in result) {
         setError(result.error)
@@ -236,9 +242,9 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
           </div>
 
           <InstructionForm
-            onSubmit={(values) => {
+            onSubmit={(values, notify) => {
               startTransition(async () => {
-                await handleAdd(values)
+                await handleAdd(values, notify)
               })
             }}
             onCancel={() => setAddNewInst(false)}
@@ -281,6 +287,7 @@ export const InstructionSettings = ({ inst }: { inst: TInstruction[] }) => {
               error={error}
               setError={setError}
               submitButtonText="Save"
+              showNotify={false}
               userId={sessionUser?.id}
               defaultValues={{
                 type:
@@ -357,12 +364,14 @@ export const InstructionForm = memo(function InstructionForm({
   submitButtonText,
   showLinks = true,
   showMedia = true,
+  showNotify = true,
   userId,
 }: InstructionFormProps) {
   const form = useForm<z.infer<typeof instructionFormSchema>>({
     resolver: zodResolver(instructionFormSchema),
     defaultValues,
   })
+  const [notifyChatters, setNotifyChatters] = useState(false)
 
   const values = useWatch({ control: form.control })
 
@@ -399,7 +408,7 @@ export const InstructionForm = memo(function InstructionForm({
   const handleSubmit = async (
     values: z.infer<typeof instructionFormSchema>,
   ) => {
-    await onSubmit(values)
+    await onSubmit(values, notifyChatters)
   }
 
   const handleFileUpload = async (index: number, file?: File | null) => {
@@ -788,6 +797,22 @@ export const InstructionForm = memo(function InstructionForm({
         ) : null}
         <div className="space-y-4">
           <Separator className="h-[1.5px]" />
+          {showNotify && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="notify-chatters"
+                checked={notifyChatters}
+                onCheckedChange={(checked) => setNotifyChatters(!!checked)}
+                disabled={isSubmitting}
+              />
+              <Label
+                htmlFor="notify-chatters"
+                className="text-muted-foreground cursor-pointer text-sm"
+              >
+                Notify people I&apos;ve chatted with
+              </Label>
+            </div>
+          )}
           <div className="flex justify-end gap-2">
             <Button
               type="button"
