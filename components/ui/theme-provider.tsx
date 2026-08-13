@@ -19,25 +19,7 @@ export function ThemeProvider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) return null
-
-  return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-      {...props}
-    >
-      {children}
-    </NextThemesProvider>
-  )
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }
 
 export function ModeToggleDropdown() {
