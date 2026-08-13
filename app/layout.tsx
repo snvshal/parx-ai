@@ -1,10 +1,10 @@
 import "./globals.css"
 import { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist_Mono, Open_Sans } from "next/font/google"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 
-const geist = Geist({ subsets: ["latin"] })
+const openSans = Open_Sans({ subsets: ["latin"] })
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
@@ -53,7 +53,7 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geist.className} ${geistMono.variable}`}>
+      <body className={`${openSans.className} ${geistMono.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
