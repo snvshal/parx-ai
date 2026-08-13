@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { SearchIcon, UsersIcon } from "lucide-react"
 import {
   Sidebar,
@@ -24,7 +25,14 @@ export function ChatSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-foreground mt-2 mb-4 text-lg font-medium">
+          <SidebarGroupLabel className="text-foreground mt-2 mb-4 gap-2 text-lg font-semibold">
+            <Image
+              src="/icons/icon-192x192.png"
+              alt="Parx AI logo"
+              width={24}
+              height={24}
+              className="rounded-sm"
+            />
             Parx AI
           </SidebarGroupLabel>
           <SidebarGroupContent>
