@@ -159,7 +159,7 @@ export const MemoChatMessage = memo(function ChatMessage({
             "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed tracking-normal wrap-break-word",
             isAssistant
               ? "border-border/50 bg-popover text-card-foreground shadow-surface rounded-2xl rounded-bl-md border"
-              : "rounded-2xl rounded-br-md bg-blue-600 text-white shadow-sm dark:bg-blue-500",
+              : "bg-primary text-primary-foreground rounded-2xl rounded-br-md shadow-sm",
           )}
         >
           {isAssistant ? (
