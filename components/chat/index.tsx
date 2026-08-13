@@ -102,13 +102,9 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
               </AvatarFallback>
             </Avatar>
             <div>
-              <Link
-                target={persona.socialLink ? "_blank" : "_self"}
-                href={persona.socialLink || `/m/${persona.username}`}
-                className="text-sm font-medium tracking-tight hover:underline"
-              >
+              <p className="text-sm font-medium tracking-tight">
                 {persona.name}
-              </Link>
+              </p>
               <p className="text-muted-foreground text-xs">
                 {status === "submitted" || status === "streaming"
                   ? agentStatus || "Thinking..."
