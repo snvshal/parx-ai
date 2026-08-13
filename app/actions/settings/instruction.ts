@@ -41,6 +41,7 @@ export const getInstructions = async (): Promise<TInstruction[]> => {
 
 export const addInstruction = async (
   newInstruction: TNewInstruction,
+  notify = false,
 ): Promise<TInstruction | { error: string }> => {
   try {
     await connectToDatabase()
@@ -65,7 +66,7 @@ export const addInstruction = async (
 
     revalidatePath("/settings/instructions")
 
-    setNotification(addedInstruction)
+    if (notify) setNotification(addedInstruction)
 
     return ps(addedInstruction)
   } catch (error) {
