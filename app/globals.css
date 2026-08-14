@@ -169,9 +169,7 @@
     background: var(--border);
     border-radius: 9999px;
   }
-  *::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
-  }
+
   body {
     @apply bg-background text-foreground;
   }
