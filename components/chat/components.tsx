@@ -56,7 +56,7 @@ export function ThinkingAnimation() {
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="bg-primary/40 inline-block h-2 w-2 animate-bounce rounded-full"
+            className="bg-muted-foreground/50 inline-block h-2 w-2 animate-bounce rounded-full"
             style={{ animationDelay: `${i * 0.2}s` }}
           />
         ))}
