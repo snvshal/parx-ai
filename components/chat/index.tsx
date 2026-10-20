@@ -122,7 +122,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
             ) : (
               <Link href="/sign-in">
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   className="mr-2 rounded-full"
                 >
