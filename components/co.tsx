@@ -40,6 +40,7 @@ export type AlertMessageProps = {
   message: React.ReactNode | string | null | undefined
   variant?: "destructive" | "default" | "success" | "warning"
   className?: string
+  action?: React.ReactNode
 }
 
 export type DialogProps = {
@@ -69,6 +70,7 @@ export function AlertMessage({
   message,
   variant = "destructive",
   className,
+  action,
 }: AlertMessageProps) {
   const alertRef = useRef<HTMLDivElement | null>(null)
 
@@ -84,9 +86,12 @@ export function AlertMessage({
 
   return (
     <Alert variant={variant} className={className} ref={alertRef} tabIndex={-1}>
-      <div className="flex w-full items-center justify-center gap-3">
-        <TriangleAlertIcon className="self-start" />
-        <AlertDescription className="flex-1">{message}</AlertDescription>
+      <div className="flex w-full items-center justify-between gap-3">
+        <div className="flex flex-1 items-center gap-3">
+          <TriangleAlertIcon className="shrink-0 self-start" />
+          <AlertDescription className="flex-1">{message}</AlertDescription>
+        </div>
+        {action && <div className="shrink-0">{action}</div>}
       </div>
     </Alert>
   )
