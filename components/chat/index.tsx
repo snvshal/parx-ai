@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MemoChatMessage } from "@/components/chat/message"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { BotIcon, SendHorizontalIcon } from "lucide-react"
+import { BotIcon, RotateCcwIcon, SendHorizontalIcon } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, type UIMessage } from "ai"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -29,7 +29,15 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
 
   const [agentStatus, setAgentStatus] = useState<string | null>(null)
 
-  const { messages, sendMessage, setMessages, status, error } = useChat({
+  const {
+    messages,
+    sendMessage,
+    setMessages,
+    status,
+    error,
+    regenerate,
+    clearError,
+  } = useChat({
     messages: msgs,
     transport: new DefaultChatTransport({
       api: "/api/chat",
@@ -45,6 +53,12 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
   })
 
   useMobileKeyboard()
+
+  const handleRetry = useCallback(() => {
+    if (!messages.length) return
+    clearError()
+    regenerate().catch((err) => console.error("Chat retry error:", err))
+  }, [messages.length, clearError, regenerate])
 
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -144,6 +158,19 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
             <AlertMessage
               message="Something went wrong. Please try again."
               className="mb-4"
+              action={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleRetry}
+                  className="text-foreground rounded-full"
+                  title="Retry"
+                  aria-label="Retry"
+                >
+                  <RotateCcwIcon className="h-4 w-4" />
+                </Button>
+              }
             />
           )}
         </div>
