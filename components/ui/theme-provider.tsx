@@ -25,6 +25,28 @@ export function ThemeProvider({
 export function ModeToggleDropdown() {
   const { theme, setTheme } = useTheme()
 
+  const handleThemeChange = (newTheme: string) => {
+    if (newTheme === theme) return
+
+    if (
+      typeof document !== "undefined" &&
+      document.startViewTransition &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      document.startViewTransition(() => {
+        setTheme(newTheme)
+      })
+    } else {
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.add("theme-transition")
+        setTimeout(() => {
+          document.documentElement.classList.remove("theme-transition")
+        }, 500)
+      }
+      setTheme(newTheme)
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,13 +57,13 @@ export function ModeToggleDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => handleThemeChange("light")}>
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        <DropdownMenuItem onClick={() => handleThemeChange("system")}>
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

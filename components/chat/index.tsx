@@ -96,7 +96,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
     <div
       className={cn(
         "chat-container bg-card shadow-card mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
-        "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border sm:border-x",
+        "sm:border-x lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border",
       )}
     >
       <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">

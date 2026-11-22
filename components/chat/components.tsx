@@ -108,10 +108,7 @@ export const ReportChatDialog = memo(function ReportChatDialog({
             className="gap-2"
           >
             {REPORT_REASONS.map((reason) => (
-              <div
-                key={reason.id}
-                className="flex items-center space-x-3 py-1"
-              >
+              <div key={reason.id} className="flex items-center space-x-3 py-1">
                 <RadioGroupItem value={reason.id} id={reason.id} />
                 <Label
                   htmlFor={reason.id}
@@ -149,10 +146,7 @@ export const ReportChatDialog = memo(function ReportChatDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Submitting..." : "Submit Report"}
             </Button>
           </div>
@@ -318,10 +312,7 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
         open={openGuestSettings}
         setOpen={setOpenGuestSettings}
       />
-      <ReportChatDialog
-        open={openReportChat}
-        setOpen={setOpenReportChat}
-      />
+      <ReportChatDialog open={openReportChat} setOpen={setOpenReportChat} />
     </div>
   )
 })
@@ -420,7 +411,7 @@ export function ChatBoxSkeleton() {
     <div
       className={cn(
         "chat-container bg-card shadow-card mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
-        "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border sm:border-x",
+        "sm:border-x lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border",
       )}
     >
       <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">

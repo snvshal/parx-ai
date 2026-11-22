@@ -1,7 +1,13 @@
 "use client"
 
 import Image from "next/image"
-import { DownloadIcon, InfoIcon, SearchIcon, Settings2Icon, UsersIcon } from "lucide-react"
+import {
+  DownloadIcon,
+  InfoIcon,
+  SearchIcon,
+  Settings2Icon,
+  UsersIcon,
+} from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -132,10 +138,7 @@ export function ChatSidebar() {
           </div>
         )}
       </SidebarFooter>
-      <GuestSettingsDialog
-        open={openSettings}
-        setOpen={setOpenSettings}
-      />
+      <GuestSettingsDialog open={openSettings} setOpen={setOpenSettings} />
     </Sidebar>
   )
 }

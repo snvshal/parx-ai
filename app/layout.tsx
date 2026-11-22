@@ -54,12 +54,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${openSans.className} ${geistMono.variable}`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           <Toaster />
         </ThemeProvider>
