@@ -2,7 +2,6 @@ import { Metadata } from "next"
 import { getUserByUsername } from "@/app/actions/chat"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { ChatSidebar } from "@/components/app-sidebar"
-import { getSessionUser } from "@/app/actions/session-user"
 
 export async function generateMetadata({
   params,
@@ -23,16 +22,6 @@ export default async function ChatLayout({
 }: {
   children: React.ReactNode
 }) {
-  const sessionUser = await getSessionUser()
-
-  if (!sessionUser) {
-    return (
-      <main className="chat-container relative flex h-dvh w-full items-center justify-center">
-        {children}
-      </main>
-    )
-  }
-
   return (
     <SidebarProvider>
       <ChatSidebar />

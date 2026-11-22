@@ -31,23 +31,14 @@ async function ChatBox({ username }: { username: string }) {
 
 export default async function ChatLayout() {
   const sessionUser = await getSessionUser()
-
-  if (!sessionUser) {
-    return (
-      <main className="chat-container relative flex h-dvh w-full items-center justify-center">
-        <Suspense fallback={<ChatBoxSkeleton />}>
-          <ChatBox username={"snvshal"} />
-        </Suspense>
-      </main>
-    )
-  }
+  const username = sessionUser?.username ?? "snvshal"
 
   return (
     <SidebarProvider>
       <ChatSidebar />
       <main className="chat-container relative flex h-dvh w-full items-center justify-center">
         <Suspense fallback={<ChatBoxSkeleton />}>
-          <ChatBox username={sessionUser.username} />
+          <ChatBox username={username} />
         </Suspense>
       </main>
     </SidebarProvider>
