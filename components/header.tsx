@@ -10,19 +10,32 @@ export function HeaderComponent({
   children,
   actionItem,
   className,
+  backHref,
 }: {
   page: string
   children: React.ReactNode
   actionItem?: React.ReactElement
   className?: string
+  backHref?: string
 }) {
   const router = useRouter()
+
+  const handleBack = () => {
+    if (backHref) {
+      router.push(backHref)
+    } else if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back()
+    } else {
+      router.push("/")
+    }
+  }
+
   return (
     <div className="h-dvh w-full">
       <header className="bg-background sticky top-0 z-20 box-border h-16 border-b">
         <div className="mx-auto flex h-full max-w-3xl items-center justify-between px-4">
           <div className="flex gap-4">
-            <button onClick={() => router.back()} className="cursor-pointer">
+            <button onClick={handleBack} className="cursor-pointer">
               <ArrowLeftIcon className="h-7 w-7" aria-hidden={true} />
             </button>
             <p className="text-xl font-bold">{page}</p>

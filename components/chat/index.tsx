@@ -96,10 +96,7 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
     <div
       className={cn(
         "chat-container bg-card shadow-card mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
-        token
-          ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
-          : "md:h-[calc(100dvh-2rem)] md:rounded-3xl md:border",
-        "sm:border-x",
+        "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border sm:border-x",
       )}
     >
       <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">
@@ -134,11 +131,11 @@ export default function Chat({ msgs }: { msgs: UIMessage[] }) {
                 className="text-foreground/80 size-9 rounded-full"
               />
             ) : (
-              <Link href="/sign-in">
+              <Link href="/sign-in" className="md:hidden">
                 <Button
                   variant="default"
                   size="sm"
-                  className="mr-2 rounded-full"
+                  className="mr-2 rounded-full px-3"
                 >
                   Sign In
                 </Button>

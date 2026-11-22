@@ -6,6 +6,7 @@ import {
   EllipsisVerticalIcon,
   FlagIcon,
   RotateCcwIcon,
+  Settings2Icon,
   Share2Icon,
   TrashIcon,
   UsersIcon,
@@ -48,6 +49,7 @@ import Link from "next/link"
 import { useSessionUser } from "@/hooks/use-session-user"
 import { useCurrentPersona } from "@/hooks/use-current-persona"
 import { useChatList } from "@/hooks/use-chat-list"
+import { GuestSettingsDialog } from "../settings/guest-dialog"
 
 export function ThinkingAnimation() {
   return (
@@ -78,6 +80,7 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
     undefined,
   )
   const [IsDialogOpen, setIsDialogOpen] = useState(false)
+  const [openGuestSettings, setOpenGuestSettings] = useState(false)
 
   const handleShare = async () => {
     try {
@@ -123,12 +126,22 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
           </DropdownMenuItem>
 
           {status === "unauthenticated" && (
-            <Link href="/people">
-              <DropdownMenuItem className="h-9 cursor-pointer">
-                <UsersIcon className="mr-2 h-4 w-4" aria-hidden={true} />
-                <span>People</span>
+            <>
+              <Link href="/people">
+                <DropdownMenuItem className="h-9 cursor-pointer">
+                  <UsersIcon className="mr-2 h-4 w-4" aria-hidden={true} />
+                  <span>People</span>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuItem
+                role="button"
+                onClick={() => setOpenGuestSettings(true)}
+                className="h-9 cursor-pointer md:hidden"
+              >
+                <Settings2Icon className="mr-2 h-4 w-4" aria-hidden={true} />
+                <span>Settings</span>
               </DropdownMenuItem>
-            </Link>
+            </>
           )}
 
           {status === "authenticated" && (
@@ -185,6 +198,10 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
         setMessages={setMessages}
       />
       <WhatIsItDialog open={IsDialogOpen} setOpen={setIsDialogOpen} />
+      <GuestSettingsDialog
+        open={openGuestSettings}
+        setOpen={setOpenGuestSettings}
+      />
     </div>
   )
 })
@@ -279,15 +296,11 @@ export function ChatListSidebarSkeleton({ count = 5 }: { count?: number }) {
 }
 
 export function ChatBoxSkeleton() {
-  const { status: authStatus } = useSession()
-  const token = authStatus === "authenticated"
   return (
     <div
       className={cn(
         "chat-container bg-card shadow-card mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden",
-        token
-          ? "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border"
-          : "md:h-[calc(100dvh-2rem)] md:rounded-3xl md:border",
+        "lg:h-[calc(100dvh-2rem)] lg:rounded-3xl lg:border sm:border-x",
       )}
     >
       <div className="z-10 flex shrink-0 items-center justify-between border-b px-4 py-3">
