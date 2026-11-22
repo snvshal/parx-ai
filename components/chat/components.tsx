@@ -50,6 +50,117 @@ import { useSessionUser } from "@/hooks/use-session-user"
 import { useCurrentPersona } from "@/hooks/use-current-persona"
 import { useChatList } from "@/hooks/use-chat-list"
 import { GuestSettingsDialog } from "../settings/guest-dialog"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import { Label } from "../ui/label"
+import { Textarea } from "../ui/textarea"
+
+const REPORT_REASONS = [
+  { id: "harmful", label: "Harmful, threatening, or abusive content" },
+  { id: "hate", label: "Hate speech or discrimination" },
+  { id: "sexual", label: "Sexually explicit or inappropriate content" },
+  { id: "misinformation", label: "Misinformation or false claims" },
+  { id: "impersonation", label: "Impersonation or privacy violation" },
+  { id: "other", label: "Something else" },
+]
+
+export const ReportChatDialog = memo(function ReportChatDialog({
+  open,
+  setOpen,
+}: {
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+}) {
+  const [selectedReason, setSelectedReason] = useState("harmful")
+  const [details, setDetails] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    setTimeout(() => {
+      setIsSubmitting(false)
+      setOpen(false)
+      setSelectedReason("harmful")
+      setDetails("")
+      toast.success("Done. Thank you for your report.")
+    }, 600)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FlagIcon className="h-5 w-5" />
+            Report Chat
+          </DialogTitle>
+          <DialogDescription>
+            Help us understand what is wrong with this conversation. Your report
+            is anonymous.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <RadioGroup
+            value={selectedReason}
+            onValueChange={setSelectedReason}
+            className="gap-2"
+          >
+            {REPORT_REASONS.map((reason) => (
+              <div
+                key={reason.id}
+                className="flex items-center space-x-3 py-1"
+              >
+                <RadioGroupItem value={reason.id} id={reason.id} />
+                <Label
+                  htmlFor={reason.id}
+                  className="flex-1 cursor-pointer text-sm font-normal"
+                >
+                  {reason.label}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+
+          <div className="space-y-1.5 pt-1">
+            <Label
+              htmlFor="report-details"
+              className="text-muted-foreground text-xs"
+            >
+              Additional details (optional)
+            </Label>
+            <Textarea
+              id="report-details"
+              placeholder="Tell us more about the issue..."
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              className="resize-none text-sm"
+              rows={3}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Report"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+})
 
 export function ThinkingAnimation() {
   return (
@@ -81,6 +192,7 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
   )
   const [IsDialogOpen, setIsDialogOpen] = useState(false)
   const [openGuestSettings, setOpenGuestSettings] = useState(false)
+  const [openReportChat, setOpenReportChat] = useState(false)
 
   const handleShare = async () => {
     try {
@@ -177,7 +289,11 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
               )}
             </>
           )}
-          <DropdownMenuItem className="h-9 cursor-pointer">
+          <DropdownMenuItem
+            role="button"
+            onClick={() => setOpenReportChat(true)}
+            className="h-9 cursor-pointer"
+          >
             <FlagIcon className="mr-2 h-4 w-4" aria-hidden={true} />
             <span>Report Chat</span>
           </DropdownMenuItem>
@@ -201,6 +317,10 @@ export const ChatDropdownMenu = memo(function ChatDropdownMenu({
       <GuestSettingsDialog
         open={openGuestSettings}
         setOpen={setOpenGuestSettings}
+      />
+      <ReportChatDialog
+        open={openReportChat}
+        setOpen={setOpenReportChat}
       />
     </div>
   )
