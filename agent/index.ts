@@ -1,7 +1,7 @@
 import "server-only"
 
 import { streamText, isStepCount, convertToModelMessages } from "ai"
-import { openrouter, CHAT_MODEL } from "./config"
+import { chatModel } from "./config"
 import { buildSystemPrompt } from "./instructions"
 import { getMemories } from "./db/memory"
 import { getPersonaById } from "./db/persona"
@@ -43,7 +43,7 @@ export class Agent {
     }
 
     return streamText({
-      model: openrouter.chat(CHAT_MODEL),
+      model: chatModel,
       instructions: systemPrompt,
       messages,
       tools,
