@@ -6,7 +6,7 @@ import { TUser } from "@/schemas/user.schema"
 import { getServerSession } from "next-auth"
 import { formatZodError, ps } from "@/lib/utils"
 import { buildInstructionBlock } from "@/agent/instructions"
-import { openrouter, CHAT_MODEL } from "@/agent/config"
+import { chatModel } from "@/agent/config"
 import { Instruction } from "@/models/instruction.model"
 import {
   InstructionZodSchema,
@@ -91,7 +91,7 @@ export const setNotification = async (
     if (!targetChats.length) return
 
     const { text } = await generateText({
-      model: openrouter.chat(CHAT_MODEL),
+      model: chatModel,
       prompt: `Generate a clear, concise user-facing message like a chat app message using this instruction: 
         ${buildInstructionBlock(instruction)}`,
     })
